@@ -1,26 +1,26 @@
 const languageMeta = {
-  sv: { locale: "sv-SE", selectorTitle: "VÃƒÂ¤lj sprÃƒÂ¥k" },
+  sv: { locale: "sv-SE", selectorTitle: "Välj språk" },
   en: { locale: "en-US", selectorTitle: "Choose language" },
-  da: { locale: "da-DK", selectorTitle: "VÃƒÂ¦lg sprog" },
-  no: { locale: "nb-NO", selectorTitle: "Velg sprÃƒÂ¥k" },
+  da: { locale: "da-DK", selectorTitle: "Vælg sprog" },
+  no: { locale: "nb-NO", selectorTitle: "Velg språk" },
   fi: { locale: "fi-FI", selectorTitle: "Valitse kieli" }
 };
 
 const translations = {
   sv: {
-    title: "SteenForge | Dina appar pÃƒÂ¥ ett stÃƒÂ¤lle",
-    description: "Ladda ner dina appar, lÃƒÂ¤s release notes och hÃƒÂ¥ll koll pÃƒÂ¥ nyheter.",
+    title: "SteenForge | Dina appar på ett ställe",
+    description: "Ladda ner dina appar, läs release notes och håll koll på nyheter.",
     navApps: "Appar",
     navAbout: "Om",
-    heroEyebrow: "Bygg. Leverera. FÃƒÂ¶rbÃƒÂ¤ttra.",
-    heroTitle: "Din apphub, redo fÃƒÂ¶r nedladdningar och uppdateringar.",
+    heroEyebrow: "Bygg. Leverera. Förbättra.",
+    heroTitle: "Din apphub, redo för nedladdningar och uppdateringar.",
     heroCopy:
-      "Ge anvÃƒÂ¤ndare en plats att upptÃƒÂ¤cka dina appar, ladda ner senaste versionerna och lÃƒÂ¤sa exakt vad som ÃƒÂ¤ndrats i varje release.",
+      "Ge användare en plats att upptäcka dina appar, ladda ner senaste versionerna och läsa exakt vad som ändrats i varje release.",
     heroCta: "Visa appar",
     downloadsTitle: "Nedladdningar",
-    downloadsCopy: "VÃƒÂ¤lj en app fÃƒÂ¶r att ÃƒÂ¶ppna dess egna sida med filer och release notes.",
+    downloadsCopy: "Välj en app för att öppna dess egna sida med filer och release notes.",
     aboutTitle: "Om Projekten",
-    aboutLead: "Bakgrunden till varfÃƒÂ¶r ApexCore och SÃƒÂ¶mnDagboken byggdes.",
+    aboutLead: "Bakgrunden till varför ApexCore och SömnDagboken byggdes.",
     platformLabel: "Plattform",
     footerCopy: "SteenForge-mall. Redigera data i app.js fÃƒÂ¶r att publicera dina riktiga appar.",
     platformOptions: {
@@ -30,17 +30,17 @@ const translations = {
       Web: "Webb",
       macOS: "macOS"
     },
-    openAppButton: "Ãƒâ€“ppna app",
-    noApps: "Inga appar matchar vald plattform ÃƒÂ¤n.",
+    openAppButton: "Öppna app",
+    noApps: "Inga appar matchar vald plattform än.",
     detailsBack: "Tillbaka till startsidan",
     detailsDownloadsTitle: "Nedladdningsfiler",
-    detailsDownloadsCopy: "Ladda ner senaste versionen hÃƒÂ¤r.",
+    detailsDownloadsCopy: "Ladda ner senaste versionen här.",
     detailsReleaseTitle: "Release Notes",
-    actionOpenWeb: "Ãƒâ€“ppna webbversion",
+    actionOpenWeb: "Öppna webbversion",
     actionDownloadFile: "Ladda ner fil",
-    detailsNoFiles: "Nedladdning lÃƒÂ¤ggs till snart.",
+    detailsNoFiles: "Nedladdning läggs till snart.",
     detailsNotFound: "Appen hittades inte.",
-    detailsNotFoundHelp: "GÃƒÂ¥ tillbaka till startsidan och vÃƒÂ¤lj en app frÃƒÂ¥n listan."
+    detailsNotFoundHelp: "Gå tillbaka till startsidan och välj en app från listan."
   },
   en: {
     title: "SteenForge | Your Apps in One Place",
