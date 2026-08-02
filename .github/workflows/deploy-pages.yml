@@ -31,7 +31,13 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Install PowerShell
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y powershell
+
       - name: Build web assets
+        shell: pwsh
         run: |
           npm run build:web
           npm run build:sleep-journal-web
