@@ -23,29 +23,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Install PowerShell
+      - name: Prepare static site content
         run: |
-          sudo apt-get update
-          sudo apt-get install -y powershell
-
-      - name: Build web assets
-        shell: pwsh
-        run: |
-          npm run build:web
-          npm run build:sleep-journal-web
+          mkdir -p public
+          cp -r index.html styles.css app.js app.js.bak-encoding detail.js app-detail.html public/
+          cp -r dist-web public/dist-web
+          cp -r sleep-journal-web public/sleep-journal-web
+          cp -r ApexCore_3.0.3_stable public/ApexCore_3.0.3_stable
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: public
 
   deploy:
     needs: build
