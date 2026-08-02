@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Här berättar vi grundinfo om sidan och laddar in utseendet. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep Journal</title>
+    <link rel="stylesheet" href="SleepJournal_Alpha_stable.css">
+</head>
+<body>
+    <!-- Allt i appen ligger inne i den här stora lådan. -->
+    <div class="container">
+        <!-- Detta är startsidan där du fyller i sömn för en dag. -->
+        <div id="mainView">
+            <div class="header">
+                <h1 id="appTitle">😴 Sleep Journal</h1>
+                <div class="button-group">
+                    <!-- De viktigaste knapparna: arkiv, rensa, språk och ljust/mörkt läge. -->
+                    <button id="archiveBtn" class="btn-archive" onclick="showArchive()">📊 Veckosammanfattning</button>
+                    <button id="clearBtn" class="btn-clear" onclick="clearWeek()">Clear</button>
+                    <!-- ÄNDRA HÄR: Lägg till/ta bort språk i listan. Viktigt: value="sv/en/no" måste matcha koden i JS. -->
+                    <select id="languageSelect" class="language-select" onchange="changeLanguage(this.value)">
+                        <option value="sv">Svenska</option>
+                        <option value="en">English</option>
+                        <option value="no">Norsk</option>
+                    </select>
+                    <button id="themeToggle" class="btn-theme-icon" type="button" onclick="toggleTheme()" aria-label="Switch to dark mode" title="Switch to dark mode">🌙</button>
+                </div>
+            </div>
+            
+            <div class="week-info">
+                <p id="weekDisplay"></p>
+            </div>
+            
+            <!-- Här skapas dagens fält och knappen som sparar veckan. -->
+            <form id="sleepForm">
+                <div id="dayEntries"></div>
+                <button id="saveWeekBtn" type="submit" class="btn-save">Save Week</button>
+            </form>
+        </div>
+        
+        <!-- Här visas gamla sparade veckor i arkivet. -->
+        <div id="archiveView" class="archive-container">
+            <button id="backBtn" class="back-btn" onclick="backToMain()">← Back</button>
+            <h2 id="archiveTitle" style="color: var(--text-main); margin-bottom: 20px;">Sleep Archive</h2>
+            <div id="archiveContent" class="archive-content"></div>
+        </div>
+
+        <!-- Den här raden visar vem som gjort appen. -->
+        <footer id="appFooter" class="app-footer">Gjord av mig</footer>
+    </div>
+
+    <!-- Detta är en popup-ruta som frågar eller visar meddelanden. -->
+    <div id="appModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="appModalMessage">
+        <div class="modal-box">
+            <div id="appModalMessage" class="modal-message"></div>
+            <div class="modal-actions">
+                <button id="appModalCancel" type="button" class="modal-btn modal-btn-cancel"></button>
+                <button id="appModalOk" type="button" class="modal-btn modal-btn-ok"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Här laddas JavaScript-koden som får appen att fungera. -->
+    <script src="SleepJournal_Alpha_stable.js"></script>
+</body>
+</html>
+
+

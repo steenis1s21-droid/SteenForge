@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ApexCore_10.0_Full_release</title>
+
+<!-- CryptoJS för AES-kryptering -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+<link rel="stylesheet" href="assets/css/app.css">
+<script defer src="assets/js/modules/storage.js"></script>
+<script defer src="assets/js/modules/ui.js"></script>
+<script defer src="assets/js/app.js"></script>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginBox">
+    <h2 id="loginTitle">🔐 Logga in</h2>
+    <div id="loginStatus" class="info"></div>
+    <input type="password" id="passwordInput" placeholder="Ange lösenord">
+    <br>
+    <button onclick="checkPassword()" id="loginBtn">Logga in</button>
+    <button onclick="showAdminPasswordReset()" id="adminRecoveryBtn">Admin: återställ lösenord</button>
+    <div id="loginError" class="error"></div>
+</div>
+
+<div class="admin-login-overlay" id="adminRecoveryOverlay">
+    <div class="admin-login-box">
+        <h3 id="adminRecoveryTitle">🔑 Adminåterställning</h3>
+        <p id="adminRecoveryDesc" style="color: var(--text-secondary); font-size: 14px;">Ange adminlösenordet och välj ett nytt lokalt lösenord för den här webbläsaren.</p>
+        <input type="password" id="adminRecoveryPassword" placeholder="Admin-lösenord" onkeypress="if(event.key==='Enter') resetPasswordWithAdmin()">
+        <br>
+        <input type="password" id="adminRecoveryNewPassword" placeholder="Nytt lösenord" onkeypress="if(event.key==='Enter') resetPasswordWithAdmin()">
+        <br>
+        <input type="password" id="adminRecoveryConfirmPassword" placeholder="Bekräfta nytt lösenord" onkeypress="if(event.key==='Enter') resetPasswordWithAdmin()">
+        <div id="adminRecoveryError" class="error"></div>
+        <br>
+        <button id="adminRecoverySubmit" onclick="resetPasswordWithAdmin()">Återställ lösenord</button>
+        <button id="adminRecoveryCancel" onclick="closeAdminPasswordReset()">Avbryt</button>
+    </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div id="changePasswordModal">
+    <div class="modal-content">
+        <h3 id="changePwTitle">🔑 Ändra lösenord</h3>
+        <input type="password" id="oldPassword" placeholder="Nuvarande lösenord">
+        <br>
+        <input type="password" id="newPassword1" placeholder="Nytt lösenord">
+        <br>
+        <input type="password" id="newPassword2" placeholder="Bekräfta nytt lösenord">
+        <br><br>
+        <div id="changeError" class="error"></div>
+        <div id="changeSuccess" class="success"></div>
+        <br>
+        <button class="btn-save" onclick="changePassword()" id="savePwBtn">Spara</button>
+        <button class="btn-cancel" onclick="closeChangePassword()" id="cancelPwBtn">Avbryt</button>
+    </div>
+</div>
+
+<!-- PROGRESS OVERLAY -->
+<div id="progressOverlay">
+    <div class="progress-box">
+        <div class="spinner"></div>
+        <h3 id="progressText">Bearbetar...</h3>
+    </div>
+</div>
+
+<!-- MEDDELANDE -->
+<div id="message" class="message"></div>
+
+<!-- NOTIS-POPUP -->
+<div id="notificationPopup">
+    <button class="notif-close" onclick="closeNotificationPopup()">✕</button>
+    <div class="notif-title" id="notifTitle">🔔 Påminnelse</div>
+    <div class="notif-body" id="notifBody">Det här är en påminnelse!</div>
+</div>
+
+<!-- INFO MODAL -->
+<div id="infoModal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeInfoModal()">✕</button>
+        <h2 id="infoTitle">📋 Planerade uppdateringar</h2>
+        <div id="infoContent"></div>
+    </div>
+</div>
+
+<!-- ADMIN LOGIN OVERLAY -->
+<div class="admin-login-overlay" id="adminLoginOverlay">
+    <div class="admin-login-box">
+        <h3 id="adminLoginTitle">🔐 Admin-inloggning</h3>
+        <p id="adminLoginDesc" style="color: var(--text-secondary); font-size: 14px;">Ange admin-lösenord för att hantera uppdateringar</p>
+        <input type="password" id="adminPasswordInput" placeholder="Admin-lösenord" onkeypress="if(event.key==='Enter') adminLogin()">
+        <br>
+        <button id="adminLoginButton" onclick="adminLogin()">Logga in som admin</button>
+        <div id="adminLoginError" class="error"></div>
+        <br>
+        <button id="adminLoginCancel" onclick="closeAdminLogin()">Avbryt</button>
+    </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+    <div class="admin-content">
+        <h2 id="adminPanelTitle">⚙️ Hantera uppdateringar</h2>
+        <p id="adminPanelIntro" style="color: var(--text-secondary); font-size: 14px;">Lägg till, redigera eller ta bort uppdateringar i info-rutan.</p>
+        
+        <div class="form-group">
+            <label id="adminTitleLabel">Titel</label>
+            <input id="adminTitle" placeholder="T.ex. Ny funktion tillagd!">
+        </div>
+        <div class="form-group">
+            <label id="adminDescLabel">Beskrivning</label>
+            <textarea id="adminDesc" placeholder="Beskriv vad som är nytt..."></textarea>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div class="form-group" style="flex: 1;">
+                <label id="adminTypeLabel">Typ</label>
+                <select id="adminType">
+                    <option id="adminTypeNewOption" value="new">🆕 Nytt</option>
+                    <option id="adminTypeUpdateOption" value="update">🔄 Uppdaterat</option>
+                    <option id="adminTypeBugFixOption" value="bugfix">🛠️ Buggfixar</option>
+                    <option id="adminTypePlanOption" value="plan">📋 Planerat</option>
+                </select>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label id="adminDateLabel">Datum</label>
+                <input type="date" id="adminDate">
+            </div>
+        </div>
+        <button id="adminAddButton" onclick="addAdminItem()">➕ Lägg till</button>
+        
+        <div class="admin-actions" style="margin-top: 12px;">
+            <button id="adminExportButton" onclick="exportAdminUpdatesFile()">💾 Exportera info</button>
+            <button id="adminImportButton" onclick="document.getElementById('adminImportInput').click()">📥 Importera info</button>
+            <button id="adminSaveButton" onclick="saveAdminChanges()">💾 Spara alla ändringar</button>
+            <button id="adminCloseButton" onclick="closeAdminPanel()">❌ Stäng</button>
+        </div>
+        <input type="file" id="adminImportInput" accept=".json" onchange="importAdminUpdatesFile(event)" style="display:none;">
+        
+        <hr style="margin: 16px 0; border-color: var(--border-color);">
+        
+        <h3 id="adminCurrentTitle">📋 Nuvarande uppdateringar</h3>
+        <div id="adminList"></div>
+    </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+<div class="container">
+
+<div class="top">
+    <div class="top-header">
+        <div class="header-left" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden;">
+            <h2 style="font-size: 26px; margin: 0; line-height: 1; flex-shrink: 0;">⭕ApexCore_10.0_Full_release</h2>
+            <span style="font-size: 22px; font-weight: 700; letter-spacing: 0.3px; color: var(--text-secondary); line-height: 1; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; flex-shrink: 0;" id="subtitleSlogan">Hjärtat av ditt arbete</span>
+        </div>
+        <div class="header-buttons" style="display: flex; gap: 8px; flex-wrap: nowrap; align-items: center;">
+            <button class="theme-btn" onclick="toggleSound()" id="soundBtn" title="Stäng av ljudnotiser">🔊</button>
+            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Växla tema">🌓</button>
+            <div class="language-wrapper">
+                <button class="language-btn" onclick="toggleLanguageMenu()" title="Språk">🌍</button>
+                <div class="language-dropdown" id="languageDropdown">
+                    <button onclick="changeLanguage('sv')" data-lang="sv">🇸🇪 Svenska</button>
+                    <button onclick="changeLanguage('en')" data-lang="en">🇬🇧 English</button>
+                    <button onclick="changeLanguage('da')" data-lang="da">🇩🇰 Dansk</button>
+                    <button onclick="changeLanguage('no')" data-lang="no">🇳🇴 Norsk</button>
+                    <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
+                </div>
+            </div>
+            <button class="info-btn" onclick="openInfoModal()" title="Information om uppdateringar">ℹ️</button>
+            <button onclick="showChangePassword()" id="changePwBtn">Ändra lösenord</button>
+            <button onclick="showArchiveInfo()" id="archiveBtn">📦 Arkiv</button>
+            <button onclick="logout()" id="logoutBtn">🚪 Logga ut</button>
+        </div>
+    </div>
+
+    <div class="export-import">
+        <button onclick="exportJSON()" id="exportJsonBtn">Exportera JSON</button>
+        <button onclick="exportEncrypted()" id="exportEncryptedBtn">Exportera krypterad</button>
+        <button onclick="exportCSV()" id="exportCsvBtn">Exportera CSV</button>
+        <button onclick="document.getElementById('fileInput').click()" id="importBtn">Importera</button>
+        <input type="file" id="fileInput" accept=".json,.enc" onchange="importData(event)">
+    </div>
+</div>
+
+<div class="form-active-row">
+    <div class="form-column">
+        <label data-i18n="labelName">Name:</label>
+        <input id="nameInput">
+
+        <label data-i18n="labelAge">Age:</label>
+        <input id="ageInput" type="number">
+
+        <label data-i18n="labelTask">Task:</label>
+        <input id="taskInput">
+
+        <label data-i18n="labelNotes">Notes:</label>
+        <textarea id="noteInput"></textarea>
+
+        <label id="categoryLabel">Kategori:</label>
+        <select id="categoryInput">
+            <option id="categoryOptionHigh" value="high">🔴 Hög prioritet</option>
+            <option id="categoryOptionPatients" value="patients" selected>🏥 Patienter</option>
+            <option id="categoryOptionAdministration" value="administration">🗂️ Administration</option>
+            <option id="categoryOptionPrivate" value="private">🏠 Privat</option>
+            <option id="categoryOptionGames" value="games">🎮 Spel</option>
+            <option id="categoryOptionOther" value="other">📌 Övrigt</option>
+        </select>
+
+        <div class="notification-row">
+            <label data-i18n="labelNotification">🔔 Påminnelse:</label>
+            <div class="reminder-custom">
+                <div class="reminder-display" onclick="toggleReminderEditor('notification')" id="notificationDisplayText" data-i18n="reminderSelect"></div>
+                <div class="reminder-picker-panel" id="notificationPickerPanel">
+                    <input type="date" id="notificationDate" onclick="openReminderEditor('notification')" style="cursor:pointer;">
+                    <select id="notificationHour"></select>
+                    <select id="notificationMinute"></select>
+                    <button type="button" id="notificationOkBtn" onclick="applyReminderValue('notification')">OK</button>
+                    <button type="button" id="notificationCloseBtn" onclick="closeReminderEditor('notification')">✕</button>
+                </div>
+                <input type="hidden" id="notificationInput" value="">
+            </div>
+        </div>
+
+        <button onclick="addItem()" style="margin-top: 4px;" data-i18n="addBtn">➕ Lägg till</button>
+
+        <div class="done-column" id="doneDrop">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <h3 id="doneTitle" style="margin:0;"></h3>
+                <button id="archiveAllBtn" onclick="archiveAll()" style="font-size:11px;padding:2px 8px;">📦 Arkivera alla</button>
+            </div>
+            <input id="doneSearchInput" placeholder="🔍 Sök i Done" onkeyup="render()" style="margin-bottom:6px;width:100%;">
+            <ul id="doneList"></ul>
+        </div>
+    </div>
+
+    <div class="active-column" id="activeDrop">
+        <h3 id="activeTitle"></h3>
+        <div class="active-tools">
+            <select id="activeSortSelect" onchange="setActiveSortMode(this.value); render()">
+                <option id="sortOptionDateDesc" value="date-desc">Nyast först</option>
+                <option id="sortOptionDateAsc" value="date-asc">Äldst först</option>
+                <option id="sortOptionNameAsc" value="name-asc">Namn A-Ö</option>
+                <option id="sortOptionNameDesc" value="name-desc">Namn Ö-A</option>
+            </select>
+        </div>
+        <input id="searchInput" placeholder="🔍 Sök i Active" onkeyup="render()" style="margin-bottom:8px;width:100%;">
+        <ul id="activeList"></ul>
+    </div>
+</div>
+
+<div class="footer" id="footerText">Created by Jesper Steen</div>
+
+</div>
+
+<div id="editor">
+    <h3 data-i18n="editTitle">✏️ Redigera</h3>
+
+    <label data-i18n="labelName">Name:</label><br>
+    <input id="editName"><br><br>
+
+    <label data-i18n="labelAge">Age:</label><br>
+    <input id="editAge" type="number"><br><br>
+
+    <label data-i18n="labelTask">Task:</label><br>
+    <input id="editTask"><br><br>
+
+    <label data-i18n="labelNotes">Notes:</label><br>
+    <textarea id="editNote"></textarea><br><br>
+
+    <label id="editCategoryLabel">Kategori:</label><br>
+    <select id="editCategory">
+        <option id="editCategoryOptionHigh" value="high">🔴 Hög prioritet</option>
+        <option id="editCategoryOptionPatients" value="patients">🏥 Patienter</option>
+        <option id="editCategoryOptionAdministration" value="administration">🗂️ Administration</option>
+        <option id="editCategoryOptionPrivate" value="private">🏠 Privat</option>
+        <option id="editCategoryOptionGames" value="games">🎮 Spel</option>
+        <option id="editCategoryOptionOther" value="other">📌 Övrigt</option>
+    </select><br><br>
+
+    <div class="notification-row" style="margin-top: 0;">
+        <label data-i18n="labelNotification">🔔 Påminnelse:</label>
+        <div class="reminder-custom">
+            <div class="reminder-display" onclick="toggleReminderEditor('editNotification')" id="editNotificationDisplayText" data-i18n="reminderSelect"></div>
+            <div class="reminder-picker-panel" id="editNotificationPickerPanel">
+                <input type="date" id="editNotificationDate" onclick="openReminderEditor('editNotification')" style="cursor:pointer;">
+                <select id="editNotificationHour"></select>
+                <select id="editNotificationMinute"></select>
+                <button type="button" id="editNotificationOkBtn" onclick="applyReminderValue('editNotification')">OK</button>
+                <button type="button" id="editNotificationCloseBtn" onclick="closeReminderEditor('editNotification')">✕</button>
+            </div>
+            <input type="hidden" id="editNotification" value="">
+        </div>
+    </div><br><br>
+
+    <button onclick="saveEdit()" data-i18n="editSave">💾 Spara</button>
+    <button onclick="closeEdit()" data-i18n="editCancel">❌ Avbryt</button>
+</div>
+
+<div id="undoBar">
+    🗑️ <span id="undoText">Objekt borttaget</span> - <button onclick="undoDelete()" id="undoBtn">↩️ Ångra</button>
+</div>
+
+</div>
+
+<div id="archiveOverlay" onclick="closeArchiveModal()">
+    <div id="archiveModal" onclick="event.stopPropagation();">
+        <h2 id="archiveTitle">📦 Arkiv</h2>
+        <input id="archiveSearch" placeholder="🔍 Sök i arkivet" onkeyup="renderArchive()">
+        <div id="archiveContent"></div>
+        <div class="archive-actions">
+            <button id="archiveVaultBtn" type="button" onclick="vaultArchive()" disabled>🗄️ Flytta filer till vault</button>
+            <button onclick="clearArchive()" id="archiveClearBtn">🗑️ Rensa arkiv</button>
+            <button onclick="closeArchiveModal()" id="archiveCloseBtn">❌ Stäng</button>
+        </div>
+    </div>
+</div>
+
+
+
+</body>
+</html>

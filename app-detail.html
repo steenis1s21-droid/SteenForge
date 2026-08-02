@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SteenForge | App Details</title>
+    <meta
+      name="description"
+      content="Ladda ner appfiler och se release notes för vald app."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-blur blur-one"></div>
+    <div class="background-blur blur-two"></div>
+
+    <header class="site-header">
+      <div class="brand">SteenForge</div>
+      <div class="header-actions">
+        <nav class="main-nav">
+          <a id="backToHome" href="index.html">Tillbaka</a>
+        </nav>
+        <label class="language-control" for="languageSelect">
+          <select id="languageSelect" class="language-select" aria-label="Välj språk">
+            <option value="sv">🇸🇪</option>
+            <option value="en">🇬🇧</option>
+            <option value="da">🇩🇰</option>
+            <option value="no">🇳🇴</option>
+            <option value="fi">🇫🇮</option>
+          </select>
+        </label>
+      </div>
+    </header>
+
+    <main class="detail-layout">
+      <section class="panel detail-intro">
+        <p id="detailAppPlatform" class="eyebrow">App</p>
+        <h1 id="detailAppName">App</h1>
+        <p id="detailAppTagline" class="hero-copy"></p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2 id="detailsDownloadsTitle">Nedladdningsfiler</h2>
+          <p id="detailsDownloadsCopy">Ladda ner senaste versionen här.</p>
+        </div>
+        <div id="downloadFilesList" class="download-files"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2 id="detailsReleaseTitle">Release Notes</h2>
+        </div>
+        <div id="detailReleaseNotes" class="notes-list"></div>
+      </section>
+
+      <section id="detailNotFound" class="panel hidden">
+        <div class="panel-head">
+          <h2 id="notFoundTitle">Appen hittades inte.</h2>
+          <p id="notFoundCopy">Gå tillbaka till startsidan och välj en app från listan.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p id="footerCopy">SteenForge-mall. Redigera data i app.js för att publicera dina riktiga appar.</p>
+    </footer>
+
+    <script src="app.js"></script>
+    <script src="detail.js"></script>
+  </body>
+</html>

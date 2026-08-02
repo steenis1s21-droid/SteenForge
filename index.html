@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SteenForge | Dina appar på ett ställe</title>
+    <meta
+      name="description"
+      content="Ladda ner dina appar, läs release notes och håll koll på nyheter."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-blur blur-one"></div>
+    <div class="background-blur blur-two"></div>
+
+    <header class="site-header">
+      <div class="brand">SteenForge</div>
+      <div class="header-actions">
+        <nav class="main-nav">
+          <a id="navApps" href="#apps">Appar</a>
+          <a id="navAbout" href="#about">Om</a>
+        </nav>
+        <label class="language-control" for="languageSelect">
+          <select id="languageSelect" class="language-select" aria-label="Välj språk">
+            <option value="sv">🇸🇪</option>
+            <option value="en">🇬🇧</option>
+            <option value="da">🇩🇰</option>
+            <option value="no">🇳🇴</option>
+            <option value="fi">🇫🇮</option>
+          </select>
+        </label>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p id="heroEyebrow" class="eyebrow">Bygg. Leverera. Förbättra.</p>
+      </section>
+
+      <section id="apps" class="panel">
+        <div class="panel-head">
+          <h2 id="downloadsTitle">Nedladdningar</h2>
+          <p id="downloadsCopy">Håll dina installationsfiler och länkar uppdaterade i en lista.</p>
+        </div>
+
+        <div class="controls">
+          <label id="platformLabel" for="platformFilter">Plattform</label>
+          <select id="platformFilter" aria-label="Filter apps by platform">
+            <option value="all">Alla</option>
+            <option value="Windows">Windows</option>
+            <option value="Android">Android</option>
+            <option value="Web">Web</option>
+            <option value="macOS">macOS</option>
+          </select>
+        </div>
+
+        <div id="appsGrid" class="apps-grid" aria-live="polite"></div>
+      </section>
+
+      <section id="about" class="panel about-panel">
+        <div class="panel-head">
+          <h2 id="aboutTitle">Om Projekten</h2>
+          <p id="aboutLead">Bakgrunden till varför ApexCore och SömnDagboken byggdes.</p>
+        </div>
+        <div id="aboutContent" class="about-content" aria-live="polite"></div>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      <p id="footerCopy">SteenForge-mall. Redigera data i app.js för att publicera dina riktiga appar.</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

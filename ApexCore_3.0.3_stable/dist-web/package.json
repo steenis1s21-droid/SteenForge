@@ -1,0 +1,60 @@
+{
+  "name": "apexcore-desktop",
+  "version": "3.0.3",
+  "description": "ApexCore desktop and web release powered by Electron and static hosting",
+  "main": "main.js",
+  "author": "Jesper Steen",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "build": "electron-builder --win nsis --x64",
+    "build:dir": "electron-builder --dir",
+    "build:web": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"New-Item -ItemType Directory -Force -Path dist-web | Out-Null; Copy-Item -Path ApexCore_3.0.3_FinalFix.html -Destination dist-web\\index.html -Force; Copy-Item -Path assets -Destination dist-web\\assets -Recurse -Force; Copy-Item -Path package.json -Destination dist-web\\package.json -Force\""
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.apexcore.desktop",
+    "productName": "ApexCore_10.0_Full_release",
+    "copyright": "Copyright (c) 2026 Jesper Steen",
+    "artifactName": "ApexCore_10.0_Full_release-${version}-Setup.${ext}",
+    "extraMetadata": {
+      "companyName": "ApexCore"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "ApexCore_3.0.3_FinalFix.html",
+      "main.js",
+      "preload.js",
+      "assets/**",
+      "package.json"
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "publisherName": "Jesper Steen",
+      "signAndEditExecutable": false,
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/installer.ico",
+      "uninstallerIcon": "assets/installer.ico",
+      "installerHeaderIcon": "assets/installer.ico",
+      "shortcutName": "ApexCore_10.0_Full_release",
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true
+    }
+  },
+  "allowScripts": {
+    "electron@31.7.7": true
+  }
+}

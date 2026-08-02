@@ -1,0 +1,674 @@
+﻿/* #region TEMA: LJUS */
+/* Här finns grundfärgerna när sidan är ljus. */
+/* ÄNDRA HÄR: Byt färger i den här listan om du vill ändra appens stil snabbt. */
+:root {
+            --bg-gradient: linear-gradient(135deg, #d7dce3 0%, #c4ccd6 100%);
+            --panel-bg: #ffffff;
+            --panel-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --text-main: #333333;
+            --text-muted: #666666;
+            --card-bg: #f9f9f9;
+            --card-border: #e0e0e0;
+            --field-border: #dddddd;
+            --button-bg: #f2f4f7;
+            --button-bg-hover: #e7ebf0;
+            --button-border: #cfd4dc;
+            --button-border-hover: #b8c0cb;
+            --button-text: #2f343b;
+            --calendar-active-bg: #dce3ec;
+            --calendar-active-border: #aeb8c6;
+            --calendar-dot: #64748b;
+            --table-border: #dddddd;
+            --table-head-bg: #667eea;
+            --table-head-text: #ffffff;
+            --table-even-row: #f9f9f9;
+            --no-data: #999999;
+            --focus-ring: #94a3b8;
+            --toast-bg: rgba(107, 114, 128, 0.95);
+        }
+
+        /* Här byter vi färger när sidan är mörk. */
+        /* ÄNDRA HÄR: Byt mörka färger här om du vill ha ett annat dark mode. */
+        body.dark-mode {
+            --bg-gradient: linear-gradient(180deg, #1d2329 0%, #14191f 100%);
+            --panel-bg: #232a31;
+            --panel-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+            --text-main: #e7ecf1;
+            --text-muted: #a7b3bf;
+            --card-bg: #262e36;
+            --card-border: #36414c;
+            --field-border: #4b5a68;
+            --button-bg: #262e36;
+            --button-bg-hover: #2d3640;
+            --button-border: #36414c;
+            --button-border-hover: #4b5a68;
+            --button-text: #e7ecf1;
+            --calendar-active-bg: #2f3740;
+            --calendar-active-border: #4b5a68;
+            --calendar-dot: #84a2b7;
+            --table-border: #36414c;
+            --table-head-bg: #2d3640;
+            --table-head-text: #e7ecf1;
+            --table-even-row: #232a31;
+            --no-data: #a7b3bf;
+            --focus-ring: #84a2b7;
+            --toast-bg: rgba(107, 114, 128, 0.95);
+        }
+/* #endregion */
+
+        /* #region BAS OCH LAYOUT */
+        /* Nollställ vanliga standardmarginaler så allt startar lika. */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Så här ser själva sidan ut runt appen. */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: 11px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        .container {
+            /* Själva vita rutan där hela appen bor. */
+            background: var(--panel-bg);
+            border-radius: 10px;
+            box-shadow: var(--panel-shadow);
+            padding: 15px;
+            width: 100%;
+            max-width: 1020px;
+        }
+
+        .app-footer {
+            margin-top: 14px;
+            padding-top: 10px;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            text-align: center;
+            font-size: 12px;
+            letter-spacing: 0.04em;
+        }
+
+        /* Översta raden med rubrik och knappar. */
+        .header {
+            /* Raden högst upp där rubriken och knapparna ligger bredvid varandra. */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            color: var(--text-main);
+            font-size: 24px;
+        }
+        
+        .button-group {
+            /* Liten grupp så knapparna håller ihop fint. */
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        /* Stilen för språklistan (dropdownen). */
+        /* ÄNDRA HÄR: width/min-width styr hur bred språkknappen är. */
+        .language-select {
+            /* Hur språklistan ser ut och hur bred den får vara. */
+            height: 38px;
+            border: 1px solid var(--field-border);
+            border-radius: 5px;
+            background-color: var(--panel-bg);
+            color: var(--text-main);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 0 18px 0 6px;
+            width: 110px;
+            min-width: 110px;
+            text-align: center;
+            text-align-last: center;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%236b7280' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5l3 3 3-3'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 5px center;
+            background-size: 10px 10px;
+            cursor: pointer;
+        }
+
+        body.dark-mode .language-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23e5e7eb' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5l3 3 3-3'/%3E%3C/svg%3E");
+        }
+
+        /* Grundstil för alla knappar. */
+        button {
+            padding: 10px 14px;
+            border: 1px solid var(--button-border);
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            min-height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+        }
+
+        button:hover {
+            background-color: var(--button-bg-hover);
+            border-color: var(--button-border-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        button:focus-visible {
+            outline: 2px solid var(--focus-ring);
+            outline-offset: 1px;
+        }
+        
+        .btn-archive {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+        }
+        
+        .btn-archive:hover {
+            background-color: var(--button-bg-hover);
+        }
+        
+        .btn-clear {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+        }
+        
+        .btn-clear:hover {
+            background-color: var(--button-bg-hover);
+        }
+        /* #endregion */
+        
+        /* #region DAGVY OCH FORM */
+        /* Texten som visar veckans datum. */
+        .week-info {
+            /* Texten som visar vilken vecka det är. */
+            text-align: center;
+            margin-bottom: 7px;
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        #dayEntries {
+            display: block;
+        }
+
+        /* Knappraden för måndag till söndag. */
+        .calendar-strip {
+            /* Raden med dagknapparna. */
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .calendar-day-btn {
+            padding: 8px 7px;
+            text-align: center;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .calendar-day-btn.active {
+            background-color: var(--calendar-active-bg);
+            border-color: var(--calendar-active-border);
+            box-shadow: inset 0 0 0 1px rgba(47, 52, 59, 0.06);
+        }
+
+        .calendar-day-btn.filled::after {
+                    content: ' •';
+            color: var(--calendar-dot);
+            font-weight: 700;
+        }
+
+        /* Kortet där en dags sömn fylls i. */
+        .day-entry {
+            /* Kortet där du skriver in sömn för en dag. */
+            margin-bottom: 0;
+            padding: 10px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+        }
+        
+        .day-title {
+            font-weight: bold;
+            color: var(--text-main);
+            margin-bottom: 7px;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        label {
+            color: var(--text-main);
+            font-size: 13px;
+            min-width: 78px;
+            text-decoration: underline;
+        }
+        
+        /* Stilar för inmatningsfälten. */
+        input[type="time"],
+        input[type="number"],
+        textarea {
+            /* Själva rutan där du skriver in saker. */
+            padding: 7px;
+            border: 1px solid var(--field-border);
+            border-radius: 4px;
+            font-size: 13px;
+            background-color: var(--panel-bg);
+            color: var(--text-main);
+        }
+
+        input[type="time"] {
+            color-scheme: light;
+            padding-right: 20px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8'/%3E%3Cpath d='M12 8v4l3 2'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 14px 14px;
+        }
+
+        /* Behåll tidsväljaren, men visa vår egen lilla ikon. */
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        body.dark-mode input[type="time"] {
+            color-scheme: dark;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e5e7eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8'/%3E%3Cpath d='M12 8v4l3 2'/%3E%3C/svg%3E");
+        }
+
+        body.dark-mode input[type="time"]::-webkit-calendar-picker-indicator {
+            opacity: 0;
+        }
+        
+        input[type="time"] {
+            width: 96px;
+        }
+        
+        input[type="number"] {
+            width: 70px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 350px;
+            resize: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .input-group.full {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        /* Knapparna som sparar dag och vecka. */
+        .btn-save {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            padding: 10px 16px;
+            width: 100%;
+            margin-top: 6px;
+        }
+        
+        .btn-save:hover {
+            background-color: var(--button-bg-hover);
+        }
+
+        .btn-day-save {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            margin-top: 4px;
+            padding: 8px 11px;
+        }
+
+        .btn-day-save:hover {
+            background-color: var(--button-bg-hover);
+        }
+        /* #endregion */
+
+        /* #region ARKIVVY OCH KONTROLLER */
+        /* Visar eller gömmer arkivdelen och dess kontroller. */
+        .archive-container {
+            display: none;
+        }
+        
+        .archive-container.show {
+            display: block;
+        }
+        
+        .back-btn {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            margin-bottom: 20px;
+        }
+        
+        .back-btn:hover {
+            background-color: var(--button-bg-hover);
+        }
+        
+        .archive-content {
+            /* Om tabellen blir bred får man skrolla i sidled här. */
+            overflow-x: auto;
+        }
+
+        .archive-controls {
+            /* Liten rad med väljare och knapp ovanför arkivet. */
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .archive-controls label {
+            min-width: auto;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        /* ÄNDRA HÄR: min-width/padding/font-size styr storleken på arkivets dropdown. */
+        .archive-controls select {
+            flex: 1;
+            min-width: 200px;
+            padding: 9px;
+            border: 1px solid var(--field-border);
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: var(--panel-bg);
+            color: var(--text-main);
+        }
+
+        .btn-delete {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+        }
+
+        .btn-delete:hover {
+            background-color: var(--button-bg-hover);
+        }
+
+        /* Knappar i arkivtabellen, till exempel redigera och ta bort. */
+        .btn-row-delete {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            font-size: 13px;
+            padding: 6px 8px;
+        }
+
+        .btn-row-delete:hover {
+            background-color: var(--button-bg-hover);
+        }
+
+        .archive-action-cell {
+            width: 1%;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .archive-action-buttons {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+            justify-content: center;
+        }
+        /* #endregion */
+
+        /* #region MOBILREGLER */
+        /* Den lilla knappen som byter ljust/mörkt läge. */
+        .btn-theme-icon {
+            width: 38px;
+            height: 38px;
+            min-height: 38px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            line-height: 1;
+        }
+
+        /* Regler som gör sidan bättre på mobil. */
+        @media (max-width: 640px) {
+            .calendar-strip {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+
+            .container {
+                padding: 13px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+
+            .button-group {
+                width: 100%;
+            }
+
+            .button-group button {
+                flex: 1;
+            }
+
+            .button-group .btn-theme-icon {
+                flex: 0 0 44px;
+                width: 44px;
+                height: 44px;
+                min-height: 44px;
+            }
+
+            .button-group .language-select {
+                flex: 0 0 58px;
+                width: 58px;
+                height: 44px;
+            }
+        }
+        /* #endregion */
+        
+        /* #region TABELL */
+        /* Hur tabellen i arkivet ser ut. */
+        /* ÄNDRA HÄR: justera textstorlek och luft i tabellen nedan (th, td). */
+        table {
+            /* Själva stora rutnätet i arkivet. */
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            /* Varje liten ruta i tabellen. */
+            border: 1px solid var(--table-border);
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+        
+        th {
+            background-color: var(--table-head-bg);
+            color: var(--table-head-text);
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--table-even-row);
+        }
+
+        .archive-summary-row td {
+            padding: 12px 14px;
+            background: linear-gradient(180deg, var(--card-bg), var(--panel-bg));
+            border-top: 2px solid var(--button-border);
+        }
+
+        .archive-summary-content {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .archive-summary-prefix {
+            color: var(--text-muted);
+            margin-right: 4px;
+            white-space: nowrap;
+        }
+
+        .archive-summary-item {
+            white-space: nowrap;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: var(--button-bg-hover);
+            border: 1px solid var(--button-border);
+        }
+
+        .archive-summary-goal {
+            white-space: nowrap;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            font-weight: 800;
+        }
+
+        .archive-summary-goal.goal-met {
+            background: rgba(34, 197, 94, 0.16);
+            color: #15803d;
+            border-color: rgba(34, 197, 94, 0.35);
+        }
+
+        .archive-summary-goal.goal-not-met {
+            background: rgba(239, 68, 68, 0.12);
+            color: #b91c1c;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        body.dark-mode .archive-summary-goal.goal-met {
+            color: #86efac;
+            background: rgba(34, 197, 94, 0.14);
+        }
+
+        body.dark-mode .archive-summary-goal.goal-not-met {
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.12);
+        }
+        
+        .no-data {
+            text-align: center;
+            color: var(--no-data);
+            padding: 30px;
+        }
+        /* #endregion */
+
+        /* #region FEEDBACK OCH MODAL */
+        /* Små meddelanden som visas kort på skärmen. */
+        .toast {
+            position: fixed;
+            top: 800px;
+            left: 50%;
+            background-color: var(--toast-bg);
+            color: white;
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            text-align: center;
+            max-width: 320px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translate(-50%, -8px);
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 999;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        /* Popup-rutan och bakgrunden bakom den. */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            z-index: 1100;
+            padding: 12px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-box {
+            width: 100%;
+            max-width: 360px;
+            background: var(--panel-bg);
+            color: var(--text-main);
+            border: 1px solid var(--field-border);
+            border-radius: 10px;
+            box-shadow: var(--panel-shadow);
+            padding: 14px;
+            margin-top: clamp(160px, 13vh, 137px);
+        }
+
+        .modal-message {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            color: var(--text-main);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            min-width: 74px;
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+
+        .modal-btn-cancel {
+            background-color: var(--card-bg);
+        }
+
+        .modal-btn-ok {
+            background-color: var(--button-bg);
+        }
+        /* #endregion */

@@ -1,0 +1,853 @@
+const languageMeta = {
+  sv: { locale: "sv-SE", selectorTitle: "VÃƒÂ¤lj sprÃƒÂ¥k" },
+  en: { locale: "en-US", selectorTitle: "Choose language" },
+  da: { locale: "da-DK", selectorTitle: "VÃƒÂ¦lg sprog" },
+  no: { locale: "nb-NO", selectorTitle: "Velg sprÃƒÂ¥k" },
+  fi: { locale: "fi-FI", selectorTitle: "Valitse kieli" }
+};
+
+const translations = {
+  sv: {
+    title: "SteenForge | Dina appar pÃƒÂ¥ ett stÃƒÂ¤lle",
+    description: "Ladda ner dina appar, lÃƒÂ¤s release notes och hÃƒÂ¥ll koll pÃƒÂ¥ nyheter.",
+    navApps: "Appar",
+    navAbout: "Om",
+    heroEyebrow: "Bygg. Leverera. FÃƒÂ¶rbÃƒÂ¤ttra.",
+    heroTitle: "Din apphub, redo fÃƒÂ¶r nedladdningar och uppdateringar.",
+    heroCopy:
+      "Ge anvÃƒÂ¤ndare en plats att upptÃƒÂ¤cka dina appar, ladda ner senaste versionerna och lÃƒÂ¤sa exakt vad som ÃƒÂ¤ndrats i varje release.",
+    heroCta: "Visa appar",
+    downloadsTitle: "Nedladdningar",
+    downloadsCopy: "VÃƒÂ¤lj en app fÃƒÂ¶r att ÃƒÂ¶ppna dess egna sida med filer och release notes.",
+    aboutTitle: "Om Projekten",
+    aboutLead: "Bakgrunden till varfÃƒÂ¶r ApexCore och SÃƒÂ¶mnDagboken byggdes.",
+    platformLabel: "Plattform",
+    footerCopy: "SteenForge-mall. Redigera data i app.js fÃƒÂ¶r att publicera dina riktiga appar.",
+    platformOptions: {
+      all: "Alla",
+      Windows: "Windows",
+      Android: "Android",
+      Web: "Webb",
+      macOS: "macOS"
+    },
+    openAppButton: "Ãƒâ€“ppna app",
+    noApps: "Inga appar matchar vald plattform ÃƒÂ¤n.",
+    detailsBack: "Tillbaka till startsidan",
+    detailsDownloadsTitle: "Nedladdningsfiler",
+    detailsDownloadsCopy: "Ladda ner senaste versionen hÃƒÂ¤r.",
+    detailsReleaseTitle: "Release Notes",
+    actionOpenWeb: "Ãƒâ€“ppna webbversion",
+    actionDownloadFile: "Ladda ner fil",
+    detailsNoFiles: "Nedladdning lÃƒÂ¤ggs till snart.",
+    detailsNotFound: "Appen hittades inte.",
+    detailsNotFoundHelp: "GÃƒÂ¥ tillbaka till startsidan och vÃƒÂ¤lj en app frÃƒÂ¥n listan."
+  },
+  en: {
+    title: "SteenForge | Your Apps in One Place",
+    description: "Download your apps, read release notes, and keep up with what is new.",
+    navApps: "Apps",
+    navAbout: "About",
+    heroEyebrow: "Build. Ship. Improve.",
+    heroTitle: "Your app hub, ready for downloads and updates.",
+    heroCopy:
+      "Give users one place to discover your apps, download the latest versions, and read exactly what changed in every release.",
+    heroCta: "Browse Apps",
+    downloadsTitle: "Downloads",
+    downloadsCopy: "Choose an app to open its own page with files and release notes.",
+    aboutTitle: "About the Projects",
+    aboutLead: "The story behind why ApexCore and Sleep Journal were built.",
+    platformLabel: "Platform",
+    footerCopy: "SteenForge starter template. Edit data in app.js to publish your real apps.",
+    platformOptions: {
+      all: "All",
+      Windows: "Windows",
+      Android: "Android",
+      Web: "Web",
+      macOS: "macOS"
+    },
+    openAppButton: "Open App",
+    noApps: "No apps match this platform yet.",
+    detailsBack: "Back to homepage",
+    detailsDownloadsTitle: "Download Files",
+    detailsDownloadsCopy: "Download the latest version here.",
+    detailsReleaseTitle: "Release Notes",
+    actionOpenWeb: "Open Web Version",
+    actionDownloadFile: "Download File",
+    detailsNoFiles: "Download will be added soon.",
+    detailsNotFound: "App not found.",
+    detailsNotFoundHelp: "Go back to the homepage and pick an app from the list."
+  },
+  da: {
+    title: "SteenForge | Dine apps samlet",
+    description: "Download dine apps, lÃƒÂ¦s release notes og fÃƒÂ¸lg med i nyheder.",
+    navApps: "Apps",
+    navAbout: "Om",
+    heroEyebrow: "Byg. Udgiv. Forbedr.",
+    heroTitle: "Dit app-hub, klar til downloads og opdateringer.",
+    heroCopy:
+      "Giv brugere et sted at opdage dine apps, hente de nyeste versioner og lÃƒÂ¦se prÃƒÂ¦cist hvad der blev ÃƒÂ¦ndret i hver release.",
+    heroCta: "Se apps",
+    downloadsTitle: "Downloads",
+    downloadsCopy: "VÃƒÂ¦lg en app for at ÃƒÂ¥bne dens egen side med filer og release notes.",
+    aboutTitle: "Om Projekterne",
+    aboutLead: "Historien bag hvorfor ApexCore og SÃƒÂ¸vnDagbogen blev bygget.",
+    platformLabel: "Platform",
+    footerCopy: "SteenForge-skabelon. Rediger data i app.js for at udgive dine rigtige apps.",
+    platformOptions: {
+      all: "Alle",
+      Windows: "Windows",
+      Android: "Android",
+      Web: "Web",
+      macOS: "macOS"
+    },
+    openAppButton: "Ãƒâ€¦bn app",
+    noApps: "Ingen apps matcher denne platform endnu.",
+    detailsBack: "Tilbage til forsiden",
+    detailsDownloadsTitle: "Downloadfiler",
+    detailsDownloadsCopy: "Hent den nyeste version her.",
+    detailsReleaseTitle: "Release Notes",
+    actionOpenWeb: "Ãƒâ€¦bn webversion",
+    actionDownloadFile: "Download fil",
+    detailsNoFiles: "Download tilfÃƒÂ¸jes snart.",
+    detailsNotFound: "App blev ikke fundet.",
+    detailsNotFoundHelp: "GÃƒÂ¥ tilbage til forsiden og vÃƒÂ¦lg en app fra listen."
+  },
+  no: {
+    title: "SteenForge | Appene dine pÃƒÂ¥ ett sted",
+    description: "Last ned appene dine, les release notes og hold deg oppdatert.",
+    navApps: "Apper",
+    navAbout: "Om",
+    heroEyebrow: "Bygg. Lever. Forbedre.",
+    heroTitle: "Din apphub, klar for nedlastinger og oppdateringer.",
+    heroCopy:
+      "Gi brukere ett sted for ÃƒÂ¥ oppdage appene dine, laste ned siste versjon og lese akkurat hva som ble endret i hver release.",
+    heroCta: "Se apper",
+    downloadsTitle: "Nedlastinger",
+    downloadsCopy: "Velg en app for ÃƒÂ¥ ÃƒÂ¥pne dens egen side med filer og release notes.",
+    aboutTitle: "Om Prosjektene",
+    aboutLead: "Bakgrunnen for hvorfor ApexCore og SÃƒÂ¸vnDagboken ble bygget.",
+    platformLabel: "Plattform",
+    footerCopy: "SteenForge-mal. Rediger data i app.js for ÃƒÂ¥ publisere appene dine.",
+    platformOptions: {
+      all: "Alle",
+      Windows: "Windows",
+      Android: "Android",
+      Web: "Web",
+      macOS: "macOS"
+    },
+    openAppButton: "Ãƒâ€¦pne app",
+    noApps: "Ingen apper matcher denne plattformen ennÃƒÂ¥.",
+    detailsBack: "Tilbake til startsiden",
+    detailsDownloadsTitle: "Nedlastingsfiler",
+    detailsDownloadsCopy: "Last ned siste versjon her.",
+    detailsReleaseTitle: "Release Notes",
+    actionOpenWeb: "Ãƒâ€¦pne webversjon",
+    actionDownloadFile: "Last ned fil",
+    detailsNoFiles: "Nedlasting legges til snart.",
+    detailsNotFound: "Appen ble ikke funnet.",
+    detailsNotFoundHelp: "GÃƒÂ¥ tilbake til startsiden og velg en app fra listen."
+  },
+  fi: {
+    title: "SteenForge | Sovelluksesi yhdessÃƒÂ¤ paikassa",
+    description: "Lataa sovelluksesi, lue release notes ja pysy ajan tasalla.",
+    navApps: "Sovellukset",
+    navAbout: "Tietoa",
+    heroEyebrow: "Rakenna. Julkaise. Paranna.",
+    heroTitle: "Sovelluskeskuksesi latauksiin ja pÃƒÂ¤ivityksiin.",
+    heroCopy:
+      "Tarjoa kÃƒÂ¤yttÃƒÂ¤jille yksi paikka lÃƒÂ¶ytÃƒÂ¤ÃƒÂ¤ sovelluksesi, ladata uusimmat versiot ja lukea tarkasti mitÃƒÂ¤ kussakin julkaisussa muuttui.",
+    heroCta: "Selaa sovelluksia",
+    downloadsTitle: "Lataukset",
+    downloadsCopy: "Valitse sovellus avataksesi sen oman sivun tiedostoilla ja release notes -sisÃƒÂ¤llÃƒÂ¶llÃƒÂ¤.",
+    aboutTitle: "Tietoa Projekteista",
+    aboutLead: "Tarina siitÃƒÂ¤, miksi ApexCore ja UnipÃƒÂ¤ivÃƒÂ¤kirja rakennettiin.",
+    platformLabel: "Alusta",
+    footerCopy: "SteenForge-pohja. Muokkaa dataa tiedostossa app.js julkaistaksesi oikeat sovelluksesi.",
+    platformOptions: {
+      all: "Kaikki",
+      Windows: "Windows",
+      Android: "Android",
+      Web: "Web",
+      macOS: "macOS"
+    },
+    openAppButton: "Avaa sovellus",
+    noApps: "YksikÃƒÂ¤ÃƒÂ¤n sovellus ei vastaa valittua alustaa vielÃƒÂ¤.",
+    detailsBack: "Takaisin etusivulle",
+    detailsDownloadsTitle: "Lataustiedostot",
+    detailsDownloadsCopy: "Lataa uusin versio tÃƒÂ¤stÃƒÂ¤.",
+    detailsReleaseTitle: "Release Notes",
+    actionOpenWeb: "Avaa web-versio",
+    actionDownloadFile: "Lataa tiedosto",
+    detailsNoFiles: "Lataus lisÃƒÂ¤tÃƒÂ¤ÃƒÂ¤n pian.",
+    detailsNotFound: "Sovellusta ei lÃƒÂ¶ytynyt.",
+    detailsNotFoundHelp: "Palaa etusivulle ja valitse sovellus listasta."
+  }
+};
+
+const aboutStories = {
+  sv: {
+    mainTitle: "Ã¢Â­â€¢ ApexCore Ã¢â‚¬â€œ HjÃƒÂ¤rtat i ditt arbete",
+    subtitle: "En berÃƒÂ¤ttelse om funktion, fokus och att hitta rÃƒÂ¤tt verktyg",
+    intro: [
+      "Jag byggde ApexCore av en enkel anledning: jag behÃƒÂ¶vde nÃƒÂ¥got som faktiskt fungerade fÃƒÂ¶r mig.",
+      "Som en person med NPF-diagnoser upptÃƒÂ¤ckte jag snabbt i mitt arbete att fysiska pÃƒÂ¥minnelselappar inte rÃƒÂ¤ckte till.",
+      "Jag tappade bort dem, glÃƒÂ¶mde bort dem, eller sÃƒÂ¥ gav de inte den visuella pÃƒÂ¥minnelse som jag behÃƒÂ¶vde fÃƒÂ¶r att verkligen komma ihÃƒÂ¥g.",
+      "Jag letade efter ett digitalt verktyg som kunde gÃƒÂ¶ra det jag behÃƒÂ¶vde, men hittade inget som passade. Antingen saknades viktiga funktioner, eller sÃƒÂ¥ var systemen sÃƒÂ¥ stora och komplexa att jag ÃƒÂ¤ndÃƒÂ¥ tappade bort mig sjÃƒÂ¤lv. Till slut insÃƒÂ¥g jag: varfÃƒÂ¶r inte bygga nÃƒÂ¥got sjÃƒÂ¤lv?"
+    ],
+    sections: [
+      {
+        title: "FrÃƒÂ¥n idÃƒÂ© till verklighet",
+        paragraphs: [
+          "Jag bÃƒÂ¶rjade bygga utifrÃƒÂ¥n mina egna behov: en person med NPF som behÃƒÂ¶ver enkelhet, struktur och ett visuellt sÃƒÂ¤tt att hÃƒÂ¥lla koll pÃƒÂ¥ allt som ska gÃƒÂ¶ras.",
+          "Appen bÃƒÂ¶rjade som Digital Post-it Notes, ett litet projekt fÃƒÂ¶r att lÃƒÂ¶sa min egen vardag. NÃƒÂ¤r koden vÃƒÂ¤xte, vÃƒÂ¤xte ocksÃƒÂ¥ visionen.",
+          "Namnet byttes till ApexCore fÃƒÂ¶r att spegla vad det faktiskt ÃƒÂ¤r: kÃƒÂ¤rnan av ditt arbete."
+        ]
+      },
+      {
+        title: "Utvecklad med omsorg",
+        paragraphs: [
+          "Jag har arbetat pÃƒÂ¥ ApexCore varje dag under lÃƒÂ¥ng tid. Det har inte bara resulterat i en app, utan ocksÃƒÂ¥ lÃƒÂ¤rt mig enormt mycket om JavaScript, kodstruktur och ÃƒÂ¤ven Python lÃƒÂ¤ngs vÃƒÂ¤gen.",
+          "Min drivkraft har hela tiden varit: Hur gÃƒÂ¶r jag det hÃƒÂ¤r sÃƒÂ¥ enkelt som mÃƒÂ¶jligt fÃƒÂ¶r mig och fÃƒÂ¶r andra?"
+        ]
+      },
+      {
+        title: "FrÃƒÂ¥n vÃƒÂ¥rden till vardagen",
+        paragraphs: [
+          "Appen bÃƒÂ¶rjade som ett verktyg fÃƒÂ¶r mig sjÃƒÂ¤lv i mitt arbete inom ÃƒÂ¶ppenvÃƒÂ¥rdspsykiatrin, dÃƒÂ¤rfÃƒÂ¶r finns kategorin Patienter.",
+          "Men jag insÃƒÂ¥g snabbt att det hÃƒÂ¤r ÃƒÂ¤r nÃƒÂ¥got fler kan ha nytta av, oavsett om du jobbar i vÃƒÂ¥rden, pluggar, driver ett projekt eller bara vill ha bÃƒÂ¤ttre koll pÃƒÂ¥ vardagen."
+        ]
+      },
+      {
+        title: "SÃƒÂ¶mnDagboken Ã¢â‚¬â€œ ett systerprojekt",
+        paragraphs: [
+          "Vid sidan av ApexCore har jag ÃƒÂ¤ven skapat SÃƒÂ¶mnDagboken, ett litet verktyg fÃƒÂ¶r att hÃƒÂ¥lla koll pÃƒÂ¥ sÃƒÂ¶mnen vecka fÃƒÂ¶r vecka.",
+          "Den ÃƒÂ¤r fortfarande under utveckling i alpha-version, men gÃƒÂ¥r utmÃƒÂ¤rkt att anvÃƒÂ¤nda redan nu om du vill testa."
+        ]
+      }
+    ]
+  },
+  en: {
+    mainTitle: "Ã¢Â­â€¢ ApexCore Ã¢â‚¬â€œ The Heart of Your Work",
+    subtitle: "A story about function, focus, and finding the right tools",
+    intro: [
+      "I built ApexCore for one simple reason: I needed something that actually worked for me.",
+      "As someone with neurodevelopmental differences, I quickly discovered in my work that physical reminder notes were not enough.",
+      "I lost them, forgot them, or they simply did not provide the visual cue I needed to truly remember.",
+      "I searched for a digital tool that could do what I needed, but I could not find one that fit. Either key features were missing, or the systems were so large and complex that I got lost in them anyway. In the end I realized: why not build it myself?"
+    ],
+    sections: [
+      {
+        title: "From idea to reality",
+        paragraphs: [
+          "That is how I started: building from my own needs as a person who needs simplicity, structure, and a visual way to track what must be done.",
+          "The app began as Digital Post-it Notes, a small project to solve my own everyday workflow. As the code grew, the vision grew too.",
+          "The name was changed to ApexCore to reflect what it truly is: the core of your work."
+        ]
+      },
+      {
+        title: "Built with care",
+        paragraphs: [
+          "I have worked on ApexCore every day for a long time. It has not only resulted in an app, it has also taught me a huge amount about JavaScript, code structure, and even Python along the way.",
+          "My driving question has always been: How can I make this as simple as possible for myself and for others?"
+        ]
+      },
+      {
+        title: "From healthcare to everyday life",
+        paragraphs: [
+          "The app started as a tool for myself in outpatient psychiatry, which is why the Patients category exists.",
+          "But I quickly realized this can help many more people, whether you work in healthcare, study, run a project, or just want better control over daily life."
+        ]
+      },
+      {
+        title: "Sleep Journal Ã¢â‚¬â€œ a sister project",
+        paragraphs: [
+          "Alongside ApexCore, I also created Sleep Journal, a small tool for tracking sleep week by week.",
+          "It is still under development in alpha, but it is already very usable if you want to try it."
+        ]
+      }
+    ]
+  },
+  da: {
+    mainTitle: "Ã¢Â­â€¢ ApexCore Ã¢â‚¬â€œ Hjertet i dit arbejde",
+    subtitle: "En fortÃƒÂ¦lling om funktion, fokus og at finde de rigtige vÃƒÂ¦rktÃƒÂ¸jer",
+    intro: [
+      "Jeg byggede ApexCore af en enkel grund: jeg havde brug for noget, der faktisk virkede for mig.",
+      "Som person med NPF-diagnoser opdagede jeg hurtigt i mit arbejde, at fysiske pÃƒÂ¥mindelsessedler ikke var nok.",
+      "Jeg mistede dem, glemte dem, eller de gav ikke den visuelle pÃƒÂ¥mindelse, jeg havde brug for, for virkelig at huske.",
+      "Jeg ledte efter et digitalt vÃƒÂ¦rktÃƒÂ¸j, der kunne det, jeg havde brug for, men fandt intet der passede. Enten manglede vigtige funktioner, eller ogsÃƒÂ¥ var systemerne sÃƒÂ¥ store og komplekse, at jeg alligevel mistede overblikket. Til sidst indsÃƒÂ¥ jeg: hvorfor ikke bygge noget selv?"
+    ],
+    sections: [
+      {
+        title: "Fra idÃƒÂ© til virkelighed",
+        paragraphs: [
+          "SÃƒÂ¥dan begyndte jeg. Jeg byggede ud fra mine egne behov: enkelhed, struktur og en visuel mÃƒÂ¥de at holde styr pÃƒÂ¥ det, der skal gÃƒÂ¸res.",
+          "Appen startede som Digital Post-it Notes, et lille projekt for at lÃƒÂ¸se min egen hverdag. EfterhÃƒÂ¥nden som koden voksede, voksede visionen ogsÃƒÂ¥.",
+          "Navnet blev ÃƒÂ¦ndret til ApexCore for at afspejle, hvad det faktisk er: kernen i dit arbejde."
+        ]
+      },
+      {
+        title: "Udviklet med omtanke",
+        paragraphs: [
+          "Jeg har arbejdet pÃƒÂ¥ ApexCore hver dag i lang tid. Det har ikke kun resulteret i en app, men ogsÃƒÂ¥ lÃƒÂ¦rt mig enormt meget om JavaScript, kodestruktur og ogsÃƒÂ¥ Python undervejs.",
+          "Min drivkraft har hele tiden vÃƒÂ¦ret: Hvordan gÃƒÂ¸r jeg det her sÃƒÂ¥ enkelt som muligt for mig selv og for andre?"
+        ]
+      },
+      {
+        title: "Fra sundhedsvÃƒÂ¦sen til hverdagsliv",
+        paragraphs: [
+          "Appen begyndte som et vÃƒÂ¦rktÃƒÂ¸j til mig selv i arbejdet inden for ambulant psykiatri, derfor findes kategorien Patienter.",
+          "Men jeg indsÃƒÂ¥ hurtigt, at flere kan fÃƒÂ¥ gavn af det, uanset om du arbejder i sundhedsvÃƒÂ¦senet, studerer, driver et projekt eller bare vil have bedre overblik i hverdagen."
+        ]
+      },
+      {
+        title: "SÃƒÂ¸vnDagbogen Ã¢â‚¬â€œ et sÃƒÂ¸sterprojekt",
+        paragraphs: [
+          "Ved siden af ApexCore har jeg ogsÃƒÂ¥ skabt SÃƒÂ¸vnDagbogen, et lille vÃƒÂ¦rktÃƒÂ¸j til at fÃƒÂ¸lge sÃƒÂ¸vn uge for uge.",
+          "Den er stadig under udvikling i alpha, men kan allerede nu bruges fint, hvis du vil teste den."
+        ]
+      }
+    ]
+  },
+  no: {
+    mainTitle: "Ã¢Â­â€¢ ApexCore Ã¢â‚¬â€œ Hjertet i arbeidet ditt",
+    subtitle: "En historie om funksjon, fokus og ÃƒÂ¥ finne riktige verktÃƒÂ¸y",
+    intro: [
+      "Jeg bygget ApexCore av ÃƒÂ©n enkel grunn: jeg trengte noe som faktisk fungerte for meg.",
+      "Som en person med NPF-diagnoser oppdaget jeg raskt i jobben min at fysiske pÃƒÂ¥minnelseslapper ikke var nok.",
+      "Jeg mistet dem, glemte dem, eller de ga ikke den visuelle pÃƒÂ¥minnelsen jeg trengte for ÃƒÂ¥ faktisk huske.",
+      "Jeg lette etter et digitalt verktÃƒÂ¸y som kunne gjÃƒÂ¸re det jeg trengte, men fant ingenting som passet. Enten manglet viktige funksjoner, eller sÃƒÂ¥ var systemene sÃƒÂ¥ store og komplekse at jeg likevel mistet oversikten. Til slutt innsÃƒÂ¥ jeg: hvorfor ikke bygge noe selv?"
+    ],
+    sections: [
+      {
+        title: "Fra idÃƒÂ© til virkelighet",
+        paragraphs: [
+          "Slik startet det. Jeg bygget ut fra egne behov: enkelhet, struktur og en visuell mÃƒÂ¥te ÃƒÂ¥ holde oversikt over alt som skal gjÃƒÂ¸res.",
+          "Appen startet som Digital Post-it Notes, et lite prosjekt for ÃƒÂ¥ lÃƒÂ¸se hverdagen min. Etter hvert som koden vokste, vokste ogsÃƒÂ¥ visjonen.",
+          "Navnet ble endret til ApexCore for ÃƒÂ¥ speile hva den faktisk er: kjernen i arbeidet ditt."
+        ]
+      },
+      {
+        title: "Utviklet med omtanke",
+        paragraphs: [
+          "Jeg har jobbet med ApexCore hver dag i lang tid. Det har ikke bare blitt en app, men har ogsÃƒÂ¥ lÃƒÂ¦rt meg veldig mye om JavaScript, kodestruktur og ogsÃƒÂ¥ Python underveis.",
+          "Drivkraften min har hele tiden vÃƒÂ¦rt: Hvordan gjÃƒÂ¸r jeg dette sÃƒÂ¥ enkelt som mulig for meg selv og for andre?"
+        ]
+      },
+      {
+        title: "Fra helsevesen til hverdagsliv",
+        paragraphs: [
+          "Appen startet som et verktÃƒÂ¸y for meg selv i arbeid innen poliklinisk psykiatri, derfor finnes kategorien Pasienter.",
+          "Men jeg innsÃƒÂ¥ raskt at flere kan ha nytte av dette, enten du jobber i helsevesenet, studerer, driver et prosjekt eller bare vil ha bedre oversikt i hverdagen."
+        ]
+      },
+      {
+        title: "SÃƒÂ¸vnDagboken Ã¢â‚¬â€œ et sÃƒÂ¸sterprosjekt",
+        paragraphs: [
+          "Ved siden av ApexCore har jeg ogsÃƒÂ¥ laget SÃƒÂ¸vnDagboken, et lite verktÃƒÂ¸y for ÃƒÂ¥ fÃƒÂ¸lge sÃƒÂ¸vnen uke for uke.",
+          "Den er fortsatt under utvikling i alpha, men fungerer allerede fint hvis du vil teste den."
+        ]
+      }
+    ]
+  },
+  fi: {
+    mainTitle: "Ã¢Â­â€¢ ApexCore Ã¢â‚¬â€œ TyÃƒÂ¶si sydÃƒÂ¤n",
+    subtitle: "Tarina toiminnallisuudesta, keskittymisestÃƒÂ¤ ja oikeiden tyÃƒÂ¶kalujen lÃƒÂ¶ytÃƒÂ¤misestÃƒÂ¤",
+    intro: [
+      "Rakensin ApexCoren yksinkertaisesta syystÃƒÂ¤: tarvitsin jotain, joka todella toimii minulle.",
+      "NPF-diagnoosien kanssa huomasin tyÃƒÂ¶ssÃƒÂ¤ni nopeasti, etteivÃƒÂ¤t fyysiset muistilaput riittÃƒÂ¤neet.",
+      "Kadotin niitÃƒÂ¤, unohdin niitÃƒÂ¤, tai ne eivÃƒÂ¤t antaneet tarvittavaa visuaalista muistutusta, jotta todella muistaisin.",
+      "Etsin digitaalista tyÃƒÂ¶kalua, joka tekisi sen mitÃƒÂ¤ tarvitsin, mutta en lÃƒÂ¶ytÃƒÂ¤nyt sopivaa. Joko tÃƒÂ¤rkeitÃƒÂ¤ ominaisuuksia puuttui tai jÃƒÂ¤rjestelmÃƒÂ¤t olivat niin suuria ja monimutkaisia, ettÃƒÂ¤ kadotin itseni niihin. Lopulta tajusin: miksi en rakentaisi sitÃƒÂ¤ itse?"
+    ],
+    sections: [
+      {
+        title: "Ideasta todellisuudeksi",
+        paragraphs: [
+          "Niin aloitin. Rakensin omista tarpeistani: yksinkertaisuutta, rakennetta ja visuaalista tapaa seurata kaikkea, mitÃƒÂ¤ pitÃƒÂ¤ÃƒÂ¤ tehdÃƒÂ¤.",
+          "Sovellus alkoi nimellÃƒÂ¤ Digital Post-it Notes, pienenÃƒÂ¤ projektina oman arkeni tueksi. Koodin kasvaessa myÃƒÂ¶s visio kasvoi.",
+          "Nimi vaihdettiin ApexCoreksi, jotta se kuvaisi sitÃƒÂ¤ mitÃƒÂ¤ se on: tyÃƒÂ¶si ydin."
+        ]
+      },
+      {
+        title: "Huolella kehitetty",
+        paragraphs: [
+          "Olen tyÃƒÂ¶skennellyt ApexCoren parissa pitkÃƒÂ¤ÃƒÂ¤n joka pÃƒÂ¤ivÃƒÂ¤. Se ei ole tuottanut vain sovellusta, vaan opettanut minulle valtavasti JavaScriptistÃƒÂ¤, koodin rakenteesta ja myÃƒÂ¶s Pythonista matkan varrella.",
+          "Motivaationi on ollut koko ajan sama: Miten teen tÃƒÂ¤stÃƒÂ¤ mahdollisimman yksinkertaisen minulle ja muille?"
+        ]
+      },
+      {
+        title: "Terveydenhuollosta arkeen",
+        paragraphs: [
+          "Sovellus alkoi tyÃƒÂ¶kaluna itselleni avohoidon psykiatrisessa tyÃƒÂ¶ssÃƒÂ¤, siksi mukana on Potilaat-kategoria.",
+          "Mutta huomasin nopeasti, ettÃƒÂ¤ tÃƒÂ¤stÃƒÂ¤ voi olla hyÃƒÂ¶tyÃƒÂ¤ monille muillekin, tyÃƒÂ¶skenteletpÃƒÂ¤ terveydenhuollossa, opiskelet, vedÃƒÂ¤t projektia tai haluat vain parempaa arjen hallintaa."
+        ]
+      },
+      {
+        title: "UnipÃƒÂ¤ivÃƒÂ¤kirja Ã¢â‚¬â€œ sisarprojekti",
+        paragraphs: [
+          "ApexCoren rinnalla olen tehnyt myÃƒÂ¶s UnipÃƒÂ¤ivÃƒÂ¤kirjan, pienen tyÃƒÂ¶kalun unen seuraamiseen viikko viikolta.",
+          "Se on edelleen alpha-vaiheen kehityksessÃƒÂ¤, mutta toimii jo nyt hyvin, jos haluat kokeilla sitÃƒÂ¤."
+        ]
+      }
+    ]
+  }
+};
+
+const apps = [
+  {
+    id: "apexcore",
+    platform: "Windows",
+    version: "v3.0.3",
+    size: "52 MB",
+    released: "2026-08-01",
+    downloads: [
+      { platform: "Windows", label: "ApexCore Installer (.exe)", kind: "file", url: "#" },
+      { platform: "Web", label: "ApexCore Web", kind: "web", url: "dist-web/index.html" }
+    ],
+    content: {
+      sv: {
+        name: "ApexCore",
+        tagline: "Kom ihÃƒÂ¥g det viktiga utan fysiska post-it-lappar.",
+        notes: [
+          { date: "2026-07-30", title: "Exportera arkivet till en vault-fil", type: "Nytt", description: "Du kan flytta arkiverade poster till en krypterad vault-fil. NÃƒÂ¤r filen har skapats tÃƒÂ¶ms arkivet automatiskt." },
+          { date: "2026-07-30", title: "Ãƒâ€¦terstÃƒÂ¤ll vault-poster till Active", type: "Nytt", description: "En vault-fil kan importeras senare och dess arkiverade poster lÃƒÂ¤ggs dÃƒÂ¥ i Active sÃƒÂ¥ att de gÃƒÂ¥r att sÃƒÂ¶ka fram och anvÃƒÂ¤nda igen." },
+          { date: "2026-07-30", title: "Spara och ÃƒÂ¥terstÃƒÂ¤ll info-panelen", type: "Nytt", description: "Info-panelen kan exporteras som en egen fil, importeras igen senare och fÃƒÂ¶ljer ocksÃƒÂ¥ automatiskt med i vault-exporter." },
+          { date: "2026-07-31", title: "Kategorier i Active", type: "Nytt", description: "Aktiva poster kan nu grupperas i kollapsbara kategorier: Patienter, Administration, Privat och Ãƒâ€“vrigt." },
+          { date: "2026-07-30", title: "VÃƒÂ¤lj egna namn pÃƒÂ¥ exportfiler", type: "Uppdaterat", description: "NÃƒÂ¤r du exporterar backuper, CSV-filer, krypterade filer, infofiler eller vault-filer kan du nu sjÃƒÂ¤lv vÃƒÂ¤lja filnamnet." },
+          { date: "2026-07-30", title: "Renare knappstil", type: "Uppdaterat", description: "Knappar som tidigare stack ut med starkare accentfÃƒÂ¤rger anvÃƒÂ¤nder nu en mer neutral stil som passar bÃƒÂ¤ttre ihop med resten av appen." },
+          { date: "2026-07-31", title: "HÃƒÂ¶g prioritet alltid ÃƒÂ¶verst", type: "Uppdaterat", description: "Poster med hÃƒÂ¶g prioritet ÃƒÂ¶verstyr nu kategorier och visas alltid fÃƒÂ¶rst i Active fÃƒÂ¶r bÃƒÂ¤ttre synlighet." },
+          { date: "2026-07-31", title: "Klicka utanfÃƒÂ¶r fÃƒÂ¶r att stÃƒÂ¤nga Redigera", type: "Uppdaterat", description: "Redigeringspanelen stÃƒÂ¤ngs nu nÃƒÂ¤r du klickar utanfÃƒÂ¶r den, sÃƒÂ¥ det gÃƒÂ¥r snabbare att ÃƒÂ¥terhÃƒÂ¤mta sig frÃƒÂ¥n felklick." },
+          { date: "2026-07-31", title: "HÃƒÂ¶g prioritet flyttad till Kategori", type: "Uppdaterat", description: "HÃƒÂ¶g prioritet kan nu vÃƒÂ¤ljas direkt i kategorilistan, sÃƒÂ¥ en och samma vÃƒÂ¤ljare hanterar bÃƒÂ¥de gruppering och prioriterad placering." },
+          { date: "2026-07-30", title: "Dubblettskydd vid info-import", type: "Buggfixar", description: "Importerade poster i info-panelen kontrolleras nu fÃƒÂ¶r dubbletter sÃƒÂ¥ att samma inbyggda eller importerade uppdatering inte lÃƒÂ¤ggs till mer ÃƒÂ¤n en gÃƒÂ¥ng." },
+          { date: "2026-07-31", title: "Tomma anteckningar dÃƒÂ¶ljs", type: "Buggfixar", description: "Om en post saknar anteckningar visas inte lÃƒÂ¤ngre Notes-raden i Active, vilket gÃƒÂ¶r korten renare." }
+        ]
+      },
+      en: {
+        name: "ApexCore",
+        tagline: "Remember what matters without physical post-it notes.",
+        notes: [
+          { date: "2026-07-30", title: "Export archive to a vault file", type: "New", description: "You can move archived entries to an encrypted vault file. When the file is created, the archive is automatically cleared." },
+          { date: "2026-07-30", title: "Restore vault entries to Active", type: "New", description: "A vault file can be imported later and its archived entries are added to Active so they can be searched and used again." },
+          { date: "2026-07-30", title: "Save and restore the info panel", type: "New", description: "The info panel can be exported as a separate file, imported again later, and is also automatically included in vault exports." },
+          { date: "2026-07-31", title: "Categories in Active", type: "New", description: "Active entries can now be grouped into collapsible categories: Patients, Administration, Private, and Other." },
+          { date: "2026-07-30", title: "Choose custom export filenames", type: "Updated", description: "When exporting backups, CSV files, encrypted files, info files, or vault files, you can now choose the filename yourself." },
+          { date: "2026-07-30", title: "Cleaner button style", type: "Updated", description: "Buttons that previously stood out with stronger accent colors now use a more neutral style that fits better with the rest of the app." },
+          { date: "2026-07-31", title: "High priority always on top", type: "Updated", description: "High-priority entries now override categories and are always shown first in Active for better visibility." },
+          { date: "2026-07-31", title: "Click outside to close Edit", type: "Updated", description: "The edit panel now closes when you click outside it, making it faster to recover from misclicks." },
+          { date: "2026-07-31", title: "High priority moved to Category", type: "Updated", description: "High priority can now be selected directly in the category list, so one selector handles both grouping and prioritized placement." },
+          { date: "2026-07-30", title: "Duplicate protection on info import", type: "Bug fixes", description: "Imported entries in the info panel are now checked for duplicates so the same built-in or imported update is not added more than once." },
+          { date: "2026-07-31", title: "Empty notes are hidden", type: "Bug fixes", description: "If an entry has no notes, the Notes row is no longer shown in Active, making cards cleaner." }
+        ]
+      },
+      da: {
+        name: "ApexCore",
+        tagline: "Husk det vigtige uden fysiske post-it sedler.",
+        notes: [
+          { date: "2026-07-30", title: "Eksporter arkivet til en vault-fil", type: "Nyt", description: "Du kan flytte arkiverede poster til en krypteret vault-fil. NÃƒÂ¥r filen er oprettet, tÃƒÂ¸mmes arkivet automatisk." },
+          { date: "2026-07-30", title: "Gendan vault-poster til Active", type: "Nyt", description: "En vault-fil kan importeres senere, og dens arkiverede poster lÃƒÂ¦gges i Active, sÃƒÂ¥ de kan sÃƒÂ¸ges frem og bruges igen." },
+          { date: "2026-07-30", title: "Gem og gendan info-panelet", type: "Nyt", description: "Info-panelet kan eksporteres som en separat fil, importeres igen senere og fÃƒÂ¸lger ogsÃƒÂ¥ automatisk med i vault-eksporter." },
+          { date: "2026-07-31", title: "Kategorier i Active", type: "Nyt", description: "Aktive poster kan nu grupperes i sammenklappelige kategorier: Patienter, Administration, Privat og ÃƒËœvrigt." },
+          { date: "2026-07-30", title: "VÃƒÂ¦lg egne navne pÃƒÂ¥ eksportfiler", type: "Opdateret", description: "NÃƒÂ¥r du eksporterer backups, CSV-filer, krypterede filer, infofiler eller vault-filer, kan du nu selv vÃƒÂ¦lge filnavnet." },
+          { date: "2026-07-30", title: "Renere knapstil", type: "Opdateret", description: "Knapper, der tidligere skilte sig ud med stÃƒÂ¦rkere accentfarver, bruger nu en mere neutral stil, som passer bedre til resten af appen." },
+          { date: "2026-07-31", title: "HÃƒÂ¸j prioritet altid ÃƒÂ¸verst", type: "Opdateret", description: "Poster med hÃƒÂ¸j prioritet overstyrer nu kategorier og vises altid fÃƒÂ¸rst i Active for bedre synlighed." },
+          { date: "2026-07-31", title: "Klik udenfor for at lukke RedigÃƒÂ©r", type: "Opdateret", description: "Redigeringspanelet lukkes nu, nÃƒÂ¥r du klikker udenfor det, sÃƒÂ¥ det er hurtigere at komme sig efter fejlklik." },
+          { date: "2026-07-31", title: "HÃƒÂ¸j prioritet flyttet til Kategori", type: "Opdateret", description: "HÃƒÂ¸j prioritet kan nu vÃƒÂ¦lges direkte i kategorilisten, sÃƒÂ¥ ÃƒÂ©n vÃƒÂ¦lger hÃƒÂ¥ndterer bÃƒÂ¥de gruppering og prioriteret placering." },
+          { date: "2026-07-30", title: "Dobbeltbeskyttelse ved info-import", type: "Fejlrettelser", description: "Importerede poster i info-panelet kontrolleres nu for dubletter, sÃƒÂ¥ den samme indbyggede eller importerede opdatering ikke tilfÃƒÂ¸jes mere end ÃƒÂ©n gang." },
+          { date: "2026-07-31", title: "Tomme noter skjules", type: "Fejlrettelser", description: "Hvis en post mangler noter, vises Notes-rÃƒÂ¦kken ikke lÃƒÂ¦ngere i Active, hvilket gÃƒÂ¸r kortene renere." }
+        ]
+      },
+      no: {
+        name: "ApexCore",
+        tagline: "Husk det viktige uten fysiske post-it-lapper.",
+        notes: [
+          { date: "2026-07-30", title: "Eksporter arkivet til en vault-fil", type: "Nytt", description: "Du kan flytte arkiverte poster til en kryptert vault-fil. NÃƒÂ¥r filen er opprettet, tÃƒÂ¸mmes arkivet automatisk." },
+          { date: "2026-07-30", title: "Gjenopprett vault-poster til Active", type: "Nytt", description: "En vault-fil kan importeres senere, og de arkiverte postene legges da i Active slik at de kan sÃƒÂ¸kes opp og brukes igjen." },
+          { date: "2026-07-30", title: "Lagre og gjenopprett info-panelet", type: "Nytt", description: "Info-panelet kan eksporteres som en egen fil, importeres igjen senere og fÃƒÂ¸lger ogsÃƒÂ¥ automatisk med i vault-eksporter." },
+          { date: "2026-07-31", title: "Kategorier i Active", type: "Nytt", description: "Aktive poster kan nÃƒÂ¥ grupperes i kollapsbare kategorier: Pasienter, Administrasjon, Privat og ÃƒËœvrig." },
+          { date: "2026-07-30", title: "Velg egne navn pÃƒÂ¥ eksportfiler", type: "Oppdatert", description: "NÃƒÂ¥r du eksporterer sikkerhetskopier, CSV-filer, krypterte filer, infofiler eller vault-filer, kan du nÃƒÂ¥ velge filnavnet selv." },
+          { date: "2026-07-30", title: "Renere knappestil", type: "Oppdatert", description: "Knapper som tidligere skilte seg ut med sterkere aksentfarger bruker nÃƒÂ¥ en mer nÃƒÂ¸ytral stil som passer bedre sammen med resten av appen." },
+          { date: "2026-07-31", title: "HÃƒÂ¸y prioritet alltid ÃƒÂ¸verst", type: "Oppdatert", description: "Poster med hÃƒÂ¸y prioritet overstyrer nÃƒÂ¥ kategorier og vises alltid fÃƒÂ¸rst i Active for bedre synlighet." },
+          { date: "2026-07-31", title: "Klikk utenfor for ÃƒÂ¥ lukke Rediger", type: "Oppdatert", description: "Redigeringspanelet lukkes nÃƒÂ¥ nÃƒÂ¥r du klikker utenfor det, sÃƒÂ¥ det gÃƒÂ¥r raskere ÃƒÂ¥ hente seg inn etter feilklikk." },
+          { date: "2026-07-31", title: "HÃƒÂ¸y prioritet flyttet til Kategori", type: "Oppdatert", description: "HÃƒÂ¸y prioritet kan nÃƒÂ¥ velges direkte i kategorilisten, slik at ÃƒÂ©n og samme velger hÃƒÂ¥ndterer bÃƒÂ¥de gruppering og prioritert plassering." },
+          { date: "2026-07-30", title: "Dobbeltbeskyttelse ved info-import", type: "Feilrettinger", description: "Importerte poster i info-panelet kontrolleres nÃƒÂ¥ for duplikater slik at samme innebygde eller importerte oppdatering ikke legges til mer enn ÃƒÂ©n gang." },
+          { date: "2026-07-31", title: "Tomme notater skjules", type: "Feilrettinger", description: "Hvis en post mangler notater, vises ikke lenger Notes-raden i Active, noe som gjÃƒÂ¸r kortene renere." }
+        ]
+      },
+      fi: {
+        name: "ApexCore",
+        tagline: "Muista tÃƒÂ¤rkeÃƒÂ¤t asiat ilman fyysisiÃƒÂ¤ post-it-lappuja.",
+        notes: [
+          { date: "2026-07-30", title: "Vie arkisto vault-tiedostoon", type: "Uutta", description: "Voit siirtÃƒÂ¤ÃƒÂ¤ arkistoidut merkinnÃƒÂ¤t salattuun vault-tiedostoon. Kun tiedosto on luotu, arkisto tyhjennetÃƒÂ¤ÃƒÂ¤n automaattisesti." },
+          { date: "2026-07-30", title: "Palauta vault-merkinnÃƒÂ¤t Activeen", type: "Uutta", description: "Vault-tiedosto voidaan tuoda myÃƒÂ¶hemmin, ja sen arkistoidut merkinnÃƒÂ¤t lisÃƒÂ¤tÃƒÂ¤ÃƒÂ¤n Activeen, jotta niitÃƒÂ¤ voi hakea ja kÃƒÂ¤yttÃƒÂ¤ÃƒÂ¤ uudelleen." },
+          { date: "2026-07-30", title: "Tallenna ja palauta info-paneeli", type: "Uutta", description: "Info-paneeli voidaan viedÃƒÂ¤ omana tiedostonaan, tuoda takaisin myÃƒÂ¶hemmin, ja se sisÃƒÂ¤ltyy myÃƒÂ¶s automaattisesti vault-vienteihin." },
+          { date: "2026-07-31", title: "Kategoriat Activessa", type: "Uutta", description: "Aktiiviset merkinnÃƒÂ¤t voidaan nyt ryhmitellÃƒÂ¤ avattaviin kategorioihin: Potilaat, Hallinto, Yksityinen ja Muut." },
+          { date: "2026-07-30", title: "Valitse omat nimet vientitiedostoille", type: "PÃƒÂ¤ivitetty", description: "Kun viet varmuuskopioita, CSV-tiedostoja, salattuja tiedostoja, infotiedostoja tai vault-tiedostoja, voit nyt valita tiedostonimen itse." },
+          { date: "2026-07-30", title: "SelkeÃƒÂ¤mpi painiketyyli", type: "PÃƒÂ¤ivitetty", description: "Painikkeet, jotka aiemmin erottuivat vahvemmilla korostusvÃƒÂ¤reillÃƒÂ¤, kÃƒÂ¤yttÃƒÂ¤vÃƒÂ¤t nyt neutraalimpaa tyyliÃƒÂ¤, joka sopii paremmin muun sovelluksen ilmeeseen." },
+          { date: "2026-07-31", title: "Korkea prioriteetti aina ylimpÃƒÂ¤nÃƒÂ¤", type: "PÃƒÂ¤ivitetty", description: "Korkean prioriteetin merkinnÃƒÂ¤t ohittavat nyt kategoriat ja nÃƒÂ¤kyvÃƒÂ¤t aina ensimmÃƒÂ¤isinÃƒÂ¤ Activessa paremman nÃƒÂ¤kyvyyden vuoksi." },
+          { date: "2026-07-31", title: "Sulje Muokkaa klikkaamalla ulkopuolelle", type: "PÃƒÂ¤ivitetty", description: "Muokkauspaneeli sulkeutuu nyt, kun klikkaat sen ulkopuolelle, joten virheklikkauksista palautuminen on nopeampaa." },
+          { date: "2026-07-31", title: "Korkea prioriteetti siirretty Kategoriaan", type: "PÃƒÂ¤ivitetty", description: "Korkea prioriteetti voidaan nyt valita suoraan kategorialistasta, joten sama valitsin hoitaa sekÃƒÂ¤ ryhmittelyn ettÃƒÂ¤ priorisoidun sijoittelun." },
+          { date: "2026-07-30", title: "Kaksoiskappalesuoja info-tuonnissa", type: "Bugikorjaukset", description: "Info-paneeliin tuodut merkinnÃƒÂ¤t tarkistetaan nyt kaksoiskappaleiden varalta, jotta samaa sisÃƒÂ¤ÃƒÂ¤nrakennettua tai tuotua pÃƒÂ¤ivitystÃƒÂ¤ ei lisÃƒÂ¤tÃƒÂ¤ useammin kuin kerran." },
+          { date: "2026-07-31", title: "TyhjÃƒÂ¤t muistiinpanot piilotetaan", type: "Bugikorjaukset", description: "Jos merkinnÃƒÂ¤llÃƒÂ¤ ei ole muistiinpanoja, Notes-riviÃƒÂ¤ ei enÃƒÂ¤ÃƒÂ¤ nÃƒÂ¤ytetÃƒÂ¤ Activessa, mikÃƒÂ¤ tekee korteista siistimpiÃƒÂ¤." }
+        ]
+      }
+    }
+  },
+  {
+    id: "somndagboken",
+    platform: "Android",
+    version: "Alpha",
+    size: "29 MB",
+    released: "2026-08-01",
+    downloads: [
+      { platform: "Android", label: "S\u00f6mndagboken (.apk)", url: "#" },
+      { platform: "Web", label: "Sleep Journal Web", kind: "web", url: "sleep-journal-web/index.html" }
+    ],
+    content: {
+      sv: {
+        name: "SÃƒÂ¶mndagboken",
+        tagline: "Logga din sÃƒÂ¶mn varje natt och fÃƒÂ¶lj din veckovisa sÃƒÂ¶mnrytm.",
+        notes: [
+          "Lade till enkel nattlig sÃƒÂ¶mnloggning.",
+          "Ny veckovis sammanfattning fÃƒÂ¶r att se trender.",
+          "FÃƒÂ¶rbÃƒÂ¤ttrad tidslinje fÃƒÂ¶r tydligare sÃƒÂ¶mnuppfÃƒÂ¶ljning."
+        ]
+      },
+      en: {
+        name: "Sleep Journal",
+        tagline: "Log your sleep every night and track weekly sleep patterns.",
+        notes: [
+          "Added nightly sleep logging with simple controls.",
+          "Introduced weekly summaries to spot sleep trends.",
+          "Improved timeline readability for better sleep tracking."
+        ]
+      },
+      da: {
+        name: "SÃƒÂ¸vndagbogen",
+        tagline: "Log din sÃƒÂ¸vn hver nat og fÃƒÂ¸lg dit ugentlige sÃƒÂ¸vnmÃƒÂ¸nster.",
+        notes: [
+          "TilfÃƒÂ¸jet enkel natlig sÃƒÂ¸vnregistrering.",
+          "Nye ugentlige oversigter for at se sÃƒÂ¸vntrends.",
+          "Forbedret tidslinje for tydeligere sÃƒÂ¸vnsporing."
+        ]
+      },
+      no: {
+        name: "SÃƒÂ¸vndagboken",
+        tagline: "Logg sÃƒÂ¸vnen hver natt og fÃƒÂ¸lg sÃƒÂ¸vnmÃƒÂ¸nsteret uke for uke.",
+        notes: [
+          "La til enkel nattlig sÃƒÂ¸vnlogging.",
+          "Nye ukesoppsummeringer for ÃƒÂ¥ se sÃƒÂ¸vntrender.",
+          "Forbedret tidslinje for tydeligere sÃƒÂ¸vnoppfÃƒÂ¸lging."
+        ]
+      },
+      fi: {
+        name: "UnipÃƒÂ¤ivÃƒÂ¤kirja",
+        tagline: "Kirjaa unesi joka yÃƒÂ¶ ja seuraa viikoittaista unirytmiÃƒÂ¤si.",
+        notes: [
+          "LisÃƒÂ¤tty helppo yÃƒÂ¶kohtainen uniloki.",
+          "Uudet viikkoyhteenvedot unitrendien seuraamiseen.",
+          "Parannettu aikajana selkeÃƒÂ¤mpÃƒÂ¤ÃƒÂ¤ unen seurantaa varten."
+        ]
+      }
+    }
+  },
+  {
+    id: "coming-soon",
+    platform: "Web",
+    version: "TBA",
+    size: "Browser",
+    released: "2026-08-01",
+    downloads: [],
+    content: {
+      sv: { name: "Mer information kommer snart", tagline: "En ny app ÃƒÂ¤r under utveckling. Fler detaljer kommer snart.", notes: ["Mer information kommer snart.", "Tidslinje publiceras nÃƒÂ¤r den ÃƒÂ¤r faststÃƒÂ¤lld.", "FunktionsÃƒÂ¶versikt kommer i kommande uppdateringar."] },
+      en: { name: "More Information Coming Soon", tagline: "A new app is in development. Details will be published soon.", notes: ["More information coming soon.", "Release timeline will be shared when finalized.", "Feature overview will be posted in upcoming updates."] },
+      da: { name: "Mere information kommer snart", tagline: "En ny app er under udvikling. Flere detaljer kommer snart.", notes: ["Mere information kommer snart.", "Tidsplan deles nÃƒÂ¥r den er fastlagt.", "Funktionsoversigt publiceres i kommende opdateringer."] },
+      no: { name: "Mer informasjon kommer snart", tagline: "En ny app er under utvikling. Flere detaljer kommer snart.", notes: ["Mer informasjon kommer snart.", "Tidslinje deles nÃƒÂ¥r den er fastsatt.", "Funksjonsoversikt publiseres i kommende oppdateringer."] },
+      fi: { name: "LisÃƒÂ¤ÃƒÂ¤ tietoa tulossa pian", tagline: "Uusi sovellus on kehityksessÃƒÂ¤. LisÃƒÂ¤tiedot julkaistaan pian.", notes: ["LisÃƒÂ¤ÃƒÂ¤ tietoa tulossa pian.", "Julkaisuaikataulu jaetaan, kun se varmistuu.", "Ominaisuuksien yleiskuva julkaistaan tulevissa pÃƒÂ¤ivityksissÃƒÂ¤."] }
+    }
+  }
+];
+
+let currentLanguage = localStorage.getItem("siteLanguage") || "sv";
+if (!translations[currentLanguage]) {
+  currentLanguage = "sv";
+}
+
+function getUI() {
+  return translations[currentLanguage] || translations.en;
+}
+
+function setLanguage(newLanguage) {
+  if (!translations[newLanguage]) {
+    return;
+  }
+
+  currentLanguage = newLanguage;
+  localStorage.setItem("siteLanguage", currentLanguage);
+}
+
+function getLocalizedContent(app) {
+  return app.content[currentLanguage] || app.content.en;
+}
+
+function formatDate(value) {
+  const locale = (languageMeta[currentLanguage] || languageMeta.en).locale;
+  return new Date(value).toLocaleDateString(locale, {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+}
+
+function buildReleaseNotesMarkup(notes) {
+  const isStructured = notes.length > 0 && typeof notes[0] === "object";
+
+  if (!isStructured) {
+    return `<ul>${notes.map((note) => `<li>${note}</li>`).join("")}</ul>`;
+  }
+
+  const groupedByDate = notes.reduce((groups, note) => {
+    if (!groups[note.date]) {
+      groups[note.date] = [];
+    }
+
+    groups[note.date].push(note);
+    return groups;
+  }, {});
+
+  const sortedDates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a));
+
+  return sortedDates
+    .map((date) => {
+      const items = groupedByDate[date]
+        .map(
+          (note) => `
+            <li class="release-entry">
+              <p class="release-entry-type">${note.type}</p>
+              <p class="release-entry-title">${note.title}</p>
+              <p class="release-entry-copy">${note.description}</p>
+            </li>
+          `
+        )
+        .join("");
+
+      return `
+        <section class="release-date-group">
+          <h4 class="release-date-title">${formatDate(date)}</h4>
+          <ul class="release-entry-list">${items}</ul>
+        </section>
+      `;
+    })
+    .join("");
+}
+
+function getAppPlatforms(app) {
+  const downloadPlatforms = (app.downloads || []).map((download) => download.platform);
+  return [...new Set([app.platform, ...downloadPlatforms].filter(Boolean))];
+}
+
+function appCardTemplate(app) {
+  const ui = getUI();
+  const localized = getLocalizedContent(app);
+  const platforms = getAppPlatforms(app);
+  const platformTags = platforms.map((platform) => `<span class="tag">${platform}</span>`).join("");
+
+  return `
+    <article class="app-card">
+      <h3 class="app-title">${localized.name}</h3>
+      <p class="app-meta">${localized.tagline}</p>
+      <div class="tag-row">
+        ${platformTags}
+        <span class="tag">${app.version}</span>
+        <span class="tag">${app.size}</span>
+      </div>
+      <a class="download-btn" href="app-detail.html?app=${app.id}">${ui.openAppButton}</a>
+    </article>
+  `;
+}
+
+function renderIndexApps(filteredApps, appsGridElement) {
+  const ui = getUI();
+
+  if (!filteredApps.length) {
+    appsGridElement.innerHTML = `<p>${ui.noApps}</p>`;
+    return;
+  }
+
+  appsGridElement.innerHTML = filteredApps.map(appCardTemplate).join("");
+}
+
+function getFilteredApps(platformValue) {
+  if (platformValue === "all") {
+    return apps;
+  }
+
+  return apps.filter((app) => getAppPlatforms(app).includes(platformValue));
+}
+
+function updatePlatformOptions(platformFilterElement) {
+  const ui = getUI();
+  const selected = platformFilterElement.value;
+  const order = ["all", "Windows", "Android", "Web", "macOS"];
+
+  platformFilterElement.innerHTML = order
+    .map((value) => `<option value="${value}">${ui.platformOptions[value]}</option>`)
+    .join("");
+
+  platformFilterElement.value = order.includes(selected) ? selected : "all";
+}
+
+function updateLanguageSelector(languageSelectElement) {
+  const language = languageMeta[currentLanguage] || languageMeta.en;
+
+  languageSelectElement.value = currentLanguage;
+  languageSelectElement.title = language.selectorTitle;
+}
+
+function renderAboutContent() {
+  const container = document.getElementById("aboutContent");
+
+  if (!container) {
+    return;
+  }
+
+  const story = aboutStories[currentLanguage] || aboutStories.en;
+
+  const introMarkup = story.intro.map((paragraph) => `<p>${paragraph}</p>`).join("");
+  const sectionMarkup = story.sections
+    .map((section) => {
+      const paragraphs = section.paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join("");
+      return `<section class="about-section"><h4>${section.title}</h4>${paragraphs}</section>`;
+    })
+    .join("");
+
+  container.innerHTML = `
+    <article class="about-block">
+      <h3 class="about-main-title">${story.mainTitle}</h3>
+      <p class="about-subtitle">${story.subtitle}</p>
+      ${introMarkup}
+      ${sectionMarkup}
+    </article>
+  `;
+}
+
+function updateCommonStaticContent() {
+  const ui = getUI();
+  const titleTag = document.querySelector("title");
+  const metaDescription = document.querySelector('meta[name="description"]');
+  const navApps = document.getElementById("navApps");
+  const navAbout = document.getElementById("navAbout");
+  const heroEyebrow = document.getElementById("heroEyebrow");
+  const heroTitle = document.getElementById("heroTitle");
+  const heroCopy = document.getElementById("heroCopy");
+  const heroCta = document.getElementById("heroCta");
+  const downloadsTitle = document.getElementById("downloadsTitle");
+  const downloadsCopy = document.getElementById("downloadsCopy");
+  const aboutTitle = document.getElementById("aboutTitle");
+  const aboutLead = document.getElementById("aboutLead");
+  const platformLabel = document.getElementById("platformLabel");
+  const footerCopy = document.getElementById("footerCopy");
+
+  document.documentElement.lang = currentLanguage;
+
+  if (titleTag) {
+    titleTag.textContent = ui.title;
+  }
+
+  if (metaDescription) {
+    metaDescription.setAttribute("content", ui.description);
+  }
+
+  if (navApps) {
+    navApps.textContent = ui.navApps;
+  }
+
+  if (navAbout) {
+    navAbout.textContent = ui.navAbout;
+  }
+
+  if (heroEyebrow) {
+    heroEyebrow.textContent = ui.heroEyebrow;
+  }
+
+  if (heroTitle) {
+    heroTitle.textContent = ui.heroTitle;
+  }
+
+  if (heroCopy) {
+    heroCopy.textContent = ui.heroCopy;
+  }
+
+  if (heroCta) {
+    heroCta.textContent = ui.heroCta;
+  }
+
+  if (downloadsTitle) {
+    downloadsTitle.textContent = ui.downloadsTitle;
+  }
+
+  if (downloadsCopy) {
+    downloadsCopy.textContent = ui.downloadsCopy;
+  }
+
+  if (aboutTitle) {
+    aboutTitle.textContent = ui.aboutTitle;
+  }
+
+  if (aboutLead) {
+    aboutLead.textContent = ui.aboutLead;
+  }
+
+  if (platformLabel) {
+    platformLabel.textContent = ui.platformLabel;
+  }
+
+  if (footerCopy) {
+    footerCopy.textContent = ui.footerCopy;
+  }
+
+  renderAboutContent();
+}
+
+function initIndexPage() {
+  const appsGridElement = document.getElementById("appsGrid");
+  const platformFilterElement = document.getElementById("platformFilter");
+  const languageSelectElement = document.getElementById("languageSelect");
+
+  if (!appsGridElement || !platformFilterElement || !languageSelectElement) {
+    return;
+  }
+
+  function refresh() {
+    updateCommonStaticContent();
+    updatePlatformOptions(platformFilterElement);
+    updateLanguageSelector(languageSelectElement);
+    renderIndexApps(getFilteredApps(platformFilterElement.value), appsGridElement);
+  }
+
+  platformFilterElement.addEventListener("change", () => {
+    renderIndexApps(getFilteredApps(platformFilterElement.value), appsGridElement);
+  });
+
+  languageSelectElement.addEventListener("change", (event) => {
+    setLanguage(event.target.value);
+    refresh();
+  });
+
+  refresh();
+}
+
+window.SteenForge = {
+  languageMeta,
+  translations,
+  apps,
+  getCurrentLanguage: () => currentLanguage,
+  setLanguage,
+  getUI,
+  getLocalizedContent,
+  getAppPlatforms,
+  formatDate,
+  buildReleaseNotesMarkup,
+  updateLanguageSelector,
+  updateCommonStaticContent
+};
+
+initIndexPage();
