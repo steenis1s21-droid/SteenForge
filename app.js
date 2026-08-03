@@ -107,7 +107,7 @@ const aboutStory = {
     'Appen började som ett verktyg för mig själv i mitt arbete inom öppenvårdspsykiatrin. Därför finns kategorin Patienter – men jag insåg snabbt att det här är något som fler kan ha nytta av. Oavsett om du jobbar i vården, pluggar, driver ett projekt, eller bara vill ha bättre koll på vardagen.',
     '<h4>🌙 SömnDagboken – ett systerprojekt</h4>',
     'Vid sidan av ApexCore har jag även skapat SömnDagboken – ett litet verktyg för att hålla koll på sömnen vecka för vecka. Den är fortfarande under utveckling (en så kallad alpha-version), men den går alldeles utmärkt att använda redan nu om du vill testa!',
-    '<h4>📦 Ladda ner & testa</h4>',
+    '<h4>🌐 Använd direkt på webben</h4>',
     'Alla appar är gratis att använda. Jag hoppas att de kan göra din vardag lite enklare – precis som de gjort min.',
     '<p><strong>Tack för att du kikade förbi! 🙌</strong><br>Ha en fortsatt trevlig dag.</p>'
   ],
@@ -128,7 +128,7 @@ const aboutStory = {
     'The app started as a tool for myself in my work within outpatient psychiatry. That is why the category Patients exists – but I quickly realized that this is something others can benefit from too. Whether you work in healthcare, study, run a project, or simply want better control over everyday life.',
     '<h4>🌙 Sleep Journal – a sister project</h4>',
     'Alongside ApexCore, I have also created Sleep Journal – a small tool to track sleep week by week. It is still under development (an alpha version), but it already works well if you want to try it out!',
-    '<h4>📦 Download & test</h4>',
+    '<h4>🌐 Use directly on the web</h4>',
     'All apps are free to use. I hope they can make your everyday life a little easier – just as they have made mine.',
     '<p><strong>Thank you for stopping by! 🙌</strong><br>Have a lovely day.</p>'
   ],
@@ -149,7 +149,7 @@ const aboutStory = {
     'Appen begyndte som et værktøj for mig selv i mit arbejde inden for ambulant psykiatri. Derfor findes kategorien Patienter – men jeg indså hurtigt, at dette er noget, andre også kan have gavn af. Uanset om du arbejder inden for sundhedsvæsenet, studerer, driver et projekt eller bare vil have bedre styr på hverdagen.',
     '<h4>🌙 SøvnDagbogen – et søsterprojekt</h4>',
     'Sideløbende med ApexCore har jeg også skabt SøvnDagbogen – et lille værktøj til at holde styr på søvn uge for uge. Den er stadig under udvikling (en såkaldt alpha-version), men den fungerer allerede fint, hvis du vil prøve den!',
-    '<h4>📦 Download & test</h4>',
+    '<h4>🌐 Brug direkte på webben</h4>',
     'Alle apps er gratis at bruge. Jeg håber, de kan gøre din hverdag lidt lettere – præcis som de har gjort min.',
     '<p><strong>Tak fordi du kiggede forbi! 🙌</strong><br>Ha en fortsat dejlig dag.</p>'
   ],
@@ -170,7 +170,7 @@ const aboutStory = {
     'Appen startet som et verktøy for meg selv i mitt arbeid innen ambulant psykiatri. Derfor finnes kategorien Pasienter – men jeg innså raskt at dette er noe andre også kan ha nytte av. Enten du jobber i helsetjenesten, studerer, driver et prosjekt eller bare vil ha bedre kontroll over hverdagen.',
     '<h4>🌙 SøvnDagboken – et søsterprosjekt</h4>',
     'Ved siden av ApexCore har jeg også skapt SøvnDagboken – et lite verktøy for å holde styr på søvn uke for uke. Den er fortsatt under utvikling (en såkalt alpha-versjon), men den fungerer allerede veldig godt hvis du vil teste den!',
-    '<h4>📦 Last ned & test</h4>',
+    '<h4>🌐 Bruk direkte på webben</h4>',
     'Alle apper er gratis å bruke. Jeg håper de kan gjøre hverdagen din litt enklere – akkurat som de har gjort min.',
     '<p><strong>Takk for at du kikket forbi! 🙌</strong><br>Ha en fortsatt fin dag.</p>'
   ],
@@ -191,7 +191,7 @@ const aboutStory = {
     'Sovellus alkoi työkaluna itselleni avohoitopsykiatrian työssä. Siksi kategoria Potilaat on olemassa – mutta huomasin nopeasti, että tästä voi olla hyötyä myös muille. Olitpa työskentelemässä terveydenhuollossa, opiskelemassa, johtamassa projektia tai haluat vain parempaa kontrollia arkeen.',
     '<h4>🌙 Sleep Journal – sisarprojekti</h4>',
     'ApexCoren rinnalla olen myös luonut Sleep Journalin – pienen työkalun, jonka avulla voi seurata unta viikosta toiseen. Se on edelleen kehityksen alla (alpha-versio), mutta se toimii jo hyvin, jos haluat kokeilla sitä!',
-    '<h4>📦 Lataa ja kokeile</h4>',
+    '<h4>🌐 Käytä suoraan verkossa</h4>',
     'Kaikki sovellukset ovat ilmaisia käyttää. Toivon, että ne voivat tehdä arjestasi hieman helpompaa – aivan kuten ne ovat tehneet minun.',
     '<p><strong>Kiitos, että poikkesit! 🙌</strong><br>Have a lovely day.</p>'
   ]
@@ -237,7 +237,17 @@ function renderAbout() {
   const container = document.getElementById('aboutContent');
   if (!container) return;
   const lang = getStoredLanguage();
-  container.innerHTML = aboutStory[lang] ? aboutStory[lang].map((paragraph) => `<p>${paragraph}</p>`).join('') : '';
+  container.innerHTML = aboutStory[lang]
+    ? aboutStory[lang]
+      .map((block) => {
+        const trimmed = String(block).trim();
+        if (trimmed.startsWith('<h3') || trimmed.startsWith('<h4') || trimmed.startsWith('<p')) {
+          return trimmed;
+        }
+        return `<p>${trimmed}</p>`;
+      })
+      .join('')
+    : '';
 }
 
 function applyLanguage(lang = getStoredLanguage()) {
