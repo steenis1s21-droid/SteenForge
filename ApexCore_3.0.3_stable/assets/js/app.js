@@ -1251,15 +1251,17 @@ function checkPassword() {
     showApp();
 }
 
-if (document.getElementById("passwordInput")) {
-    document.getElementById("passwordInput").addEventListener("keypress", function(e) {
-        if (e.key === "Enter") checkPassword();
-    });
-}
-
 function showApp() {
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("app").classList.remove("hidden");
+    const loginBox = document.getElementById("loginBox");
+    if (loginBox) {
+        loginBox.style.display = "none";
+    }
+
+    const app = document.getElementById("app");
+    if (app) {
+        app.classList.remove("hidden");
+    }
+
     updateLanguageMenu();
     applyLanguage();
     loadTheme();
@@ -1271,10 +1273,7 @@ function showApp() {
 try {
     showApp();
 } catch (e) {
-    const statusDiv = document.getElementById("loginStatus");
-    if (statusDiv) {
-        statusDiv.textContent = t('loginStatusLogin');
-    }
+    console.warn('Kunde inte öppna ApexCore appen direkt:', e);
 }
 
 // ============================================
