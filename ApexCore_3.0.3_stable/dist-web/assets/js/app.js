@@ -1248,7 +1248,6 @@ function isFirstTimeUser() {
 }
 
 function checkPassword() {
-    localStorage.setItem("login", "true");
     showApp();
 }
 
