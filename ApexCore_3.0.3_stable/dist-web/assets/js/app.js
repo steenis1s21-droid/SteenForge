@@ -1248,48 +1248,15 @@ function isFirstTimeUser() {
 }
 
 function checkPassword() {
-    const input = document.getElementById("passwordInput").value;
-    const errorDiv = document.getElementById("loginError");
-    const statusDiv = document.getElementById("loginStatus");
-
-    errorDiv.textContent = "";
-
-    if (input.length < 4) {
-        errorDiv.textContent = t('loginErrorShort');
-        return;
-    }
-
-    if (isFirstTimeUser()) {
-        setStoredPassword(input);
-        errorDiv.textContent = "";
-        statusDiv.textContent = t('loginSuccess');
-        document.getElementById("passwordInput").value = "";
-        return;
-    }
-
-    const storedPassword = getStoredPassword();
-    const inputHash = hashPassword(input);
-    const isMatch = isPasswordHashed(storedPassword)
-        ? inputHash === storedPassword
-        : input === storedPassword || inputHash === storedPassword;
-
-    if (isMatch) {
-        if (!isPasswordHashed(storedPassword)) {
-            localStorage.setItem("userPassword", inputHash);
-        }
-        errorDiv.textContent = "";
-        document.getElementById("passwordInput").value = "";
-        localStorage.setItem("login", "true");
-        showApp();
-    } else {
-        errorDiv.textContent = t('loginErrorWrong');
-        document.getElementById("passwordInput").value = "";
-    }
+    localStorage.setItem("login", "true");
+    showApp();
 }
 
-document.getElementById("passwordInput").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") checkPassword();
-});
+if (document.getElementById("passwordInput")) {
+    document.getElementById("passwordInput").addEventListener("keypress", function(e) {
+        if (e.key === "Enter") checkPassword();
+    });
+}
 
 function showApp() {
     document.getElementById("loginBox").style.display = "none";
@@ -1303,10 +1270,8 @@ function showApp() {
 }
 
 try {
-    if (localStorage.getItem("login") === "true" && !isFirstTimeUser()) {
+    if (localStorage.getItem("login") === "true") {
         showApp();
-    } else if (isFirstTimeUser()) {
-        document.getElementById("loginStatus").textContent = t('loginStatusWelcome');
     } else {
         document.getElementById("loginStatus").textContent = t('loginStatusLogin');
     }
