@@ -376,7 +376,7 @@ main,
 
 .about-content {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .about-block {
