@@ -1270,13 +1270,12 @@ function showApp() {
 }
 
 try {
-    if (localStorage.getItem("login") === "true") {
-        showApp();
-    } else {
-        document.getElementById("loginStatus").textContent = t('loginStatusLogin');
-    }
+    showApp();
 } catch (e) {
-    document.getElementById("loginStatus").textContent = t('loginStatusLogin');
+    const statusDiv = document.getElementById("loginStatus");
+    if (statusDiv) {
+        statusDiv.textContent = t('loginStatusLogin');
+    }
 }
 
 // ============================================
