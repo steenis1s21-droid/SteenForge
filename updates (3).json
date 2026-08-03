@@ -1,0 +1,100 @@
+{
+  "updates": [
+    {
+      "id": "shared-github-update-demo",
+      "type": "new",
+      "date": "2026-08-03",
+      "title": "🌐 Delad uppdatering från GitHub",
+      "description": "Det här är en exempelfråga som appen hämtar från GitHub när den öppnas."
+    },
+    {
+      "type": "new",
+      "date": "2026-08-03",
+      "title": "adfadsf",
+      "description": "adfasdfadfadfsasdfasdf"
+    },
+    {
+      "type": "new",
+      "date": "2026-08-02",
+      "title": "Officiell release",
+      "description": "Full release äntligen släppt! *disco musik*"
+    },
+    {
+      "id": "archive-vault",
+      "type": "new",
+      "date": "2026-07-30",
+      "title": "🗄️ Exportera arkivet till en vault-fil",
+      "description": "Du kan flytta arkiverade poster till en krypterad vault-fil. När filen har skapats töms arkivet automatiskt."
+    },
+    {
+      "id": "vault-import",
+      "type": "new",
+      "date": "2026-07-30",
+      "title": "📥 Återställ vault-poster till Active",
+      "description": "En vault-fil kan importeras senare och dess arkiverade poster läggs då i Active så att de går att söka fram och använda igen."
+    },
+    {
+      "id": "info-panel-backup",
+      "type": "new",
+      "date": "2026-07-30",
+      "title": "💾 Spara och återställ info-panelen",
+      "description": "Info-panelen kan exporteras som en egen fil, importeras igen senare och följer också automatiskt med i vault-exporter."
+    },
+    {
+      "id": "custom-export-filenames",
+      "type": "update",
+      "date": "2026-07-30",
+      "title": "✏️ Välj egna namn på exportfiler",
+      "description": "När du exporterar backuper, CSV-filer, krypterade filer, infofiler eller vault-filer kan du nu själv välja filnamnet."
+    },
+    {
+      "id": "neutral-button-style",
+      "type": "update",
+      "date": "2026-07-30",
+      "title": "🎛️ Renare knappstil",
+      "description": "Knappar som tidigare stack ut med starkare accentfärger använder nu en mer neutral stil som passar bättre ihop med resten av appen."
+    },
+    {
+      "id": "duplicate-protection",
+      "type": "bugfix",
+      "date": "2026-07-30",
+      "title": "🧹 Dubblettskydd vid info-import",
+      "description": "Importerade poster i info-panelen kontrolleras nu för dubbletter så att samma inbyggda eller importerade uppdatering inte läggs till mer än en gång."
+    },
+    {
+      "id": "active-categories",
+      "type": "new",
+      "date": "2026-07-31",
+      "title": "📁 Kategorier i Active",
+      "description": "Aktiva poster kan nu grupperas i kollapsbara kategorier: Patienter, Administration, Privat och Övrigt."
+    },
+    {
+      "id": "high-priority-top",
+      "type": "update",
+      "date": "2026-07-31",
+      "title": "🔴 Hög prioritet alltid överst",
+      "description": "Poster med hög prioritet överstyr nu kategorier och visas alltid först i Active för bättre synlighet."
+    },
+    {
+      "id": "edit-outside-close",
+      "type": "update",
+      "date": "2026-07-31",
+      "title": "🖱️ Klicka utanför för att stänga Redigera",
+      "description": "Redigeringspanelen stängs nu när du klickar utanför den, så det går snabbare att återhämta sig från felklick."
+    },
+    {
+      "id": "high-in-category",
+      "type": "update",
+      "date": "2026-07-31",
+      "title": "🔴 Hög prioritet flyttad till Kategori",
+      "description": "Hög prioritet kan nu väljas direkt i kategorilistan, så en och samma väljare hanterar både gruppering och prioriterad placering."
+    },
+    {
+      "id": "hide-empty-notes",
+      "type": "bugfix",
+      "date": "2026-07-31",
+      "title": "📝 Tomma anteckningar döljs",
+      "description": "Om en post saknar anteckningar visas inte längre Notes-raden i Active, vilket gör korten renare."
+    }
+  ]
+}
