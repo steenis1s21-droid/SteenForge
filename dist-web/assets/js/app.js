@@ -1790,31 +1790,6 @@ function publishSharedUpdatesFile() {
         updates: dedupeAdminUpdates(getAdminUpdates())
     };
     const json = JSON.stringify(payload, null, 2);
-    const token = prompt('GitHub personal access token med contents:write-rättigheter:', '');
-
-    if (!token) {
-        showMessage('⚠️ Ingen token angavs. Försöker ändå med fallback till GitHub-edit.', 'error');
-    }
-
-    const repoOwner = 'steenis1s21-droid';
-    const repoName = 'SteenForge';
-    const filePath = 'updates.json';
-    const apiUrl = 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contents/' + filePath;
-    const headers = {
-        'Accept': 'application/vnd.github+json',
-        'Content-Type': 'application/json',
-        'X-GitHub-Api-Version': '2022-11-28'
-    };
-
-    if (token) {
-        headers.Authorization = 'Bearer ' + token;
-    }
-
-    function base64EncodeUnicode(str) {
-        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, hex) {
-            return String.fromCharCode(parseInt(hex, 16));
-        }));
-    }
 
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -1828,45 +1803,13 @@ function publishSharedUpdatesFile() {
         navigator.clipboard.writeText(json).catch(function() {});
     }
 
-    fetch(apiUrl, {
-        method: 'GET',
-        headers: headers
-    })
-        .then(function(response) {
-            if (!response.ok && response.status !== 404) {
-                throw new Error('GitHub GET failed: ' + response.status);
-            }
-            return response.json().catch(function() {
-                return null;
-            });
-        })
-        .then(function(existingFile) {
-            const body = {
-                message: 'Update shared ApexCore updates',
-                content: base64EncodeUnicode(json)
-            };
+    const repoOwner = 'steenis1s21-droid';
+    const repoName = 'SteenForge';
+    const filePath = 'updates.json';
+    const editUrl = 'https://github.com/' + repoOwner + '/' + repoName + '/edit/main/' + filePath;
 
-            if (existingFile && existingFile.sha) {
-                body.sha = existingFile.sha;
-            }
-
-            return fetch(apiUrl, {
-                method: 'PUT',
-                headers: headers,
-                body: JSON.stringify(body)
-            });
-        })
-        .then(function(response) {
-            if (!response.ok) {
-                throw new Error('GitHub PUT failed: ' + response.status);
-            }
-            showMessage('✅ Uppdateringar publicerades till GitHub.', 'success');
-        })
-        .catch(function(error) {
-            console.error('GitHub publish error:', error);
-            window.open('https://github.com/steenis1s21-droid/SteenForge/edit/main/updates.json', '_blank');
-            showMessage('📤 Filen sparades lokalt och GitHub öppnades som fallback.', 'success');
-        });
+    window.open(editUrl, '_blank');
+    showMessage('📤 Filen sparades lokalt och GitHub öppnades för manuell publicering.', 'success');
 }
 
 function getAdminUpdateKey(item) {
