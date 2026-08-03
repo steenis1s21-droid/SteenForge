@@ -92,7 +92,7 @@ const apps = [
 const aboutStory = {
   sv: [
     '<h3>⭕ ApexCore – The Heart of Your Work</h3>',
-    '<h4>En berättelse om funktion, fokus och att hitta rätt verktyg</h4>',
+    '<h4>🧭 En berättelse om funktion, fokus och att hitta rätt verktyg</h4>',
     'Jag byggde ApexCore av en enkel anledning: jag behövde något som faktiskt fungerade – för mig.',
     'Som en person med NPF-diagnoser upptäckte jag snabbt i mitt arbete att fysiska påminnelselappar inte räckte till. Jag tappade bort dem, glömde bort dem, eller så gav de helt enkelt inte den visuella påminnelse som jag behövde för att verkligen komma ihåg.',
     'Så jag började leta. Jag letade efter ett digitalt verktyg som kunde göra det jag behövde – men jag hittade inget som passade. Antingen saknades viktiga funktioner, eller så var systemen så stora och komplexa att jag ändå tappade bort mig själv. Precis som med post-it-lapparna.',
@@ -113,7 +113,7 @@ const aboutStory = {
   ],
   en: [
     '<h3>⭕ ApexCore – The Heart of Your Work</h3>',
-    '<h4>A story about function, focus, and finding the right tool</h4>',
+    '<h4>🧭 A story about function, focus, and finding the right tool</h4>',
     'I built ApexCore for one simple reason: I needed something that actually worked – for me.',
     'As someone with ADHD, I quickly realized that physical reminder notes were not enough. I lost them, forgot them, or they simply did not provide the visual cue I needed to truly remember.',
     'So I started looking. I searched for a digital tool that could do what I needed – but I could not find one that fit. Either important features were missing, or the systems were too big and complex for me to stay oriented. Just like the sticky notes.',
@@ -134,7 +134,7 @@ const aboutStory = {
   ],
   da: [
     '<h3>⭕ ApexCore – The Heart of Your Work</h3>',
-    '<h4>En historie om funktion, fokus og at finde det rette værktøj</h4>',
+    '<h4>🧭 En historie om funktion, fokus og at finde det rette værktøj</h4>',
     'Jeg byggede ApexCore af en enkel grund: jeg havde brug for noget, der faktisk virkede – for mig.',
     'Som person med NPF-diagnoser opdagede jeg hurtigt i mit arbejde, at fysiske påmindelsesnoter ikke var nok. Jeg mistede dem, glemte dem, eller de gav simpelthen ikke den visuelle påmindelse, jeg havde brug for for virkelig at huske.',
     'Så begyndte jeg at lede. Jeg søgte efter et digitalt værktøj, der kunne gøre det, jeg havde brug for – men jeg fandt ikke noget, der passede. Enten manglede vigtige funktioner, eller systemerne var så store og komplekse, at jeg stadig mistede mig selv. Ligesom med post-it-lapperne.',
@@ -155,7 +155,7 @@ const aboutStory = {
   ],
   no: [
     '<h3>⭕ ApexCore – The Heart of Your Work</h3>',
-    '<h4>En historie om funksjon, fokus og å finne riktig verktøy</h4>',
+    '<h4>🧭 En historie om funksjon, fokus og å finne riktig verktøy</h4>',
     'Jeg bygget ApexCore av en enkel grunn: jeg trengte noe som faktisk fungerte – for meg.',
     'Som person med NPF-diagnoser oppdaget jeg raskt i arbeidet at fysiske påminnelsesnotater ikke var nok. Jeg mistet dem, glemte dem, eller de ga rett og slett ikke den visuelle påminnelsen jeg trengte for virkelig å huske.',
     'Så begynte jeg å lete. Jeg lette etter et digitalt verktøy som kunne gjøre det jeg trengte – men jeg fant ingenting som passet. Enten manglet viktige funksjoner, eller systemene var så store og komplekse at jeg likevel mistet meg selv. Liksom med post-it-lappene.',
@@ -176,7 +176,7 @@ const aboutStory = {
   ],
   fi: [
     '<h3>⭕ ApexCore – The Heart of Your Work</h3>',
-    '<h4>Tarina toiminnallisuudesta, keskittymisestä ja oikean työkalun löytämisestä</h4>',
+    '<h4>🧭 Tarina toiminnallisuudesta, keskittymisestä ja oikean työkalun löytämisestä</h4>',
     'Rakensin ApexCoren yhdestä yksinkertaisesta syystä: tarvitsin jotain, joka todella toimi – minulle.',
     'Kuten henkilö, jolla on NPF-diagnoosi, huomasin nopeasti työssäni, että fyysiset muistilapput eivät riittäneet. Kadotin ne, unohdin ne, tai ne eivät yksinkertaisesti antaneet sitä visuaalista muistutusta, jota tarvitsin todella muistakseni.',
     'Aloin siis etsiä. Etsin digitaalisia työkaluja, jotka voisivat tehdä sen, mitä tarvitsin – mutta en löytänyt sopivaa. Joko tärkeitä ominaisuuksia puuttui, tai järjestelmät olivat liian suuria ja monimutkaisia, jotta pysyisin orientoituneena. Aivan kuten post-it-lappujen kanssa.',
