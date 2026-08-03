@@ -90,12 +90,24 @@ const apps = [
 
 const aboutStory = {
   sv: [
-    'ApexCore är ett verktyg för att hålla ordning i arbete, projekt och vardag.',
-    'Sömndagboken hjälper dig att följa sömnmönster och bygga vanor över tid.'
+    'ApexCore byggdes för att ge ordning i det som annars lätt blir ett kaos: projekt, uppgifter, prioriteringar och arbetsminne. Det började som ett eget behov av ett verktyg som gjorde det enklare att hålla koll på det viktigaste utan att behöva hoppa mellan flera olika appar.',
+    'Sömndagboken byggdes för att göra det lättare att förstå hur sömn, rutin och vardag påverkar energi och välmående. Syftet var att skapa något enkelt, personligt och praktiskt som hjälper dig att bygga hälsosammare vanor över tid.'
   ],
   en: [
-    'ApexCore is a tool for keeping work, projects and daily life in order.',
-    'Sleep Journal helps you track sleep patterns and build habits over time.'
+    'ApexCore was built to bring order to what can otherwise become chaos: projects, tasks, priorities, and daily workflow. It started as a personal need for a tool that made it easier to keep track of what matters without switching between many different apps.',
+    'Sleep Journal was built to make it easier to understand how sleep, routines, and everyday life affect energy and wellbeing. The goal was to create something simple, personal, and practical that helps build healthier habits over time.'
+  ],
+  da: [
+    'ApexCore blev bygget for at bringe orden ind i det, der ellers let kan blive kaos: projekter, opgaver, prioriteringer og daglig workflow. Det begyndte som et personligt behov for et værktøj, der gjorde det lettere at holde styr på det vigtigste uden at skulle skifte mellem mange forskellige apps.',
+    'Søvnjournalen blev bygget for at gøre det lettere at forstå, hvordan søvn, rutiner og dagligdagen påvirker energi og trivsel. Målet var at skabe noget simpelt, personligt og praktisk, der hjælper med at bygge sundere vaner over tid.'
+  ],
+  no: [
+    'ApexCore ble bygget for å gi orden til det som ellers lett kan bli kaos: prosjekter, oppgaver, prioriteringer og daglig arbeidsflyt. Det startet som et personlig behov for et verktøy som gjorde det lettere å holde styr på det viktigste uten å måtte bytte mellom mange ulike apper.',
+    'Søvnjournalen ble bygget for å gjøre det lettere å forstå hvordan søvn, rutiner og hverdagen påvirker energi og velvære. Målet var å skape noe enkelt, personlig og praktisk som hjelper deg å bygge sunnere vaner over tid.'
+  ],
+  fi: [
+    'ApexCore rakennettiin tuomaan järjestystä siihen, mikä muuten voi helposti muuttua kaaokseksi: projekteihin, tehtäviin, prioriteetteihin ja arjen työskentelyyn. Se alkoi omasta tarpeesta työkalulle, joka helpottaisi keskittyä oleelliseen ilman, että täytyy vaihtaa useiden eri sovellusten välillä.',
+    'Unipäiväkirja rakennettiin helpottamaan sen ymmärtämistä, miten uni, rutiinit ja arki vaikuttavat energiaan ja hyvinvointiin. Tavoitteena oli luoda jotain yksinkertaista, henkilökohtaista ja käytännöllistä, joka auttaa rakentamaan terveellisempiä tapoja ajan myötä.'
   ]
 };
 
