@@ -1227,15 +1227,24 @@ function updateAdminPanelLanguage() {
 // ============================================
 
 function getStoredPassword() {
-    return localStorage.getItem("userPassword");
+    try {
+        return localStorage.getItem("userPassword");
+    } catch (e) {
+        return null;
+    }
 }
 
 function setStoredPassword(password) {
-    localStorage.setItem("userPassword", hashPassword(password));
+    try {
+        localStorage.setItem("userPassword", hashPassword(password));
+    } catch (e) {
+        console.warn('Kunde inte spara lösenord:', e);
+    }
 }
 
 function isFirstTimeUser() {
-    return getStoredPassword() === null;
+    const storedPassword = getStoredPassword();
+    return storedPassword === null || storedPassword === '';
 }
 
 function checkPassword() {
@@ -1245,11 +1254,12 @@ function checkPassword() {
 
     errorDiv.textContent = "";
 
+    if (input.length < 4) {
+        errorDiv.textContent = t('loginErrorShort');
+        return;
+    }
+
     if (isFirstTimeUser()) {
-        if (input.length < 4) {
-            errorDiv.textContent = t('loginErrorShort');
-            return;
-        }
         setStoredPassword(input);
         errorDiv.textContent = "";
         statusDiv.textContent = t('loginSuccess');
@@ -1259,10 +1269,9 @@ function checkPassword() {
 
     const storedPassword = getStoredPassword();
     const inputHash = hashPassword(input);
-    // Support migration from plaintext to hashed passwords
     const isMatch = isPasswordHashed(storedPassword)
         ? inputHash === storedPassword
-        : input === storedPassword;
+        : input === storedPassword || inputHash === storedPassword;
 
     if (isMatch) {
         if (!isPasswordHashed(storedPassword)) {
@@ -1293,11 +1302,15 @@ function showApp() {
     }, 1000);
 }
 
-if (localStorage.getItem("login") === "true" && !isFirstTimeUser()) {
-    showApp();
-} else if (isFirstTimeUser()) {
-    document.getElementById("loginStatus").textContent = t('loginStatusWelcome');
-} else {
+try {
+    if (localStorage.getItem("login") === "true" && !isFirstTimeUser()) {
+        showApp();
+    } else if (isFirstTimeUser()) {
+        document.getElementById("loginStatus").textContent = t('loginStatusWelcome');
+    } else {
+        document.getElementById("loginStatus").textContent = t('loginStatusLogin');
+    }
+} catch (e) {
     document.getElementById("loginStatus").textContent = t('loginStatusLogin');
 }
 
@@ -1698,12 +1711,25 @@ function refreshSharedUpdatesFromGitHub() {
     });
 }
 
+function getAdminUpdateKey(item) {
+    if (!item || typeof item !== 'object') return '';
+
+    const parts = [];
+    if (item.id) parts.push(String(item.id));
+    if (item.title) parts.push(String(item.title));
+    if (item.description) parts.push(String(item.description));
+    if (item.type) parts.push(String(item.type));
+    if (item.date) parts.push(String(item.date));
+
+    return parts.join('|');
+}
+
 function dedupeAdminUpdates(updates) {
     const seen = new Set();
 
-    return updates.filter(function(item) {
+    return (updates || []).filter(function(item) {
         const key = getAdminUpdateKey(item);
-        if (seen.has(key)) return false;
+        if (!key || seen.has(key)) return false;
         seen.add(key);
         return true;
     });
@@ -1759,13 +1785,17 @@ function getUpdateBadgeText(type) {
 const ADMIN_UPDATES_SYNC_VERSION = '2026-07-31-high-in-category-notes-hidden';
 
 function syncAdminUpdatesWithDefaults() {
-    if (localStorage.getItem('adminUpdatesSyncVersion') === ADMIN_UPDATES_SYNC_VERSION) {
-        return;
-    }
+    try {
+        if (localStorage.getItem('adminUpdatesSyncVersion') === ADMIN_UPDATES_SYNC_VERSION) {
+            return;
+        }
 
-    const mergedUpdates = mergeDefaultUpdatesWithStored(getDefaultUpdates(), getAdminUpdates());
-    saveAdminUpdates(mergedUpdates);
-    localStorage.setItem('adminUpdatesSyncVersion', ADMIN_UPDATES_SYNC_VERSION);
+        const mergedUpdates = mergeDefaultUpdatesWithStored(getDefaultUpdates(), getAdminUpdates());
+        saveAdminUpdates(mergedUpdates);
+        localStorage.setItem('adminUpdatesSyncVersion', ADMIN_UPDATES_SYNC_VERSION);
+    } catch (e) {
+        console.warn('Kunde inte synkronisera adminuppdateringar:', e);
+    }
 }
 
 function saveAdminUpdates(updates) {
