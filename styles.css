@@ -399,9 +399,9 @@ main,
 }
 
 .about-block p {
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   color: #d0d8e1;
-  line-height: 1.75;
+  line-height: 1.6;
 }
 
 .about-section {
