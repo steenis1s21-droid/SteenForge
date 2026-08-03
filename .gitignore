@@ -1,0 +1,20 @@
+# Local Python environment
+.venv/
+
+# Local cleanup/archive folders
+archive/
+backup-current-*/
+backup_before_info_panel_removal/
+
+# Temporary or repair helper files
+app.js.clean
+app.js.new
+fix_encoding.py
+verify_apex_login.py
+repair_text.py
+repair_text_direct.ps1
+updates (3).json
+
+# OS/editor noise
+Thumbs.db
+.DS_Store
