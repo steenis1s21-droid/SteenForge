@@ -109,11 +109,19 @@ function updateSoundButton() {
 // ============================================
 
 function getTheme() {
-    return localStorage.getItem('theme') || 'light';
+    try {
+        return localStorage.getItem('theme') || 'light';
+    } catch (e) {
+        return 'light';
+    }
 }
 
 function setTheme(theme) {
-    localStorage.setItem('theme', theme);
+    try {
+        localStorage.setItem('theme', theme);
+    } catch (e) {
+        console.warn('Kunde inte spara tema:', e);
+    }
     document.documentElement.setAttribute('data-theme', theme);
     updateThemeButton();
 }
@@ -1450,10 +1458,14 @@ function changePassword() {
 // ============================================
 
 function saveData() {
-    localStorage.setItem("items", JSON.stringify(items));
-    localStorage.setItem("doneItems", JSON.stringify(doneItems));
-    localStorage.setItem("archivedItems", JSON.stringify(archivedItems));
-    localStorage.setItem('activeGroupsCollapsed', JSON.stringify(activeGroupsCollapsed));
+    try {
+        localStorage.setItem("items", JSON.stringify(items || []));
+        localStorage.setItem("doneItems", JSON.stringify(doneItems || []));
+        localStorage.setItem("archivedItems", JSON.stringify(archivedItems || []));
+        localStorage.setItem('activeGroupsCollapsed', JSON.stringify(activeGroupsCollapsed || {}));
+    } catch (e) {
+        console.warn('Kunde inte spara appdata:', e);
+    }
 }
 
 function normalizePriorityValue(value) {
@@ -1520,26 +1532,33 @@ function normalizeItemData(item) {
 }
 
 function loadData() {
-    const i = localStorage.getItem("items");
-    const d = localStorage.getItem("doneItems");
-    const a = localStorage.getItem("archivedItems");
-    const g = localStorage.getItem('activeGroupsCollapsed');
+    try {
+        const i = localStorage.getItem("items");
+        const d = localStorage.getItem("doneItems");
+        const a = localStorage.getItem("archivedItems");
+        const g = localStorage.getItem('activeGroupsCollapsed');
 
-    if (i) items = JSON.parse(i);
-    if (d) doneItems = JSON.parse(d);
-    if (a) archivedItems = JSON.parse(a);
-    if (g) {
+        items = i ? JSON.parse(i) : [];
+        doneItems = d ? JSON.parse(d) : [];
+        archivedItems = a ? JSON.parse(a) : [];
+
         try {
-            activeGroupsCollapsed = JSON.parse(g) || {};
+            activeGroupsCollapsed = g ? JSON.parse(g) : {};
         } catch (e) {
             activeGroupsCollapsed = {};
         }
+    } catch (e) {
+        items = [];
+        doneItems = [];
+        archivedItems = [];
+        activeGroupsCollapsed = {};
+        console.warn('Kunde inte läsa appdata, använder tomt state:', e);
     }
 
-    items = items.map(normalizeItemData);
-    doneItems = doneItems.map(normalizeItemData);
-    archivedItems = archivedItems.map(normalizeItemData);
-    
+    items = (items || []).map(normalizeItemData);
+    doneItems = (doneItems || []).map(normalizeItemData);
+    archivedItems = (archivedItems || []).map(normalizeItemData);
+
     const lang = localStorage.getItem('appLanguage') || 'sv';
     currentLanguage = lang;
 }
@@ -3311,6 +3330,7 @@ function renderAdminList() {
 function saveAdminChanges() {
     renderAdminList();
     showMessage(t('adminChangesSavedMessage'), 'success');
+}
 
 // ============================================
 // INIT
@@ -3327,6 +3347,7 @@ loadTheme();
 updateSoundButton();
 initReminderInputs();
 setActiveSortMode(getStoredActiveSortMode());
+saveData();
 
 setTimeout(function() {
     checkNotifications();

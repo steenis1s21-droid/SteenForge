@@ -109,11 +109,19 @@ function updateSoundButton() {
 // ============================================
 
 function getTheme() {
-    return localStorage.getItem('theme') || 'light';
+    try {
+        return localStorage.getItem('theme') || 'light';
+    } catch (e) {
+        return 'light';
+    }
 }
 
 function setTheme(theme) {
-    localStorage.setItem('theme', theme);
+    try {
+        localStorage.setItem('theme', theme);
+    } catch (e) {
+        console.warn('Kunde inte spara tema:', e);
+    }
     document.documentElement.setAttribute('data-theme', theme);
     updateThemeButton();
 }
@@ -1167,9 +1175,7 @@ function applyLanguage() {
     document.getElementById('undoBtn').textContent = t('undoBtn');
     
     document.getElementById('footerText').textContent = t('footerText');
-    document.getElementById('infoTitle').textContent = t('infoTitle');
     updateAdminPanelLanguage();
-    renderInfoContent();
     
     document.getElementById('archiveTitle').textContent = t('archiveModalTitle') + ' (' + archivedItems.length + ')';
     document.getElementById('archiveSearch').placeholder = t('archiveSearch');
@@ -1452,10 +1458,14 @@ function changePassword() {
 // ============================================
 
 function saveData() {
-    localStorage.setItem("items", JSON.stringify(items));
-    localStorage.setItem("doneItems", JSON.stringify(doneItems));
-    localStorage.setItem("archivedItems", JSON.stringify(archivedItems));
-    localStorage.setItem('activeGroupsCollapsed', JSON.stringify(activeGroupsCollapsed));
+    try {
+        localStorage.setItem("items", JSON.stringify(items || []));
+        localStorage.setItem("doneItems", JSON.stringify(doneItems || []));
+        localStorage.setItem("archivedItems", JSON.stringify(archivedItems || []));
+        localStorage.setItem('activeGroupsCollapsed', JSON.stringify(activeGroupsCollapsed || {}));
+    } catch (e) {
+        console.warn('Kunde inte spara appdata:', e);
+    }
 }
 
 function normalizePriorityValue(value) {
@@ -1522,26 +1532,33 @@ function normalizeItemData(item) {
 }
 
 function loadData() {
-    const i = localStorage.getItem("items");
-    const d = localStorage.getItem("doneItems");
-    const a = localStorage.getItem("archivedItems");
-    const g = localStorage.getItem('activeGroupsCollapsed');
+    try {
+        const i = localStorage.getItem("items");
+        const d = localStorage.getItem("doneItems");
+        const a = localStorage.getItem("archivedItems");
+        const g = localStorage.getItem('activeGroupsCollapsed');
 
-    if (i) items = JSON.parse(i);
-    if (d) doneItems = JSON.parse(d);
-    if (a) archivedItems = JSON.parse(a);
-    if (g) {
+        items = i ? JSON.parse(i) : [];
+        doneItems = d ? JSON.parse(d) : [];
+        archivedItems = a ? JSON.parse(a) : [];
+
         try {
-            activeGroupsCollapsed = JSON.parse(g) || {};
+            activeGroupsCollapsed = g ? JSON.parse(g) : {};
         } catch (e) {
             activeGroupsCollapsed = {};
         }
+    } catch (e) {
+        items = [];
+        doneItems = [];
+        archivedItems = [];
+        activeGroupsCollapsed = {};
+        console.warn('Kunde inte läsa appdata, använder tomt state:', e);
     }
 
-    items = items.map(normalizeItemData);
-    doneItems = doneItems.map(normalizeItemData);
-    archivedItems = archivedItems.map(normalizeItemData);
-    
+    items = (items || []).map(normalizeItemData);
+    doneItems = (doneItems || []).map(normalizeItemData);
+    archivedItems = (archivedItems || []).map(normalizeItemData);
+
     const lang = localStorage.getItem('appLanguage') || 'sv';
     currentLanguage = lang;
 }
@@ -1759,33 +1776,6 @@ function refreshSharedUpdatesFromGitHub() {
     });
 }
 
-function publishSharedUpdatesFile() {
-    const payload = {
-        updates: dedupeAdminUpdates(getAdminUpdates())
-    };
-    const json = JSON.stringify(payload, null, 2);
-
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'updates.json';
-    a.click();
-    URL.revokeObjectURL(url);
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(json).catch(function() {});
-    }
-
-    const repoOwner = 'steenis1s21-droid';
-    const repoName = 'SteenForge';
-    const filePath = 'updates.json';
-    const editUrl = 'https://github.com/' + repoOwner + '/' + repoName + '/edit/main/' + filePath;
-
-    window.open(editUrl, '_blank');
-    showMessage('📤 Filen sparades lokalt och GitHub öppnades för manuell publicering.', 'success');
-}
-
 function getAdminUpdateKey(item) {
     return [
         String(item.type || '').trim().toLowerCase(),
@@ -1793,6 +1783,37 @@ function getAdminUpdateKey(item) {
         String(item.title || '').trim().toLowerCase(),
         String(item.description || '').trim().toLowerCase()
     ].join('||');
+}
+
+function getAdminUpdateKeys(updates) {
+    return (updates || []).map(function(item) {
+        return getAdminUpdateKey(item);
+    });
+}
+
+function getSeenInfoUpdateKeys() {
+    const stored = localStorage.getItem('seenInfoUpdateKeys');
+    if (!stored) return [];
+
+    try {
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveSeenInfoUpdateKeys(keys) {
+    localStorage.setItem('seenInfoUpdateKeys', JSON.stringify(keys || []));
+}
+
+function getUnreadInfoUpdateCount(updates) {
+    const seenKeys = new Set(getSeenInfoUpdateKeys());
+    const currentKeys = getAdminUpdateKeys(updates || getAdminUpdates());
+
+    return currentKeys.filter(function(key) {
+        return !seenKeys.has(key);
+    }).length;
 }
 
 function dedupeAdminUpdates(updates) {
@@ -1885,6 +1906,37 @@ function exportAdminUpdatesFile() {
     showMessage(t('adminExportSuccess').replace('{count}', updates.length), 'success');
 }
 
+function getSharedUpdatesPayload() {
+    return {
+        updates: dedupeAdminUpdates(getAdminUpdates())
+    };
+}
+
+function publishSharedUpdatesFile() {
+    const payload = getSharedUpdatesPayload();
+    const json = JSON.stringify(payload, null, 2);
+
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'updates.json';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(json).catch(function() {});
+    }
+
+    const repoOwner = 'steenis1s21-droid';
+    const repoName = 'SteenForge';
+    const filePath = 'updates.json';
+    const editUrl = 'https://github.com/' + repoOwner + '/' + repoName + '/edit/main/' + filePath;
+
+    window.open(editUrl, '_blank');
+    showMessage('📤 Filen sparades lokalt och GitHub öppnades för manuell publicering.', 'success');
+}
+
 function importAdminUpdatesFile(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -1922,7 +1974,6 @@ function importAdminUpdatesFile(event) {
             }
 
             renderAdminList();
-            renderInfoContent();
             hideProgress();
         } catch (error) {
             hideProgress();
@@ -2223,7 +2274,6 @@ function importProcess(data) {
         if (Array.isArray(data.adminUpdates)) {
             const mergedUpdates = mergeAdminUpdates(data.adminUpdates, getAdminUpdates());
             saveAdminUpdates(mergedUpdates);
-            renderInfoContent();
             renderAdminList();
         }
         items = items.concat(importedItems);
@@ -3208,7 +3258,6 @@ function addAdminItem() {
     saveAdminUpdates(updates);
     clearAdminForm();
     renderAdminList();
-    renderInfoContent();
     showMessage(t('adminSavedMessage'), 'success');
 }
 
@@ -3218,7 +3267,6 @@ function deleteAdminItem(index) {
     updates.splice(index, 1);
     saveAdminUpdates(updates);
     renderAdminList();
-    renderInfoContent();
     showMessage(t('adminDeletedMessage'), 'info');
 }
 
@@ -3281,7 +3329,6 @@ function renderAdminList() {
 
 function saveAdminChanges() {
     renderAdminList();
-    renderInfoContent();
     showMessage(t('adminChangesSavedMessage'), 'success');
 }
 
@@ -3291,6 +3338,7 @@ function saveAdminChanges() {
 
 loadData();
 syncAdminUpdatesWithDefaults();
+syncSharedUpdatesOnLoad();
 render();
 setupEnterKey();
 updateLanguageMenu();
@@ -3299,6 +3347,7 @@ loadTheme();
 updateSoundButton();
 initReminderInputs();
 setActiveSortMode(getStoredActiveSortMode());
+saveData();
 
 setTimeout(function() {
     checkNotifications();

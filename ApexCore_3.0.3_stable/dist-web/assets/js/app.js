@@ -108,11 +108,19 @@ function updateSoundButton() {
 // ============================================
 
 function getTheme() {
-    return localStorage.getItem('theme') || 'light';
+    try {
+        return localStorage.getItem('theme') || 'light';
+    } catch (e) {
+        return 'light';
+    }
 }
 
 function setTheme(theme) {
-    localStorage.setItem('theme', theme);
+    try {
+        localStorage.setItem('theme', theme);
+    } catch (e) {
+        console.warn('Kunde inte spara tema:', e);
+    }
     document.documentElement.setAttribute('data-theme', theme);
     updateThemeButton();
 }
@@ -1070,57 +1078,78 @@ function applyLanguage() {
             el.textContent = text;
         }
     });
-    
-    document.getElementById('loginTitle').textContent = t('loginTitle');
-    document.getElementById('loginBtn').textContent = t('loginBtn');
-    document.getElementById('passwordInput').placeholder = t('loginPlaceholder');
-    
-    document.getElementById('changePwTitle').textContent = t('changePwTitle');
-    document.getElementById('oldPassword').placeholder = t('oldPwPlaceholder');
-    document.getElementById('newPassword1').placeholder = t('newPwPlaceholder');
-    document.getElementById('newPassword2').placeholder = t('confirmPwPlaceholder');
-    document.getElementById('savePwBtn').textContent = t('savePwBtn');
-    document.getElementById('cancelPwBtn').textContent = t('cancelPwBtn');
-    
-    document.getElementById('subtitleSlogan').textContent = t('slogan');
-    document.getElementById('changePwBtn').textContent = t('changePwBtn');
-    document.getElementById('archiveBtn').textContent = t('archiveBtn');
-    document.getElementById('logoutBtn').textContent = t('logoutBtn');
-    
-    document.getElementById('exportJsonBtn').textContent = t('exportJson');
-    document.getElementById('exportEncryptedBtn').textContent = t('exportEncrypted');
-    document.getElementById('exportCsvBtn').textContent = t('exportCsv');
-    document.getElementById('importBtn').textContent = t('importBtn');
-    
-    document.getElementById('searchInput').placeholder = t('searchActive');
-    document.getElementById('doneSearchInput').placeholder = t('searchDone');
-    document.getElementById('archiveAllBtn').textContent = t('archiveAllBtn');
-    
-    document.getElementById('undoText').textContent = t('undoText');
-    document.getElementById('undoBtn').textContent = t('undoBtn');
-    
-    document.getElementById('footerText').textContent = t('footerText');
-    document.getElementById('infoTitle').textContent = t('infoTitle');
+
+    const setText = function(id, key) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = t(key);
+        }
+    };
+
+    const setPlaceholder = function(id, key) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.placeholder = t(key);
+        }
+    };
+
+    setText('loginTitle', 'loginTitle');
+    setText('loginBtn', 'loginBtn');
+    setPlaceholder('passwordInput', 'loginPlaceholder');
+
+    setText('changePwTitle', 'changePwTitle');
+    setPlaceholder('oldPassword', 'oldPwPlaceholder');
+    setPlaceholder('newPassword1', 'newPwPlaceholder');
+    setPlaceholder('newPassword2', 'confirmPwPlaceholder');
+    setText('savePwBtn', 'savePwBtn');
+    setText('cancelPwBtn', 'cancelPwBtn');
+
+    setText('subtitleSlogan', 'slogan');
+    setText('changePwBtn', 'changePwBtn');
+    setText('archiveBtn', 'archiveBtn');
+    setText('logoutBtn', 'logoutBtn');
+
+    setText('exportJsonBtn', 'exportJson');
+    setText('exportEncryptedBtn', 'exportEncrypted');
+    setText('exportCsvBtn', 'exportCsv');
+    setText('importBtn', 'importBtn');
+
+    setPlaceholder('searchInput', 'searchActive');
+    setPlaceholder('doneSearchInput', 'searchDone');
+    setText('archiveAllBtn', 'archiveAllBtn');
+
+    setText('undoText', 'undoText');
+    setText('undoBtn', 'undoBtn');
+
+    setText('footerText', 'footerText');
+    setText('infoTitle', 'infoTitle');
     updateAdminPanelLanguage();
-    renderInfoContent();
-    
-    document.getElementById('archiveTitle').textContent = t('archiveModalTitle') + ' (' + archivedItems.length + ')';
-    document.getElementById('archiveSearch').placeholder = t('archiveSearch');
-    document.getElementById('archiveVaultBtn').textContent = t('archiveVaultBtn');
-    document.getElementById('archiveClearBtn').textContent = t('archiveClear');
-    document.getElementById('archiveCloseBtn').textContent = t('archiveClose');
-    updateReminderLanguageText();
-    updateCategoryLanguageText();
-    updateSortLanguageText();
-    
-    const statusDiv = document.getElementById('loginStatus');
-    if (isFirstTimeUser()) {
-        statusDiv.textContent = t('loginStatusWelcome');
-    } else if (!document.getElementById('app').classList.contains('hidden')) {
-    } else {
-        statusDiv.textContent = t('loginStatusLogin');
+    if (typeof renderInfoContent === 'function') {
+        renderInfoContent();
     }
-    
+
+    const archiveTitle = document.getElementById('archiveTitle');
+    if (archiveTitle) {
+        archiveTitle.textContent = t('archiveModalTitle') + ' (' + archivedItems.length + ')';
+    }
+    setPlaceholder('archiveSearch', 'archiveSearch');
+    setText('archiveVaultBtn', 'archiveVaultBtn');
+    setText('archiveClearBtn', 'archiveClear');
+    setText('archiveCloseBtn', 'archiveClose');
+    if (typeof updateReminderLanguageText === 'function') updateReminderLanguageText();
+    if (typeof updateCategoryLanguageText === 'function') updateCategoryLanguageText();
+    if (typeof updateSortLanguageText === 'function') updateSortLanguageText();
+
+    const statusDiv = document.getElementById('loginStatus');
+    if (statusDiv) {
+        if (isFirstTimeUser()) {
+            statusDiv.textContent = t('loginStatusWelcome');
+        } else if (!document.getElementById('app').classList.contains('hidden')) {
+        } else {
+            statusDiv.textContent = t('loginStatusLogin');
+        }
+    }
+
     render();
 }
 
@@ -1351,10 +1380,14 @@ function changePassword() {
 // ============================================
 
 function saveData() {
-    localStorage.setItem("items", JSON.stringify(items));
-    localStorage.setItem("doneItems", JSON.stringify(doneItems));
-    localStorage.setItem("archivedItems", JSON.stringify(archivedItems));
-    localStorage.setItem('activeGroupsCollapsed', JSON.stringify(activeGroupsCollapsed));
+    try {
+        localStorage.setItem("items", JSON.stringify(items || []));
+        localStorage.setItem("doneItems", JSON.stringify(doneItems || []));
+        localStorage.setItem("archivedItems", JSON.stringify(archivedItems || []));
+        localStorage.setItem('activeGroupsCollapsed', JSON.stringify(activeGroupsCollapsed || {}));
+    } catch (e) {
+        console.warn('Kunde inte spara appdata:', e);
+    }
 }
 
 function normalizePriorityValue(value) {
@@ -1421,26 +1454,33 @@ function normalizeItemData(item) {
 }
 
 function loadData() {
-    const i = localStorage.getItem("items");
-    const d = localStorage.getItem("doneItems");
-    const a = localStorage.getItem("archivedItems");
-    const g = localStorage.getItem('activeGroupsCollapsed');
+    try {
+        const i = localStorage.getItem("items");
+        const d = localStorage.getItem("doneItems");
+        const a = localStorage.getItem("archivedItems");
+        const g = localStorage.getItem('activeGroupsCollapsed');
 
-    if (i) items = JSON.parse(i);
-    if (d) doneItems = JSON.parse(d);
-    if (a) archivedItems = JSON.parse(a);
-    if (g) {
+        items = i ? JSON.parse(i) : [];
+        doneItems = d ? JSON.parse(d) : [];
+        archivedItems = a ? JSON.parse(a) : [];
+
         try {
-            activeGroupsCollapsed = JSON.parse(g) || {};
+            activeGroupsCollapsed = g ? JSON.parse(g) : {};
         } catch (e) {
             activeGroupsCollapsed = {};
         }
+    } catch (e) {
+        items = [];
+        doneItems = [];
+        archivedItems = [];
+        activeGroupsCollapsed = {};
+        console.warn('Kunde inte läsa appdata, använder tomt state:', e);
     }
 
-    items = items.map(normalizeItemData);
-    doneItems = doneItems.map(normalizeItemData);
-    archivedItems = archivedItems.map(normalizeItemData);
-    
+    items = (items || []).map(normalizeItemData);
+    doneItems = (doneItems || []).map(normalizeItemData);
+    archivedItems = (archivedItems || []).map(normalizeItemData);
+
     const lang = localStorage.getItem('appLanguage') || 'sv';
     currentLanguage = lang;
 }
@@ -3146,6 +3186,7 @@ loadTheme();
 updateSoundButton();
 initReminderInputs();
 setActiveSortMode(getStoredActiveSortMode());
+saveData();
 
 setTimeout(function() {
     checkNotifications();

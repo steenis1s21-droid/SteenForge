@@ -7,21 +7,41 @@ function isPasswordHashed(str) {
 }
 
 function getSoundEnabled() {
-    const saved = localStorage.getItem('soundEnabled');
-    return saved === null ? true : saved === 'true';
+    try {
+        const saved = localStorage.getItem('soundEnabled');
+        return saved === null ? true : saved === 'true';
+    } catch (e) {
+        return true;
+    }
 }
 
 function setSoundEnabled(enabled) {
-    localStorage.setItem('soundEnabled', String(enabled));
-    updateSoundButton();
+    try {
+        localStorage.setItem('soundEnabled', String(enabled));
+    } catch (e) {
+        console.warn('Kunde inte spara ljudinställning:', e);
+    }
+    if (typeof updateSoundButton === 'function') {
+        updateSoundButton();
+    }
 }
 
 function getTheme() {
-    return localStorage.getItem('theme') || 'light';
+    try {
+        return localStorage.getItem('theme') || 'light';
+    } catch (e) {
+        return 'light';
+    }
 }
 
 function setTheme(theme) {
-    localStorage.setItem('theme', theme);
+    try {
+        localStorage.setItem('theme', theme);
+    } catch (e) {
+        console.warn('Kunde inte spara tema:', e);
+    }
     document.documentElement.setAttribute('data-theme', theme);
-    updateThemeButton();
+    if (typeof updateThemeButton === 'function') {
+        updateThemeButton();
+    }
 }
