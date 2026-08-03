@@ -1696,10 +1696,12 @@ function getSharedUpdatesUrls() {
     const absoluteBase = new URL(baseUrl, window.location.href);
     const currentDir = new URL('.', absoluteBase);
     const repoBase = 'https://steenis1s21-droid.github.io/SteenForge';
+    const rawRepoBase = 'https://raw.githubusercontent.com/steenis1s21-droid/SteenForge/publish-clean';
 
     return [
         new URL('./updates.json', currentDir).toString(),
         new URL('/updates.json', absoluteBase).toString(),
+        rawRepoBase + '/updates.json',
         repoBase + '/updates.json',
         repoBase + '/ApexCore_3.0.3_stable/dist-web/updates.json',
         repoBase + '/ApexCore_3.0.3_stable/updates.json'
