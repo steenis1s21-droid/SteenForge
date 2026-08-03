@@ -74,7 +74,7 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
 if (Test-Path $siteDataFile) {
     $siteData = Get-Content -Path $siteDataFile -Raw
-    $pattern = '(?s)(id:\s*"apexcore",.*?version:\s*")([^"]+)(")'
+    $pattern = '(?s)(id:\s*[''\"]apexcore[''\"].*?version:\s*[''\"])([^''\"]+)([''\"])'
 
     if (-not [regex]::IsMatch($siteData, $pattern)) {
         throw "Could not find ApexCore version field in $siteDataFile"
