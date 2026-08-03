@@ -1,198 +1,195 @@
 const languageMeta = {
-  sv: { locale: "sv-SE", selectorTitle: "VÃ¤lj sprÃ¥k" },
+  sv: { locale: "sv-SE", selectorTitle: "Välj språk" },
   en: { locale: "en-US", selectorTitle: "Choose language" },
-  da: { locale: "da-DK", selectorTitle: "VÃ¦lg sprog" },
-  no: { locale: "nb-NO", selectorTitle: "Velg sprÃ¥k" },
+  da: { locale: "da-DK", selectorTitle: "Vælg sprog" },
+  no: { locale: "nb-NO", selectorTitle: "Velg språk" },
   fi: { locale: "fi-FI", selectorTitle: "Valitse kieli" }
 };
 
 const translations = {
   sv: {
-    title: "SteenForge | Dina appar pÃ¥ ett stÃ¤lle",
-    description: "Ladda ner dina appar, lÃ¤s release notes och hÃ¥ll koll pÃ¥ nyheter.",
     navApps: "Appar",
     navAbout: "Om",
-    heroEyebrow: "Bygg. Leverera. FÃ¶rbÃ¤ttra.",
-    heroTitle: "Din apphub, redo fÃ¶r nedladdningar och uppdateringar.",
-    heroCopy: "Ge anvÃ¤ndare en plats att upptÃ¤cka dina appar, ladda ner senaste versionerna och lÃ¤sa exakt vad som Ã¤ndrats i varje release.",
-    heroCta: "Visa appar",
     downloadsTitle: "Nedladdningar",
-    downloadsCopy: "VÃ¤lj en app fÃ¶r att Ã¶ppna dess egna sida med filer och release notes.",
-    aboutTitle: "Om projekten",
-    aboutLead: "Bakgrunden till varfÃ¶r ApexCore och SÃ¶mndagboken byggdes.",
+    downloadsCopy: "Håll dina installationsfiler och länkar uppdaterade i en lista.",
     platformLabel: "Plattform",
-    footerCopy: "SteenForge-mall. Redigera data i app.js fÃ¶r att publicera dina riktiga appar.",
-    platformOptions: { all: "Alla", Windows: "Windows", Android: "Android", Web: "Webb", macOS: "macOS" },
-    openAppButton: "Ã–ppna app",
-    noApps: "Inga appar matchar vald plattform Ã¤n.",
-    detailsBack: "Tillbaka till startsidan",
-    detailsDownloadsTitle: "Nedladdningsfiler",
-    detailsDownloadsCopy: "Ladda ner senaste versionen hÃ¤r.",
-    detailsReleaseTitle: "Release Notes",
-    actionOpenWeb: "Ã–ppna webbversion",
-    actionDownloadFile: "Ladda ner fil",
-    detailsNoFiles: "Nedladdning lÃ¤ggs till snart.",
-    detailsNotFound: "Appen hittades inte.",
-    detailsNotFoundHelp: "GÃ¥ tillbaka till startsidan och vÃ¤lj en app frÃ¥n listan."
+    aboutTitle: "Om projekten",
+    aboutLead: "Bakgrunden till varför ApexCore och Sömndagboken byggdes.",
+    footerCopy: "SteenForge-mall. Redigera data i app.js för att publicera dina riktiga appar.",
+    openAppButton: "Öppna app",
+    noApps: "Inga appar matchar vald plattform än."
   },
   en: {
-    title: "SteenForge | Your Apps in One Place",
-    description: "Download your apps, read release notes, and keep up with what is new.",
     navApps: "Apps",
     navAbout: "About",
-    heroEyebrow: "Build. Ship. Improve.",
-    heroTitle: "Your app hub, ready for downloads and updates.",
-    heroCopy: "Give users one place to discover your apps, download the latest versions, and read exactly what changed in every release.",
-    heroCta: "Browse Apps",
     downloadsTitle: "Downloads",
-    downloadsCopy: "Choose an app to open its own page with files and release notes.",
+    downloadsCopy: "Keep your install files and links updated in one list.",
+    platformLabel: "Platform",
     aboutTitle: "About the projects",
     aboutLead: "The story behind why ApexCore and Sleep Journal were built.",
-    platformLabel: "Platform",
     footerCopy: "SteenForge starter template. Edit data in app.js to publish your real apps.",
-    platformOptions: { all: "All", Windows: "Windows", Android: "Android", Web: "Web", macOS: "macOS" },
-    openAppButton: "Open App",
-    noApps: "No apps match this platform yet.",
-    detailsBack: "Back to homepage",
-    detailsDownloadsTitle: "Download Files",
-    detailsDownloadsCopy: "Download the latest version here.",
-    detailsReleaseTitle: "Release Notes",
-    actionOpenWeb: "Open Web Version",
-    actionDownloadFile: "Download File",
-    detailsNoFiles: "Download will be added soon.",
-    detailsNotFound: "App not found.",
-    detailsNotFoundHelp: "Go back to the homepage and pick an app from the list."
+    openAppButton: "Open app",
+    noApps: "No apps match this platform yet."
   },
   da: {
-    title: "SteenForge | Dine apps samlet",
-    description: "Download dine apps, lÃ¦s release notes og fÃ¸lg med i nyheder.",
     navApps: "Apps",
     navAbout: "Om",
-    heroEyebrow: "Byg. Udgiv. Forbedr.",
-    heroTitle: "Dit app-hub, klar til downloads og opdateringer.",
-    heroCopy: "Giv brugere et sted at opdage dine apps, hente de nyeste versioner og lÃ¦se prÃ¦cist hvad der blev Ã¦ndret i hver release.",
-    heroCta: "Se apps",
     downloadsTitle: "Downloads",
-    downloadsCopy: "VÃ¦lg en app for at Ã¥bne dens egen side med filer og release notes.",
-    aboutTitle: "Om projekterne",
-    aboutLead: "Historien bag hvorfor ApexCore og SÃ¸nndagbogen blev bygget.",
+    downloadsCopy: "Hold dine installationsfiler og links opdateret i en liste.",
     platformLabel: "Platform",
+    aboutTitle: "Om projekterne",
+    aboutLead: "Historien bag hvorfor ApexCore og Sønndagbogen blev bygget.",
     footerCopy: "SteenForge-skabelon. Rediger data i app.js for at udgive dine rigtige apps.",
-    platformOptions: { all: "Alle", Windows: "Windows", Android: "Android", Web: "Web", macOS: "macOS" },
-    openAppButton: "Ã…bn app",
-    noApps: "Ingen apps matcher denne platform endnu.",
-    detailsBack: "Tilbage til forsiden",
-    detailsDownloadsTitle: "Downloadfiler",
-    detailsDownloadsCopy: "Hent den nyeste version her.",
-    detailsReleaseTitle: "Release Notes",
-    actionOpenWeb: "Ã…bn webversion",
-    actionDownloadFile: "Download fil",
-    detailsNoFiles: "Download tilfÃ¸jes snart.",
-    detailsNotFound: "App blev ikke fundet.",
-    detailsNotFoundHelp: "GÃ¥ tilbage til forsiden og vÃ¦lg en app fra listen."
+    openAppButton: "Åbn app",
+    noApps: "Ingen apps matcher denne platform endnu."
   },
   no: {
-    title: "SteenForge | Appene dine pÃ¥ ett sted",
-    description: "Last ned appene dine, les release notes og hold deg oppdatert.",
     navApps: "Apper",
     navAbout: "Om",
-    heroEyebrow: "Bygg. Lever. Forbedre.",
-    heroTitle: "Din apphub, klar for nedlastinger og oppdateringer.",
-    heroCopy: "Gi brukere ett sted for Ã¥ oppdage appene dine, laste ned siste versjon og lese akkurat hva som ble endret i hver release.",
-    heroCta: "Se apper",
     downloadsTitle: "Nedlastinger",
-    downloadsCopy: "Velg en app for Ã¥ Ã¥pne dens egen side med filer og release notes.",
-    aboutTitle: "Om prosjektene",
-    aboutLead: "Bakgrunnen for hvorfor ApexCore og SÃ¸vnDagboken ble bygget.",
+    downloadsCopy: "Hold installasjonsfilene og lenkene dine oppdatert i én liste.",
     platformLabel: "Plattform",
-    footerCopy: "SteenForge-mal. Rediger data i app.js for Ã¥ publisere appene dine.",
-    platformOptions: { all: "Alle", Windows: "Windows", Android: "Android", Web: "Web", macOS: "macOS" },
-    openAppButton: "Ã…pne app",
-    noApps: "Ingen apper matcher denne plattformen ennÃ¥.",
-    detailsBack: "Tilbake til startsiden",
-    detailsDownloadsTitle: "Nedlastingsfiler",
-    detailsDownloadsCopy: "Last ned siste versjon her.",
-    detailsReleaseTitle: "Release Notes",
-    actionOpenWeb: "Ã…pne webversjon",
-    actionDownloadFile: "Last ned fil",
-    detailsNoFiles: "Nedlasting legges til snart.",
-    detailsNotFound: "Appen ble ikke funnet.",
-    detailsNotFoundHelp: "GÃ¥ tilbake til startsiden og velg en app fra listen."
+    aboutTitle: "Om prosjektene",
+    aboutLead: "Bakgrunnen for hvorfor ApexCore og SøvnDagboken ble bygget.",
+    footerCopy: "SteenForge-mal. Rediger data i app.js for å publisere appene dine.",
+    openAppButton: "Åpne app",
+    noApps: "Ingen apper matcher denne plattformen ennå."
   },
   fi: {
-    title: "SteenForge | Sovelluksesi yhdessÃ¤ paikassa",
-    description: "Lataa sovelluksesi, lue release notes ja pysy ajan tasalla.",
     navApps: "Sovellukset",
     navAbout: "Tietoa",
-    heroEyebrow: "Rakenna. Julkaise. Paranna.",
-    heroTitle: "Sovelluskeskuksesi latauksiin ja pÃ¤ivityksiin.",
-    heroCopy: "Tarjoa kÃ¤yttÃ¤jille yksi paikka lÃ¶ytÃ¤Ã¤ sovelluksesi, ladata uusimmat versiot ja lukea tarkasti mitÃ¤ kussakin julkaisussa muuttui.",
-    heroCta: "Selaa sovelluksia",
     downloadsTitle: "Lataukset",
-    downloadsCopy: "Valitse sovellus avataksesi sen oman sivun tiedostoilla ja release notes -sisÃ¤llÃ¶llÃ¤.",
-    aboutTitle: "Tietoa projekteista",
-    aboutLead: "Tarina siitÃ¤, miksi ApexCore ja Uni pÃ¤ivÃ¤kirja rakennettiin.",
+    downloadsCopy: "Pidä asennustiedostosi ja linkkisi ajan tasalla yhdessä listassa.",
     platformLabel: "Alusta",
+    aboutTitle: "Tietoa projekteista",
+    aboutLead: "Tarina siitä, miksi ApexCore ja Uni päiväkirja rakennettiin.",
     footerCopy: "SteenForge-pohja. Muokkaa dataa tiedostossa app.js julkaistaksesi oikeat sovelluksesi.",
-    platformOptions: { all: "Kaikki", Windows: "Windows", Android: "Android", Web: "Web", macOS: "macOS" },
     openAppButton: "Avaa sovellus",
-    noApps: "YksikÃ¤Ã¤n sovellus ei vastaa valittua alustaa vielÃ¤.",
-    detailsBack: "Takaisin etusivulle",
-    detailsDownloadsTitle: "Lataustiedostot",
-    detailsDownloadsCopy: "Lataa uusin versio tÃ¤stÃ¤.",
-    detailsReleaseTitle: "Release Notes",
-    actionOpenWeb: "Avaa web-versio",
-    actionDownloadFile: "Lataa tiedosto",
-    detailsNoFiles: "Lataus lisÃ¤tÃ¤Ã¤n pian.",
-    detailsNotFound: "Sovellusta ei lÃ¶ytynyt.",
-    detailsNotFoundHelp: "Palaa etusivulle ja valitse sovellus listasta."
+    noApps: "Yksikään sovellus ei vastaa valittua alustaa vielä."
   }
 };
-const appData = {
+
+const apps = [
+  {
+    id: 'apexcore',
+    title: 'ApexCore',
+    subtitle: 'Projektledning och arbetsflöde',
+    description: 'Ett flexibelt verktyg för uppgifter, prioritering och arbetsminne.',
+    platform: 'Webb',
+    url: 'ApexCore_3.0.3_stable/'
+  },
+  {
+    id: 'sleep-journal',
+    title: 'Sömndagbok',
+    subtitle: 'Sömnspårning',
+    description: 'Håll koll på dina sömnvanor vecka för vecka.',
+    platform: 'Webb',
+    url: 'sleep-journal-web/'
+  }
+];
+
+const aboutStory = {
   sv: [
-    {
-      id: 'apexcore',
-      title: 'ApexCore',
-      subtitle: 'Projektledning och arbetsflöde',
-      description: 'Ett flexibelt verktyg för uppgifter, prioritering och arbetsminne.',
-      platform: 'Webb',
-      image: 'ApexCore_3.0.3_stable/assets/images/apexcore-icon.png',
-      type: 'app',
-      files: [{ name: 'Webbversion', url: 'ApexCore_3.0.3_stable/' }]
-    },
-    {
-      id: 'sleep-journal',
-      title: 'Sömndagbok',
-      subtitle: 'Sömnspårning',
-      description: 'Håll koll på dina sömnvanor vecka för vecka.',
-      platform: 'Webb',
-      image: 'sleep-journal-web/index.html',
-      type: 'app',
-      files: [{ name: 'Webbversion', url: 'sleep-journal-web/' }]
-    }
+    'ApexCore är ett verktyg för att hålla ordning i arbete, projekt och vardag.',
+    'Sömndagboken hjälper dig att följa sömnmönster och bygga vanor över tid.'
   ],
   en: [
-    {
-      id: 'apexcore',
-      title: 'ApexCore',
-      subtitle: 'Project workflow and task management',
-      description: 'A flexible tool for tasks, priority, and daily focus.',
-      platform: 'Web',
-      image: 'ApexCore_3.0.3_stable/assets/images/apexcore-icon.png',
-      type: 'app',
-      files: [{ name: 'Web version', url: 'ApexCore_3.0.3_stable/' }]
-    },
-    {
-      id: 'sleep-journal',
-      title: 'Sleep Journal',
-      subtitle: 'Sleep tracking',
-      description: 'Track your sleeping habits week by week.',
-      platform: 'Web',
-      image: 'sleep-journal-web/index.html',
-      type: 'app',
-      files: [{ name: 'Web version', url: 'sleep-journal-web/' }]
-    }
+    'ApexCore is a tool for keeping work, projects and daily life in order.',
+    'Sleep Journal helps you track sleep patterns and build habits over time.'
   ]
 };
 
-window.SteenForge = appData;
+function getStoredLanguage() {
+  return localStorage.getItem('steenforge-lang') || 'sv';
+}
+
+function setStoredLanguage(lang) {
+  localStorage.setItem('steenforge-lang', lang);
+}
+
+function getVisibleApps() {
+  const filter = document.getElementById('platformFilter').value;
+  return apps.filter((app) => filter === 'all' || app.platform === filter);
+}
+
+function renderApps() {
+  const container = document.getElementById('appsGrid');
+  if (!container) return;
+
+  const visibleApps = getVisibleApps();
+  if (!visibleApps.length) {
+    container.innerHTML = `<p class="empty-state">${translations[getStoredLanguage()].noApps}</p>`;
+    return;
+  }
+
+  container.innerHTML = visibleApps.map((app) => `
+    <article class="app-card">
+      <h3 class="app-title">${app.title}</h3>
+      <p class="app-meta">${app.subtitle}</p>
+      <p class="app-meta">${app.description}</p>
+      <div class="tag-row">
+        <span class="tag">${app.platform}</span>
+      </div>
+      <a class="download-btn" href="${app.url}">${translations[getStoredLanguage()].openAppButton}</a>
+    </article>
+  `).join('');
+}
+
+function renderAbout() {
+  const container = document.getElementById('aboutContent');
+  if (!container) return;
+  const lang = getStoredLanguage();
+  container.innerHTML = aboutStory[lang] ? aboutStory[lang].map((paragraph) => `<p>${paragraph}</p>`).join('') : '';
+}
+
+function applyLanguage(lang = getStoredLanguage()) {
+  setStoredLanguage(lang);
+  const t = translations[lang] || translations.sv;
+  document.documentElement.lang = lang;
+  document.title = `SteenForge | ${t.downloadsTitle}`;
+
+  const ids = [
+    ['navApps', t.navApps],
+    ['navAbout', t.navAbout],
+    ['downloadsTitle', t.downloadsTitle],
+    ['downloadsCopy', t.downloadsCopy],
+    ['platformLabel', t.platformLabel],
+    ['aboutTitle', t.aboutTitle],
+    ['aboutLead', t.aboutLead],
+    ['footerCopy', t.footerCopy]
+  ];
+
+  ids.forEach(([id, text]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  });
+
+  const languageSelect = document.getElementById('languageSelect');
+  if (languageSelect) languageSelect.value = lang;
+
+  renderApps();
+  renderAbout();
+}
+
+function init() {
+  const languageSelect = document.getElementById('languageSelect');
+  const platformFilter = document.getElementById('platformFilter');
+
+  if (languageSelect) {
+    languageSelect.addEventListener('change', (event) => applyLanguage(event.target.value));
+  }
+
+  if (platformFilter) {
+    platformFilter.addEventListener('change', renderApps);
+  }
+
+  applyLanguage();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+window.SteenForge = apps;
