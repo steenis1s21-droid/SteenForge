@@ -398,16 +398,16 @@ main,
 }
 
 .about-content h3 {
-  margin: 0 0 6px;
+  margin: 0 0 3px;
   font-family: "Archivo", "Segoe UI", sans-serif;
-  font-size: clamp(1.15rem, 2.6vw, 1.55rem);
+  font-size: clamp(1.28rem, 2.9vw, 1.72rem);
   line-height: 1.2;
 }
 
 .about-content h4 {
-  margin: 24px 0 6px;
+  margin: 24px 0 3px;
   font-family: "Archivo", "Segoe UI", sans-serif;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   line-height: 1.2;
   color: var(--ink);
 }
