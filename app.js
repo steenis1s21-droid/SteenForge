@@ -76,7 +76,7 @@ const apps = [
     subtitle: 'Projektledning och arbetsflöde',
     description: 'Ett flexibelt verktyg för uppgifter, prioritering och arbetsminne.',
     platform: 'Webb',
-    url: 'ApexCore_3.0.3_stable/'
+    url: 'ApexCore_3.0.3_stable/ApexCore_3.0.3_FinalFix.html'
   },
   {
     id: 'sleep-journal',
