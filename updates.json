@@ -1,11 +1,11 @@
 {
   "updates": [
     {
-      "id": "shared-github-update-demo",
+      "id": "shared-github-update-live",
       "type": "new",
       "date": "2026-08-03",
-      "title": "🌐 Delad uppdatering från GitHub",
-      "description": "Det här är en exempelfråga som appen hämtar från GitHub när den öppnas."
+      "title": "📣 Delad uppdatering är aktiv",
+      "description": "Den här appen hämtar nu publika uppdateringar från GitHub Pages och visar dem direkt i info-panelen."
     }
   ]
 }
