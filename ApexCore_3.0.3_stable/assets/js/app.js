@@ -274,8 +274,6 @@ const translations = {
         adminTypePlan: '📋 Planerat',
         adminDateLabel: 'Datum',
         adminAddButton: '➕ Lägg till',
-        adminExportButton: '💾 Exportera info',
-        adminImportButton: '📥 Importera info',
         adminSaveButton: '💾 Spara alla ändringar',
         adminCloseButton: '❌ Stäng',
         adminCurrentTitle: '📋 Nuvarande uppdateringar',
@@ -1268,12 +1266,6 @@ function updateAdminPanelLanguage() {
 
     const adminAddButton = document.getElementById('adminAddButton');
     if (adminAddButton) adminAddButton.textContent = t('adminAddButton');
-
-    const adminExportButton = document.getElementById('adminExportButton');
-    if (adminExportButton) adminExportButton.textContent = t('adminExportButton');
-
-    const adminImportButton = document.getElementById('adminImportButton');
-    if (adminImportButton) adminImportButton.textContent = t('adminImportButton');
 
     const adminSaveButton = document.getElementById('adminSaveButton');
     if (adminSaveButton) adminSaveButton.textContent = t('adminSaveButton');
