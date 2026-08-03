@@ -8,10 +8,10 @@
 <!-- CryptoJS för AES-kryptering -->
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
-<link rel="stylesheet" href="assets/css/app.css">
-<script defer src="assets/js/modules/storage.js"></script>
-<script defer src="assets/js/modules/ui.js"></script>
-<script defer src="assets/js/app.js"></script>
+<link rel="stylesheet" href="assets/css/app.css?v=20260803">
+<script defer src="assets/js/modules/storage.js?v=20260803"></script>
+<script defer src="assets/js/modules/ui.js?v=20260803"></script>
+<script defer src="assets/js/app.js?v=20260803"></script>
 </head>
 
 <body>
@@ -132,6 +132,14 @@
             </div>
         </div>
         <button id="adminAddButton" onclick="addAdminItem()">➕ Lägg till</button>
+
+        <div style="margin-top: 14px; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary);">
+            <div style="font-weight: 700; margin-bottom: 8px;">🌐 Delade uppdateringar</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button id="adminRefreshButton" onclick="refreshSharedUpdatesFromGitHub()" style="background: #2f6fed; color: white;">🔄 Hämta från GitHub</button>
+                <button id="adminPublishButton" onclick="publishSharedUpdatesFile()" style="background: #1f7a1f; color: white;">🌐 Publicera till GitHub</button>
+            </div>
+        </div>
         
         <div class="admin-actions" style="margin-top: 12px;">
             <button id="adminExportButton" onclick="exportAdminUpdatesFile()">💾 Exportera info</button>

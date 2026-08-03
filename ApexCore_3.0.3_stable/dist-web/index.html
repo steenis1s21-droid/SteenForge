@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ApexCore_10.0_Full_release</title>
+<title>ApexCore</title>
 
 <!-- CryptoJS för AES-kryptering -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
-<link rel="stylesheet" href="assets/css/app.css">
-<script src="assets/js/modules/storage.js"></script>
-<script src="assets/js/modules/ui.js"></script>
-<script src="assets/js/app.js"></script>
+<link rel="stylesheet" href="assets/css/app.css?v=20260803">
+<script src="assets/js/modules/storage.js?v=20260803"></script>
+<script src="assets/js/modules/ui.js?v=20260803"></script>
+<script src="assets/js/app.js?v=20260803"></script>
 </head>
 
 <body>
@@ -115,6 +115,14 @@
             </div>
         </div>
         <button id="adminAddButton" onclick="addAdminItem()">➕ Lägg till</button>
+
+        <div style="margin-top: 14px; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary);">
+            <div style="font-weight: 700; margin-bottom: 8px;">🌐 Delade uppdateringar</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button id="adminRefreshButton" onclick="refreshSharedUpdatesFromGitHub()" style="background: #2f6fed; color: white;">🔄 Hämta från GitHub</button>
+                <button id="adminPublishButton" onclick="publishSharedUpdatesFile()" style="background: #1f7a1f; color: white;">🌐 Publicera till GitHub</button>
+            </div>
+        </div>
         
         <div class="admin-actions" style="margin-top: 12px;">
             <button id="adminExportButton" onclick="exportAdminUpdatesFile()">💾 Exportera info</button>
@@ -139,7 +147,7 @@
 <div class="top">
     <div class="top-header">
         <div class="header-left" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden;">
-            <h2 style="font-size: 26px; margin: 0; line-height: 1; flex-shrink: 0;">⭕ApexCore_10.0_Full_release</h2>
+            <h2 style="font-size: 26px; margin: 0; line-height: 1; flex-shrink: 0;">⭕ApexCore</h2>
             <span style="font-size: 22px; font-weight: 700; letter-spacing: 0.3px; color: var(--text-secondary); line-height: 1; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; flex-shrink: 0;" id="subtitleSlogan">Hjärtat av ditt arbete</span>
         </div>
         <div class="header-buttons" style="display: flex; gap: 8px; flex-wrap: nowrap; align-items: center;">
@@ -155,7 +163,7 @@
                     <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
                 </div>
             </div>
-            <button class="info-btn" onclick="openInfoModal()" title="Information om uppdateringar">ℹ️</button>
+            <button id="infoButton" class="info-btn" onclick="openInfoModal()" title="Information om uppdateringar">ℹ️</button>
             <button onclick="showChangePassword()" id="changePwBtn">Ändra lösenord</button>
             <button onclick="showArchiveInfo()" id="archiveBtn">📦 Arkiv</button>
             <button onclick="logout()" id="logoutBtn">🚪 Logga ut</button>

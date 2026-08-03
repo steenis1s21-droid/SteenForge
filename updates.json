@@ -1,0 +1,11 @@
+{
+  "updates": [
+    {
+      "id": "shared-github-update-demo",
+      "type": "new",
+      "date": "2026-08-03",
+      "title": "🌐 Delad uppdatering från GitHub",
+      "description": "Det här är en exempelfråga som appen hämtar från GitHub när den öppnas."
+    }
+  ]
+}

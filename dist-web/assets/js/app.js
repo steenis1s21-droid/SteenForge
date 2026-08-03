@@ -1691,6 +1691,184 @@ function getAdminUpdates() {
     return getDefaultUpdates();
 }
 
+function getSharedUpdatesUrls() {
+    const baseUrl = window.location.href;
+    const absoluteBase = new URL(baseUrl, window.location.href);
+    const currentDir = new URL('.', absoluteBase);
+    const repoBase = 'https://steenis1s21-droid.github.io/SteenForge';
+
+    return [
+        new URL('./updates.json', currentDir).toString(),
+        new URL('/updates.json', absoluteBase).toString(),
+        repoBase + '/updates.json',
+        repoBase + '/ApexCore_3.0.3_stable/dist-web/updates.json',
+        repoBase + '/ApexCore_3.0.3_stable/updates.json'
+    ].filter(function(url, index, arr) {
+        return arr.indexOf(url) === index;
+    });
+}
+
+function normalizeRemoteUpdates(payload) {
+    if (!payload) return [];
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload.updates)) return payload.updates;
+    if (Array.isArray(payload.adminUpdates)) return payload.adminUpdates;
+    return [];
+}
+
+function mergeRemoteUpdates(remoteUpdates) {
+    const mergedUpdates = mergeAdminUpdates(remoteUpdates, getAdminUpdates());
+    saveAdminUpdates(mergedUpdates);
+    return mergedUpdates;
+}
+
+function loadSharedUpdates() {
+    const urls = getSharedUpdatesUrls();
+    let index = 0;
+
+    function tryNext() {
+        if (index >= urls.length) {
+            return Promise.resolve(false);
+        }
+
+        const url = urls[index];
+        index += 1;
+
+        return fetch(url, { cache: 'no-store' })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                return response.json();
+            })
+            .then(function(payload) {
+                const remoteUpdates = normalizeRemoteUpdates(payload);
+                if (remoteUpdates.length > 0) {
+                    mergeRemoteUpdates(remoteUpdates);
+                    updateInfoButtonBadge();
+                    return true;
+                }
+                return false;
+            })
+            .catch(function() {
+                return tryNext();
+            });
+    }
+
+    return tryNext();
+}
+
+function syncSharedUpdatesOnLoad() {
+    loadSharedUpdates().then(function(hasUpdates) {
+        if (hasUpdates) {
+            showMessage('🔄 Hämtade delade uppdateringar från GitHub', 'success');
+        }
+    });
+}
+
+window.addEventListener('load', function() {
+    syncSharedUpdatesOnLoad();
+});
+
+window.addEventListener('pageshow', function() {
+    syncSharedUpdatesOnLoad();
+});
+
+function refreshSharedUpdatesFromGitHub() {
+    showMessage('🔄 Hämtar uppdateringar från GitHub...', 'info');
+    loadSharedUpdates().then(function(hasUpdates) {
+        if (hasUpdates) {
+            showMessage('✅ Hämtade nya uppdateringar från GitHub', 'success');
+        } else {
+            showMessage('ℹ️ Inga nya delade uppdateringar hittades', 'info');
+        }
+    });
+}
+
+function publishSharedUpdatesFile() {
+    const payload = {
+        updates: dedupeAdminUpdates(getAdminUpdates())
+    };
+    const json = JSON.stringify(payload, null, 2);
+    const token = prompt('GitHub personal access token med contents:write-rättigheter:', '');
+
+    if (!token) {
+        showMessage('⚠️ Ingen token angavs. Försöker ändå med fallback till GitHub-edit.', 'error');
+    }
+
+    const repoOwner = 'steenis1s21-droid';
+    const repoName = 'SteenForge';
+    const filePath = 'updates.json';
+    const apiUrl = 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contents/' + filePath;
+    const headers = {
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+        'X-GitHub-Api-Version': '2022-11-28'
+    };
+
+    if (token) {
+        headers.Authorization = 'Bearer ' + token;
+    }
+
+    function base64EncodeUnicode(str) {
+        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, hex) {
+            return String.fromCharCode(parseInt(hex, 16));
+        }));
+    }
+
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'updates.json';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(json).catch(function() {});
+    }
+
+    fetch(apiUrl, {
+        method: 'GET',
+        headers: headers
+    })
+        .then(function(response) {
+            if (!response.ok && response.status !== 404) {
+                throw new Error('GitHub GET failed: ' + response.status);
+            }
+            return response.json().catch(function() {
+                return null;
+            });
+        })
+        .then(function(existingFile) {
+            const body = {
+                message: 'Update shared ApexCore updates',
+                content: base64EncodeUnicode(json)
+            };
+
+            if (existingFile && existingFile.sha) {
+                body.sha = existingFile.sha;
+            }
+
+            return fetch(apiUrl, {
+                method: 'PUT',
+                headers: headers,
+                body: JSON.stringify(body)
+            });
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error('GitHub PUT failed: ' + response.status);
+            }
+            showMessage('✅ Uppdateringar publicerades till GitHub.', 'success');
+        })
+        .catch(function(error) {
+            console.error('GitHub publish error:', error);
+            window.open('https://github.com/steenis1s21-droid/SteenForge/edit/main/updates.json', '_blank');
+            showMessage('📤 Filen sparades lokalt och GitHub öppnades som fallback.', 'success');
+        });
+}
+
 function getAdminUpdateKey(item) {
     return [
         String(item.type || '').trim().toLowerCase(),
