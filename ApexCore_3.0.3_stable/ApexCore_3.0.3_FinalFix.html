@@ -79,15 +79,6 @@
     <div class="notif-body" id="notifBody">Det här är en påminnelse!</div>
 </div>
 
-<!-- INFO MODAL -->
-<div id="infoModal">
-    <div class="modal-content">
-        <button class="close-btn" onclick="closeInfoModal()">✕</button>
-        <h2 id="infoTitle">📋 Planerade uppdateringar</h2>
-        <div id="infoContent"></div>
-    </div>
-</div>
-
 <!-- ADMIN LOGIN OVERLAY -->
 <div class="admin-login-overlay" id="adminLoginOverlay">
     <div class="admin-login-box">
@@ -175,7 +166,6 @@
                     <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
                 </div>
             </div>
-            <button id="infoButton" class="info-btn" onclick="openInfoModal()" title="Information om uppdateringar">ℹ️</button>
             <button onclick="showChangePassword()" id="changePwBtn">Ändra lösenord</button>
             <button onclick="showArchiveInfo()" id="archiveBtn">📦 Arkiv</button>
             <button onclick="logout()" id="logoutBtn">🚪 Logga ut</button>

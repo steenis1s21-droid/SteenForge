@@ -1167,9 +1167,7 @@ function applyLanguage() {
     document.getElementById('undoBtn').textContent = t('undoBtn');
     
     document.getElementById('footerText').textContent = t('footerText');
-    document.getElementById('infoTitle').textContent = t('infoTitle');
     updateAdminPanelLanguage();
-    renderInfoContent();
     
     document.getElementById('archiveTitle').textContent = t('archiveModalTitle') + ' (' + archivedItems.length + ')';
     document.getElementById('archiveSearch').placeholder = t('archiveSearch');
@@ -1570,26 +1568,6 @@ function hideProgress() {
     document.getElementById('progressOverlay').style.display = 'none';
 }
 
-// ============================================
-// INFO MODAL
-// ============================================
-
-function openInfoModal() {
-    document.getElementById('infoModal').style.display = 'flex';
-    markInfoUpdatesSeen();
-    renderInfoContent();
-}
-
-function closeInfoModal() {
-    document.getElementById('infoModal').style.display = 'none';
-}
-
-document.getElementById('infoModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeInfoModal();
-    }
-});
-
 function getDefaultUpdates() {
     const lang = getLang();
 
@@ -1740,7 +1718,6 @@ function loadSharedUpdates() {
                 const remoteUpdates = normalizeRemoteUpdates(payload);
                 if (remoteUpdates.length > 0) {
                     mergeRemoteUpdates(remoteUpdates);
-                    updateInfoButtonBadge();
                     return true;
                 }
                 return false;
@@ -1820,41 +1797,6 @@ function getUnreadInfoUpdateCount(updates) {
     }).length;
 }
 
-function initializeInfoButtonBadge() {
-    const seenKeys = getSeenInfoUpdateKeys();
-    if (seenKeys.length === 0 && getAdminUpdates().length > 0) {
-        saveSeenInfoUpdateKeys(getAdminUpdateKeys(getAdminUpdates()));
-    }
-    updateInfoButtonBadge();
-}
-
-function markInfoUpdatesSeen() {
-    saveSeenInfoUpdateKeys(getAdminUpdateKeys(getAdminUpdates()));
-    updateInfoButtonBadge();
-}
-
-function updateInfoButtonBadge() {
-    const button = document.getElementById('infoButton');
-    if (!button) return;
-
-    let badge = document.getElementById('infoBadge');
-    if (!badge) {
-        badge = document.createElement('span');
-        badge.id = 'infoBadge';
-        badge.className = 'info-badge';
-        button.appendChild(badge);
-    }
-
-    const unreadCount = getUnreadInfoUpdateCount(getAdminUpdates());
-    if (unreadCount > 0) {
-        badge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
-        badge.style.display = 'inline-flex';
-    } else {
-        badge.textContent = '';
-        badge.style.display = 'none';
-    }
-}
-
 function dedupeAdminUpdates(updates) {
     const seen = new Set();
 
@@ -1927,7 +1869,6 @@ function syncAdminUpdatesWithDefaults() {
 
 function saveAdminUpdates(updates) {
     localStorage.setItem('adminUpdates', JSON.stringify(dedupeAdminUpdates(updates || [])));
-    updateInfoButtonBadge();
 }
 
 function exportAdminUpdatesFile() {
@@ -2014,7 +1955,6 @@ function importAdminUpdatesFile(event) {
             }
 
             renderAdminList();
-            renderInfoContent();
             hideProgress();
         } catch (error) {
             hideProgress();
@@ -2027,43 +1967,6 @@ function importAdminUpdatesFile(event) {
     event.target.value = '';
 }
 
-function renderInfoContent() {
-    const container = document.getElementById('infoContent');
-    const updates = sortUpdatesByType(getAdminUpdates());
-
-    let html = `
-        <div style="margin-bottom: 12px; text-align: center;">
-            <button onclick="showAdminLogin()" class="admin-btn">${t('infoManageUpdates')}</button>
-        </div>
-        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">${t('infoIntro')}</p>
-        <div style="margin-bottom: 12px;">
-            <span class="badge badge-new">${t('infoNew')}</span>
-            <span class="badge badge-update">${t('infoUpdate')}</span>
-            <span class="badge badge-bugfix">${t('infoBugFix')}</span>
-            <span class="badge badge-plan">${t('infoPlan')}</span>
-        </div>
-    `;
-
-    updates.forEach(function(item) {
-        const badgeClass = getUpdateBadgeClass(item.type);
-        const badgeText = getUpdateBadgeText(item.type);
-        
-        html += `
-            <div class="info-item">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
-                    <span style="font-weight: bold; font-size: 15px;">${escapeHTML(item.title)}</span>
-                    <span style="font-size: 12px; color: var(--text-muted);">${escapeHTML(item.date)}</span>
-                </div>
-                <div style="margin-top: 4px;">
-                    <span class="badge ${badgeClass}">${badgeText}</span>
-                    <span style="font-size: 14px; color: var(--text-secondary);">${escapeHTML(item.description)}</span>
-                </div>
-            </div>
-        `;
-    });
-
-    container.innerHTML = html;
-}
 
 // ============================================
 // NOTISER / PÅMINNELSER
@@ -2352,7 +2255,6 @@ function importProcess(data) {
         if (Array.isArray(data.adminUpdates)) {
             const mergedUpdates = mergeAdminUpdates(data.adminUpdates, getAdminUpdates());
             saveAdminUpdates(mergedUpdates);
-            renderInfoContent();
             renderAdminList();
         }
         items = items.concat(importedItems);
@@ -3337,7 +3239,6 @@ function addAdminItem() {
     saveAdminUpdates(updates);
     clearAdminForm();
     renderAdminList();
-    renderInfoContent();
     showMessage(t('adminSavedMessage'), 'success');
 }
 
@@ -3347,7 +3248,6 @@ function deleteAdminItem(index) {
     updates.splice(index, 1);
     saveAdminUpdates(updates);
     renderAdminList();
-    renderInfoContent();
     showMessage(t('adminDeletedMessage'), 'info');
 }
 
@@ -3410,9 +3310,7 @@ function renderAdminList() {
 
 function saveAdminChanges() {
     renderAdminList();
-    renderInfoContent();
     showMessage(t('adminChangesSavedMessage'), 'success');
-}
 
 // ============================================
 // INIT
@@ -3420,7 +3318,6 @@ function saveAdminChanges() {
 
 loadData();
 syncAdminUpdatesWithDefaults();
-initializeInfoButtonBadge();
 syncSharedUpdatesOnLoad();
 render();
 setupEnterKey();
