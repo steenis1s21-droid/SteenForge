@@ -38,12 +38,39 @@ New-Item -ItemType Directory -Force -Path $targetRoot | Out-Null
 
 $sourcePackageJson = Get-Content -Path $sourcePackage -Raw | ConvertFrom-Json
 $apexVersion = "v$($sourcePackageJson.version)"
+$buildStamp = Get-Date -Format 'yyyyMMddHHmmss'
 
 $targetAssets = Join-Path $targetRoot 'assets'
 
 Copy-Item -Path $sourceHtml -Destination (Join-Path $targetRoot 'index.html') -Force
 Copy-Item -Path $sourceAssets -Destination $targetAssets -Recurse -Force
 Copy-Item -Path $sourcePackage -Destination (Join-Path $targetRoot 'package.json') -Force
+
+$targetIndexPath = Join-Path $targetRoot 'index.html'
+$targetIndexContent = [System.IO.File]::ReadAllText($targetIndexPath)
+$targetIndexContent = [regex]::Replace($targetIndexContent, '(href|src)="([^"]+)"', {
+    param($match)
+
+    $attr = $match.Groups[1].Value
+    $value = $match.Groups[2].Value
+
+    if ($value -match '^(https?:|#|mailto:|tel:)') {
+        return $match.Value
+    }
+
+    if ($value -match '\?v=') {
+        return $match.Value
+    }
+
+    if ($value -like 'assets/*' -or $value -like 'app.js' -or $value -like 'detail.js' -or $value -like 'styles.css') {
+        return [string]::Format('{0}="{1}?v={2}"', $attr, $value, $buildStamp)
+    }
+
+    return $match.Value
+})
+
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($targetIndexPath, $targetIndexContent, $utf8NoBom)
 
 if (Test-Path $siteDataFile) {
     $siteData = Get-Content -Path $siteDataFile -Raw

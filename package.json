@@ -2,8 +2,8 @@
   "name": "website-for-created-apps",
   "private": true,
   "scripts": {
-    "build:web": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\sync-apexcore-web.ps1 -SourceDir ApexCore_3.0.3_stable -TargetDir dist-web",
-    "build:sleep-journal-web": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\sync-sleep-journal-web.ps1 -SourceDir \"Sleep journal wip\" -TargetDir sleep-journal-web",
-    "build:all-web": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"npm run build:web; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; npm run build:sleep-journal-web; exit $LASTEXITCODE\""
+    "build:web": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./sync-apexcore-web.ps1 -SourceDir ApexCore_3.0.3_stable -TargetDir dist-web",
+    "build:sleep-journal-web": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./sync-sleep-journal-web.ps1 -SourceDir \"Sleep journal wip\" -TargetDir sleep-journal-web",
+    "build:all-web": "pwsh -NoProfile -ExecutionPolicy Bypass -Command \"npm run build:web; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; npm run build:sleep-journal-web; exit $LASTEXITCODE\""
   }
 }

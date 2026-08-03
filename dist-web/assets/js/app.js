@@ -1282,7 +1282,8 @@ function updateAdminPanelLanguage() {
     const adminCurrentTitle = document.getElementById('adminCurrentTitle');
     if (adminCurrentTitle) adminCurrentTitle.textContent = t('adminCurrentTitle');
 
-    if (document.getElementById('adminPanel').style.display === 'flex') {
+    const adminPanel = document.getElementById('adminPanel');
+    if (adminPanel && adminPanel.style.display === 'flex') {
         renderAdminList();
     }
 }
@@ -1304,28 +1305,29 @@ function isFirstTimeUser() {
 }
 
 function checkPassword() {
-    const input = document.getElementById("passwordInput").value;
+    const passwordInput = document.getElementById("passwordInput");
+    const input = passwordInput ? passwordInput.value : "";
     const errorDiv = document.getElementById("loginError");
     const statusDiv = document.getElementById("loginStatus");
 
-    errorDiv.textContent = "";
+    if (errorDiv) errorDiv.textContent = "";
 
     if (isAdminPasswordMatch(input)) {
-        document.getElementById("passwordInput").value = "";
-        statusDiv.textContent = t('loginAdminSuccess');
+        if (passwordInput) passwordInput.value = "";
+        if (statusDiv) statusDiv.textContent = t('loginAdminSuccess');
         loginWithAdminAccess();
         return;
     }
 
     if (isFirstTimeUser()) {
         if (input.length < 4) {
-            errorDiv.textContent = t('loginErrorShort');
+            if (errorDiv) errorDiv.textContent = t('loginErrorShort');
             return;
         }
         setStoredPassword(input);
-        errorDiv.textContent = "";
-        statusDiv.textContent = t('loginSuccess');
-        document.getElementById("passwordInput").value = "";
+        if (errorDiv) errorDiv.textContent = "";
+        if (statusDiv) statusDiv.textContent = t('loginSuccess');
+        if (passwordInput) passwordInput.value = "";
         return;
     }
 
@@ -1340,23 +1342,28 @@ function checkPassword() {
         if (!isPasswordHashed(storedPassword)) {
             localStorage.setItem("userPassword", inputHash);
         }
-        errorDiv.textContent = "";
-        document.getElementById("passwordInput").value = "";
+        if (errorDiv) errorDiv.textContent = "";
+        if (passwordInput) passwordInput.value = "";
         localStorage.setItem("login", "true");
         showApp();
     } else {
-        errorDiv.textContent = t('loginErrorWrong');
-        document.getElementById("passwordInput").value = "";
+        if (errorDiv) errorDiv.textContent = t('loginErrorWrong');
+        if (passwordInput) passwordInput.value = "";
     }
 }
 
-document.getElementById("passwordInput").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") checkPassword();
-});
+const passwordInput = document.getElementById("passwordInput");
+if (passwordInput) {
+    passwordInput.addEventListener("keypress", function(e) {
+        if (e.key === "Enter") checkPassword();
+    });
+}
 
 function showApp() {
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("app").classList.remove("hidden");
+    const loginBox = document.getElementById("loginBox");
+    const appContainer = document.getElementById("app");
+    if (loginBox) loginBox.style.display = "none";
+    if (appContainer) appContainer.classList.remove("hidden");
     updateLanguageMenu();
     applyLanguage();
     loadTheme();
@@ -1371,13 +1378,18 @@ function loginWithAdminAccess() {
     showApp();
 }
 
-if (localStorage.getItem("login") === "true" && !isFirstTimeUser()) {
-    showApp();
-} else if (isFirstTimeUser()) {
-    document.getElementById("loginStatus").textContent = t('loginStatusWelcome');
-} else {
-    document.getElementById("loginStatus").textContent = t('loginStatusLogin');
+function initializeLoginState() {
+    const loginStatus = document.getElementById("loginStatus");
+    if (localStorage.getItem("login") === "true" && !isFirstTimeUser()) {
+        showApp();
+    } else if (isFirstTimeUser()) {
+        if (loginStatus) loginStatus.textContent = t('loginStatusWelcome');
+    } else if (loginStatus) {
+        loginStatus.textContent = t('loginStatusLogin');
+    }
 }
+
+initializeLoginState();
 
 // ============================================
 // LOGGA UT
