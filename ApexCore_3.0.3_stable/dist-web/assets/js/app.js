@@ -1469,26 +1469,6 @@ function hideProgress() {
     document.getElementById('progressOverlay').style.display = 'none';
 }
 
-// ============================================
-// INFO MODAL
-// ============================================
-
-function openInfoModal() {
-    document.getElementById('infoModal').style.display = 'flex';
-    markInfoUpdatesSeen();
-    renderInfoContent();
-}
-
-function closeInfoModal() {
-    document.getElementById('infoModal').style.display = 'none';
-}
-
-document.getElementById('infoModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeInfoModal();
-    }
-});
-
 function getDefaultUpdates() {
     const lang = getLang();
 
@@ -1639,7 +1619,6 @@ function loadSharedUpdates() {
                 const remoteUpdates = normalizeRemoteUpdates(payload);
                 if (remoteUpdates.length > 0) {
                     mergeRemoteUpdates(remoteUpdates);
-                    updateInfoButtonBadge();
                     return true;
                 }
                 return false;
@@ -1677,81 +1656,6 @@ function refreshSharedUpdatesFromGitHub() {
             showMessage('ℹ️ Inga nya delade uppdateringar hittades', 'info');
         }
     });
-}
-
-function getAdminUpdateKey(item) {
-    return [
-        String(item.type || '').trim().toLowerCase(),
-        String(item.date || '').trim().toLowerCase(),
-        String(item.title || '').trim().toLowerCase(),
-        String(item.description || '').trim().toLowerCase()
-    ].join('||');
-}
-
-function getAdminUpdateKeys(updates) {
-    return (updates || []).map(function(item) {
-        return getAdminUpdateKey(item);
-    });
-}
-
-function getSeenInfoUpdateKeys() {
-    const stored = localStorage.getItem('seenInfoUpdateKeys');
-    if (!stored) return [];
-
-    try {
-        const parsed = JSON.parse(stored);
-        return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-        return [];
-    }
-}
-
-function saveSeenInfoUpdateKeys(keys) {
-    localStorage.setItem('seenInfoUpdateKeys', JSON.stringify(keys || []));
-}
-
-function getUnreadInfoUpdateCount(updates) {
-    const seenKeys = new Set(getSeenInfoUpdateKeys());
-    const currentKeys = getAdminUpdateKeys(updates || getAdminUpdates());
-
-    return currentKeys.filter(function(key) {
-        return !seenKeys.has(key);
-    }).length;
-}
-
-function initializeInfoButtonBadge() {
-    const seenKeys = getSeenInfoUpdateKeys();
-    if (seenKeys.length === 0 && getAdminUpdates().length > 0) {
-        saveSeenInfoUpdateKeys(getAdminUpdateKeys(getAdminUpdates()));
-    }
-    updateInfoButtonBadge();
-}
-
-function markInfoUpdatesSeen() {
-    saveSeenInfoUpdateKeys(getAdminUpdateKeys(getAdminUpdates()));
-    updateInfoButtonBadge();
-}
-
-function updateInfoButtonBadge() {
-    const button = document.getElementById('infoButton');
-    if (!button) return;
-
-    let badge = document.getElementById('infoBadge');
-    if (!badge) {
-        badge = document.createElement('span');
-        badge.id = 'infoBadge';
-        badge.className = 'info-badge';
-        button.appendChild(badge);
-    }
-
-    const unreadCount = getUnreadInfoUpdateCount(getAdminUpdates());
-    if (unreadCount > 0) {
-        badge.textContent = unreadCount > 9 ? '9+' : String(unreadCount);
-        badge.style.display = 'inline-flex';
-    } else {
-        badge.textContent = '';
-        badge.style.display = 'none';
-    }
 }
 
 function dedupeAdminUpdates(updates) {
@@ -1826,7 +1730,6 @@ function syncAdminUpdatesWithDefaults() {
 
 function saveAdminUpdates(updates) {
     localStorage.setItem('adminUpdates', JSON.stringify(dedupeAdminUpdates(updates || [])));
-    updateInfoButtonBadge();
 }
 
 function exportAdminUpdatesFile() {
@@ -1924,44 +1827,6 @@ function importAdminUpdatesFile(event) {
 
     reader.readAsText(file);
     event.target.value = '';
-}
-
-function renderInfoContent() {
-    const container = document.getElementById('infoContent');
-    const updates = sortUpdatesByType(getAdminUpdates());
-
-    let html = `
-        <div style="margin-bottom: 12px; text-align: center;">
-            <button onclick="showAdminLogin()" class="admin-btn">${t('infoManageUpdates')}</button>
-        </div>
-        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">${t('infoIntro')}</p>
-        <div style="margin-bottom: 12px;">
-            <span class="badge badge-new">${t('infoNew')}</span>
-            <span class="badge badge-update">${t('infoUpdate')}</span>
-            <span class="badge badge-bugfix">${t('infoBugFix')}</span>
-            <span class="badge badge-plan">${t('infoPlan')}</span>
-        </div>
-    `;
-
-    updates.forEach(function(item) {
-        const badgeClass = getUpdateBadgeClass(item.type);
-        const badgeText = getUpdateBadgeText(item.type);
-        
-        html += `
-            <div class="info-item">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
-                    <span style="font-weight: bold; font-size: 15px;">${escapeHTML(item.title)}</span>
-                    <span style="font-size: 12px; color: var(--text-muted);">${escapeHTML(item.date)}</span>
-                </div>
-                <div style="margin-top: 4px;">
-                    <span class="badge ${badgeClass}">${badgeText}</span>
-                    <span style="font-size: 14px; color: var(--text-secondary);">${escapeHTML(item.description)}</span>
-                </div>
-            </div>
-        `;
-    });
-
-    container.innerHTML = html;
 }
 
 // ============================================
@@ -3272,7 +3137,6 @@ function saveAdminChanges() {
 
 loadData();
 syncAdminUpdatesWithDefaults();
-initializeInfoButtonBadge();
 syncSharedUpdatesOnLoad();
 render();
 setupEnterKey();

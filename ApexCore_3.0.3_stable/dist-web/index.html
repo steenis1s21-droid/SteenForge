@@ -8,10 +8,10 @@
 <!-- CryptoJS för AES-kryptering -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
-<link rel="stylesheet" href="assets/css/app.css?v=20260803">
-<script src="assets/js/modules/storage.js?v=20260803"></script>
-<script src="assets/js/modules/ui.js?v=20260803"></script>
-<script src="assets/js/app.js?v=20260803"></script>
+<link rel="stylesheet" href="assets/css/app.css?v=20260804">
+<script src="assets/js/modules/storage.js?v=20260804"></script>
+<script src="assets/js/modules/ui.js?v=20260804"></script>
+<script src="assets/js/app.js?v=20260804"></script>
 </head>
 
 <body>
@@ -60,15 +60,6 @@
     <button class="notif-close" onclick="closeNotificationPopup()">✕</button>
     <div class="notif-title" id="notifTitle">🔔 Påminnelse</div>
     <div class="notif-body" id="notifBody">Det här är en påminnelse!</div>
-</div>
-
-<!-- INFO MODAL -->
-<div id="infoModal">
-    <div class="modal-content">
-        <button class="close-btn" onclick="closeInfoModal()">✕</button>
-        <h2 id="infoTitle">📋 Planerade uppdateringar</h2>
-        <div id="infoContent"></div>
-    </div>
 </div>
 
 <!-- ADMIN LOGIN OVERLAY -->
@@ -158,7 +149,6 @@
                     <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
                 </div>
             </div>
-            <button id="infoButton" class="info-btn" onclick="openInfoModal()" title="Information om uppdateringar">ℹ️</button>
             <button onclick="showChangePassword()" id="changePwBtn">Ändra lösenord</button>
             <button onclick="showArchiveInfo()" id="archiveBtn">📦 Arkiv</button>
             <button onclick="logout()" id="logoutBtn">🚪 Logga ut</button>

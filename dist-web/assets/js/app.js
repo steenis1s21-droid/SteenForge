@@ -1570,25 +1570,6 @@ function hideProgress() {
     document.getElementById('progressOverlay').style.display = 'none';
 }
 
-// ============================================
-// INFO MODAL
-// ============================================
-
-function openInfoModal() {
-    document.getElementById('infoModal').style.display = 'flex';
-    renderInfoContent();
-}
-
-function closeInfoModal() {
-    document.getElementById('infoModal').style.display = 'none';
-}
-
-document.getElementById('infoModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeInfoModal();
-    }
-});
-
 function getDefaultUpdates() {
     const lang = getLang();
 
@@ -1739,7 +1720,6 @@ function loadSharedUpdates() {
                 const remoteUpdates = normalizeRemoteUpdates(payload);
                 if (remoteUpdates.length > 0) {
                     mergeRemoteUpdates(remoteUpdates);
-                    updateInfoButtonBadge();
                     return true;
                 }
                 return false;
@@ -1955,43 +1935,6 @@ function importAdminUpdatesFile(event) {
     event.target.value = '';
 }
 
-function renderInfoContent() {
-    const container = document.getElementById('infoContent');
-    const updates = sortUpdatesByType(getAdminUpdates());
-
-    let html = `
-        <div style="margin-bottom: 12px; text-align: center;">
-            <button onclick="showAdminLogin()" class="admin-btn">${t('infoManageUpdates')}</button>
-        </div>
-        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">${t('infoIntro')}</p>
-        <div style="margin-bottom: 12px;">
-            <span class="badge badge-new">${t('infoNew')}</span>
-            <span class="badge badge-update">${t('infoUpdate')}</span>
-            <span class="badge badge-bugfix">${t('infoBugFix')}</span>
-            <span class="badge badge-plan">${t('infoPlan')}</span>
-        </div>
-    `;
-
-    updates.forEach(function(item) {
-        const badgeClass = getUpdateBadgeClass(item.type);
-        const badgeText = getUpdateBadgeText(item.type);
-        
-        html += `
-            <div class="info-item">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px;">
-                    <span style="font-weight: bold; font-size: 15px;">${escapeHTML(item.title)}</span>
-                    <span style="font-size: 12px; color: var(--text-muted);">${escapeHTML(item.date)}</span>
-                </div>
-                <div style="margin-top: 4px;">
-                    <span class="badge ${badgeClass}">${badgeText}</span>
-                    <span style="font-size: 14px; color: var(--text-secondary);">${escapeHTML(item.description)}</span>
-                </div>
-            </div>
-        `;
-    });
-
-    container.innerHTML = html;
-}
 
 // ============================================
 // NOTISER / PÅMINNELSER
