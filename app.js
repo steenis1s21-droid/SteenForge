@@ -15,7 +15,7 @@ const translations = {
     platformLabel: "Plattform",
     aboutTitle: "Om projekten",
     aboutLead: "Bakgrunden till varför ApexCore och Sömndagboken byggdes.",
-    footerCopy: "SteenForge-mall. Redigera data i app.js för att publicera dina riktiga appar.",
+    footerCopy: "Jesper Steens",
     openAppButton: "Öppna app",
     noApps: "Inga appar matchar vald plattform än."
   },
@@ -27,7 +27,7 @@ const translations = {
     platformLabel: "Platform",
     aboutTitle: "About the projects",
     aboutLead: "The story behind why ApexCore and Sleep Journal were built.",
-    footerCopy: "SteenForge starter template. Edit data in app.js to publish your real apps.",
+    footerCopy: "Jesper Steens",
     openAppButton: "Open app",
     noApps: "No apps match this platform yet."
   },
@@ -39,7 +39,7 @@ const translations = {
     platformLabel: "Platform",
     aboutTitle: "Om projekterne",
     aboutLead: "Historien bag hvorfor ApexCore og Sønndagbogen blev bygget.",
-    footerCopy: "SteenForge-skabelon. Rediger data i app.js for at udgive dine rigtige apps.",
+    footerCopy: "Jesper Steens",
     openAppButton: "Åbn app",
     noApps: "Ingen apps matcher denne platform endnu."
   },
@@ -51,7 +51,7 @@ const translations = {
     platformLabel: "Plattform",
     aboutTitle: "Om prosjektene",
     aboutLead: "Bakgrunnen for hvorfor ApexCore og SøvnDagboken ble bygget.",
-    footerCopy: "SteenForge-mal. Rediger data i app.js for å publisere appene dine.",
+    footerCopy: "Jesper Steens",
     openAppButton: "Åpne app",
     noApps: "Ingen apper matcher denne plattformen ennå."
   },
@@ -63,7 +63,7 @@ const translations = {
     platformLabel: "Alusta",
     aboutTitle: "Tietoa projekteista",
     aboutLead: "Tarina siitä, miksi ApexCore ja Uni päiväkirja rakennettiin.",
-    footerCopy: "SteenForge-pohja. Muokkaa dataa tiedostossa app.js julkaistaksesi oikeat sovelluksesi.",
+    footerCopy: "Jesper Steens",
     openAppButton: "Avaa sovellus",
     noApps: "Yksikään sovellus ei vastaa valittua alustaa vielä."
   }
