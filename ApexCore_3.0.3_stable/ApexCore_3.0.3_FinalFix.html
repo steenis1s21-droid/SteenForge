@@ -136,18 +136,13 @@
         <div style="margin-top: 14px; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary);">
             <div style="font-weight: 700; margin-bottom: 8px;">🌐 Delade uppdateringar</div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button id="adminRefreshButton" onclick="refreshSharedUpdatesFromGitHub()" style="background: #2f6fed; color: white;">🔄 Hämta från GitHub</button>
-                <button id="adminPublishButton" onclick="publishSharedUpdatesFile()" style="background: #1f7a1f; color: white;">🌐 Publicera till GitHub</button>
             </div>
         </div>
         
         <div class="admin-actions" style="margin-top: 12px;">
-            <button id="adminExportButton" onclick="exportAdminUpdatesFile()">💾 Exportera info</button>
-            <button id="adminImportButton" onclick="document.getElementById('adminImportInput').click()">📥 Importera info</button>
             <button id="adminSaveButton" onclick="saveAdminChanges()">💾 Spara alla ändringar</button>
             <button id="adminCloseButton" onclick="closeAdminPanel()">❌ Stäng</button>
         </div>
-        <input type="file" id="adminImportInput" accept=".json" onchange="importAdminUpdatesFile(event)" style="display:none;">
         
         <hr style="margin: 16px 0; border-color: var(--border-color);">
         
