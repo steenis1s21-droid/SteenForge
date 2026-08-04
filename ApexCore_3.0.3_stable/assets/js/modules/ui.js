@@ -37,7 +37,7 @@ function updateSoundButton() {
     const btn = document.getElementById('soundBtn');
     if (btn) {
         const enabled = getSoundEnabled();
-        btn.textContent = enabled ? '🔊' : '🔈';
+        btn.textContent = enabled ? '🔊 Ljud' : '🔈 Ljud';
         btn.title = enabled ? 'Stäng av ljudnotiser' : 'Aktivera ljudnotiser';
     }
 }
@@ -52,7 +52,7 @@ function updateThemeButton() {
     const btn = document.getElementById('themeBtn');
     if (btn) {
         const theme = getTheme();
-        btn.textContent = theme === 'dark' ? '☀️' : '🌓';
+        btn.textContent = theme === 'dark' ? '☀️ Tema' : '🌓 Tema';
         btn.title = theme === 'dark' ? 'Byt till ljust tema' : 'Byt till mörkt tema';
     }
 }

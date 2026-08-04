@@ -99,7 +99,7 @@ function updateSoundButton() {
     const btn = document.getElementById('soundBtn');
     if (btn) {
         const enabled = getSoundEnabled();
-        btn.textContent = enabled ? '🔊' : '🔈';
+        btn.textContent = enabled ? '🔊 Ljud' : '🔈 Ljud';
         btn.title = enabled ? 'Stäng av ljudnotiser' : 'Aktivera ljudnotiser';
     }
 }
@@ -136,7 +136,7 @@ function updateThemeButton() {
     const btn = document.getElementById('themeBtn');
     if (btn) {
         const theme = getTheme();
-        btn.textContent = theme === 'dark' ? '☀️' : '🌓';
+        btn.textContent = theme === 'dark' ? '☀️ Tema' : '🌓 Tema';
         btn.title = theme === 'dark' ? 'Byt till ljust tema' : 'Byt till mörkt tema';
     }
 }
@@ -1398,6 +1398,23 @@ function normalizeCategoryValue(value) {
     return 'other';
 }
 
+function getStoredAddCategory() {
+    var stored = normalizeCategoryValue(localStorage.getItem('lastAddCategory'));
+    return stored === 'high' ? 'patients' : stored;
+}
+
+function setStoredAddCategory(category) {
+    var normalized = normalizeCategoryValue(category);
+    if (normalized === 'high') return;
+    localStorage.setItem('lastAddCategory', normalized);
+}
+
+function applyStoredAddCategorySelection() {
+    var categoryInput = document.getElementById('categoryInput');
+    if (!categoryInput) return;
+    categoryInput.value = getStoredAddCategory();
+}
+
 function getStoredActiveSortMode() {
     var mode = localStorage.getItem('activeSortMode') || 'date-desc';
     var validModes = ['date-desc', 'date-asc', 'name-asc', 'name-desc'];
@@ -1486,6 +1503,10 @@ function loadData() {
 
     const lang = localStorage.getItem('appLanguage') || 'sv';
     currentLanguage = lang;
+
+    if (!localStorage.getItem('lastAddCategory')) {
+        localStorage.setItem('lastAddCategory', 'patients');
+    }
 }
 
 // ============================================
@@ -2509,11 +2530,17 @@ function addItem() {
 
     items.push(newItem);
 
+    if (categoryVal !== 'high') {
+        setStoredAddCategory(categoryVal);
+    }
+
     document.getElementById('nameInput').value = '';
     document.getElementById('ageInput').value = '';
     document.getElementById('taskInput').value = '';
     document.getElementById('noteInput').value = '';
-    document.getElementById('categoryInput').value = 'patients';
+    document.getElementById('categoryInput').value = categoryVal === 'high'
+        ? getStoredAddCategory()
+        : categoryVal;
     document.getElementById('notificationInput').value = '';
     populateReminderFields('notification', '');
 
@@ -3350,6 +3377,7 @@ function saveAdminChanges() {
 loadData();
 syncAdminUpdatesWithDefaults();
 syncSharedUpdatesOnLoad();
+applyStoredAddCategorySelection();
 render();
 setupEnterKey();
 updateLanguageMenu();
