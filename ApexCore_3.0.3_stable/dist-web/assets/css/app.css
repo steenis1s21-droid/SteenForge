@@ -8,6 +8,20 @@
 
     .form-active-row {
         overflow: hidden;
+        align-items: stretch;
+    }
+
+    .form-column {
+        min-height: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .done-column {
+        flex: 1 1 0;
+        height: 0;
+        min-height: 0;
+        max-height: none;
     }
 }
    🌓 MÖRKT TEMA - CSS-variabler
@@ -674,6 +688,8 @@ textarea {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    min-height: 0;
+    height: 0;
     padding: 0;
     margin: 0;
     list-style: none;

@@ -1136,7 +1136,7 @@ function applyLanguage() {
     setText('importBtn', 'importBtn');
 
     setPlaceholder('searchInput', 'searchActive');
-    setPlaceholder('doneSearchInput', 'searchDone');
+    setPlaceholder('doneSearchInput', 'archiveSearch');
     setText('archiveAllBtn', 'archiveAllBtn');
 
     setText('undoText', 'undoText');
@@ -1476,6 +1476,13 @@ function loadData() {
     items = (items || []).map(normalizeItemData);
     doneItems = (doneItems || []).map(normalizeItemData);
     archivedItems = (archivedItems || []).map(normalizeItemData);
+
+    // Migrate historical Done entries into Archive so one completed flow is used.
+    if (doneItems.length > 0) {
+        archivedItems = doneItems.concat(archivedItems);
+        doneItems = [];
+        saveData();
+    }
 
     const lang = localStorage.getItem('appLanguage') || 'sv';
     currentLanguage = lang;
@@ -2229,28 +2236,28 @@ function importProcess(data) {
 }
 
 // ============================================
-// FLYTT TILL / FRÅN DONE
+// FLYTT TILL ARKIV / FRÅN ARKIV
 // ============================================
 
 function moveToDoneById(id) {
     var i = items.findIndex(function(p) { return p.id === id; });
     if (i !== -1) {
-        doneItems.push(items[i]);
+        archivedItems.push(items[i]);
         items.splice(i, 1);
         saveData();
         render();
-        showMessage(t('msgMovedDone'), 'success');
+        showMessage(t('archiveArchived'), 'success');
     }
 }
 
 function moveToActiveById(id) {
-    var i = doneItems.findIndex(function(p) { return p.id === id; });
+    var i = archivedItems.findIndex(function(p) { return p.id === id; });
     if (i !== -1) {
-        items.push(doneItems[i]);
-        doneItems.splice(i, 1);
+        items.push(archivedItems[i]);
+        archivedItems.splice(i, 1);
         saveData();
         render();
-        showMessage(t('msgMovedActive'), 'info');
+        showMessage(t('archiveRestored'), 'info');
     }
 }
 
@@ -2717,22 +2724,22 @@ activeDrop.ondrop = function() {
 function moveToDone(id) {
     var i = items.findIndex(function(p) { return p.id === id; });
     if (i !== -1) {
-        doneItems.push(items[i]);
+        archivedItems.push(items[i]);
         items.splice(i, 1);
         saveData();
         render();
-        showMessage(t('msgMovedDone'), 'success');
+        showMessage(t('archiveArchived'), 'success');
     }
 }
 
 function moveToActive(id) {
-    var i = doneItems.findIndex(function(p) { return p.id === id; });
+    var i = archivedItems.findIndex(function(p) { return p.id === id; });
     if (i !== -1) {
-        items.push(doneItems[i]);
-        doneItems.splice(i, 1);
+        items.push(archivedItems[i]);
+        archivedItems.splice(i, 1);
         saveData();
         render();
-        showMessage(t('msgMovedActive'), 'info');
+        showMessage(t('archiveRestored'), 'info');
     }
 }
 
@@ -2932,7 +2939,7 @@ function render() {
     }
 
     var doneSearch = (document.getElementById('doneSearchInput')?.value || '').toLowerCase();
-    doneItems.filter(function(p) {
+    archivedItems.filter(function(p) {
         return (p.name + ' ' + (p.task || '') + ' ' + (p.note || '')).toLowerCase().includes(doneSearch);
     }).forEach(function(p) {
         var li = document.createElement('li');
@@ -2940,8 +2947,8 @@ function render() {
         
         li.innerHTML = `
             ${escapeHTML(p.name)}${ageText} - ${escapeHTML(p.task || '')}
-            <button class="undo-done-btn" onclick="event.stopPropagation(); moveToActiveById(${p.id})">${t('restoreBtn')}</button>
-            <button class="done-btn" onclick="event.stopPropagation(); archiveItem(${p.id})">${t('archiveBtnShort')}</button>
+            <button class="undo-done-btn" onclick="event.stopPropagation(); restoreArchive(${p.id})">${t('restoreBtn')}</button>
+            <button class="done-btn" onclick="event.stopPropagation(); deleteArchiveItem(${p.id})">${t('archiveDelete')}</button>
         `;
         li.draggable = true;
         li.ondragstart = function() { startDrag(p.id); };
@@ -2949,7 +2956,7 @@ function render() {
     });
 
     document.getElementById('activeTitle').textContent = t('activeTitle') + ' (' + items.length + ')';
-    document.getElementById('doneTitle').textContent = t('doneTitle') + ' (' + doneItems.length + ')';
+    document.getElementById('doneTitle').textContent = t('archiveModalTitle') + ' (' + archivedItems.length + ')';
     updateArchiveVaultButton();
 
     // saveData borttagen från render för att förhindra överskrivning vid uppstart
@@ -2965,6 +2972,10 @@ function setupActiveColumnWheelScroll() {
     function isEditableTarget(target) {
         if (!target || !target.closest) return false;
         return !!target.closest('input, textarea, select, [contenteditable="true"]');
+    }
+
+    function isArchiveListTarget(target) {
+        return !!(target && target.closest && target.closest('.done-column ul'));
     }
 
     function isScrollableElement(element) {
@@ -2989,6 +3000,7 @@ function setupActiveColumnWheelScroll() {
 
     var activeColumn = document.querySelector('.active-column');
     var activeList = document.getElementById('activeList');
+    var archiveList = document.querySelector('.done-column ul');
     if (!activeColumn || !activeList) return;
 
     if (setupActiveColumnWheelScroll._initialized) return;
@@ -2996,6 +3008,7 @@ function setupActiveColumnWheelScroll() {
 
     activeColumn.addEventListener('wheel', function(event) {
         if (isEditableTarget(event.target)) return;
+        if (isArchiveListTarget(event.target)) return;
 
         var nestedList = event.target.closest('.active-group-items');
         if (nestedList && isScrollableElement(nestedList)) {
@@ -3009,11 +3022,19 @@ function setupActiveColumnWheelScroll() {
     document.addEventListener('wheel', function(event) {
         if (activeColumn.contains(event.target)) return;
         if (isEditableTarget(event.target)) return;
+        if (isArchiveListTarget(event.target)) return;
         if (hasOtherScrollableAncestor(event.target, activeList)) return;
 
         event.preventDefault();
         activeList.scrollTop += event.deltaY;
     }, { passive: false });
+
+    if (archiveList) {
+        archiveList.addEventListener('wheel', function(event) {
+            event.preventDefault();
+            archiveList.scrollTop += event.deltaY;
+        }, { passive: false });
+    }
 }
 
 // ============================================
@@ -3142,7 +3163,7 @@ function vaultArchive() {
 function restoreArchive(id) {
     var i = archivedItems.findIndex(function(p) { return p.id === id; });
     if (i === -1) return;
-    doneItems.push(archivedItems[i]);
+    items.push(archivedItems[i]);
     archivedItems.splice(i, 1);
     saveData();
     render();

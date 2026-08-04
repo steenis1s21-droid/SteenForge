@@ -8,10 +8,10 @@
 <!-- CryptoJS för AES-kryptering -->
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
-<link rel="stylesheet" href="assets/css/app.css?v=20260803214643">
-<script defer src="assets/js/modules/storage.js?v=20260803214643"></script>
-<script defer src="assets/js/modules/ui.js?v=20260803214643"></script>
-<script defer src="assets/js/app.js?v=20260803214643"></script>
+<link rel="stylesheet" href="assets/css/app.css">
+<script defer src="assets/js/modules/storage.js"></script>
+<script defer src="assets/js/modules/ui.js"></script>
+<script defer src="assets/js/app.js"></script>
 </head>
 
 <body>
@@ -155,9 +155,6 @@
                     <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
                 </div>
             </div>
-            <button onclick="showChangePassword()" id="changePwBtn">Ändra lösenord</button>
-            <button onclick="showArchiveInfo()" id="archiveBtn">📦 Arkiv</button>
-            <button onclick="logout()" id="logoutBtn">🚪 Logga ut</button>
         </div>
     </div>
 
@@ -215,9 +212,8 @@
         <div class="done-column" id="doneDrop">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <h3 id="doneTitle" style="margin:0;"></h3>
-                <button id="archiveAllBtn" onclick="archiveAll()" style="font-size:11px;padding:2px 8px;">📦 Arkivera alla</button>
             </div>
-            <input id="doneSearchInput" placeholder="🔍 Sök i Done" onkeyup="render()" style="margin-bottom:6px;width:100%;">
+            <input id="doneSearchInput" placeholder="🔍 Sök i arkivet" onkeyup="render()" style="margin-bottom:6px;width:100%;">
             <ul id="doneList"></ul>
         </div>
     </div>

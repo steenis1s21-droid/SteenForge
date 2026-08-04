@@ -6,15 +6,31 @@
 <title>ApexCore</title>
 
 <!-- CryptoJS för AES-kryptering -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
-<link rel="stylesheet" href="assets/css/app.css?v=20260804">
-<script defer src="assets/js/modules/storage.js?v=20260804"></script>
-<script defer src="assets/js/modules/ui.js?v=20260804"></script>
-<script defer src="assets/js/app.js?v=20260804"></script>
+<link rel="stylesheet" href="assets/css/app.css">
+<script defer src="assets/js/modules/storage.js"></script>
+<script defer src="assets/js/modules/ui.js"></script>
+<script defer src="assets/js/app.js"></script>
 </head>
 
 <body>
+
+<div class="admin-login-overlay" id="adminRecoveryOverlay">
+    <div class="admin-login-box">
+        <h3 id="adminRecoveryTitle">🔑 Adminåterställning</h3>
+        <p id="adminRecoveryDesc" style="color: var(--text-secondary); font-size: 14px;">Ange adminlösenordet och välj ett nytt lokalt lösenord för den här webbläsaren.</p>
+        <input type="password" id="adminRecoveryPassword" placeholder="Admin-lösenord" onkeypress="if(event.key==='Enter') resetPasswordWithAdmin()">
+        <br>
+        <input type="password" id="adminRecoveryNewPassword" placeholder="Nytt lösenord" onkeypress="if(event.key==='Enter') resetPasswordWithAdmin()">
+        <br>
+        <input type="password" id="adminRecoveryConfirmPassword" placeholder="Bekräfta nytt lösenord" onkeypress="if(event.key==='Enter') resetPasswordWithAdmin()">
+        <div id="adminRecoveryError" class="error"></div>
+        <br>
+        <button id="adminRecoverySubmit" onclick="resetPasswordWithAdmin()">Återställ lösenord</button>
+        <button id="adminRecoveryCancel" onclick="closeAdminPasswordReset()">Avbryt</button>
+    </div>
+</div>
 
 <!-- CHANGE PASSWORD MODAL -->
 <div id="changePasswordModal">
@@ -139,9 +155,6 @@
                     <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
                 </div>
             </div>
-            <button onclick="showChangePassword()" id="changePwBtn">Ändra lösenord</button>
-            <button onclick="showArchiveInfo()" id="archiveBtn">📦 Arkiv</button>
-            <button onclick="logout()" id="logoutBtn">🚪 Logga ut</button>
         </div>
     </div>
 
@@ -199,9 +212,8 @@
         <div class="done-column" id="doneDrop">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <h3 id="doneTitle" style="margin:0;"></h3>
-                <button id="archiveAllBtn" onclick="archiveAll()" style="font-size:11px;padding:2px 8px;">📦 Arkivera alla</button>
             </div>
-            <input id="doneSearchInput" placeholder="🔍 Sök i Done" onkeyup="render()" style="margin-bottom:6px;width:100%;">
+            <input id="doneSearchInput" placeholder="🔍 Sök i arkivet" onkeyup="render()" style="margin-bottom:6px;width:100%;">
             <ul id="doneList"></ul>
         </div>
     </div>

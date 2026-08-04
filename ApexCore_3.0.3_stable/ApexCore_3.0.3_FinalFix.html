@@ -155,9 +155,6 @@
                     <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
                 </div>
             </div>
-            <button onclick="showChangePassword()" id="changePwBtn">Ändra lösenord</button>
-            <button onclick="showArchiveInfo()" id="archiveBtn">📦 Arkiv</button>
-            <button onclick="logout()" id="logoutBtn">🚪 Logga ut</button>
         </div>
     </div>
 
@@ -215,9 +212,8 @@
         <div class="done-column" id="doneDrop">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <h3 id="doneTitle" style="margin:0;"></h3>
-                <button id="archiveAllBtn" onclick="archiveAll()" style="font-size:11px;padding:2px 8px;">📦 Arkivera alla</button>
             </div>
-            <input id="doneSearchInput" placeholder="🔍 Sök i Done" onkeyup="render()" style="margin-bottom:6px;width:100%;">
+            <input id="doneSearchInput" placeholder="🔍 Sök i arkivet" onkeyup="render()" style="margin-bottom:6px;width:100%;">
             <ul id="doneList"></ul>
         </div>
     </div>
