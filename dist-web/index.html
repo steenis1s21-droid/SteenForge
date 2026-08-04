@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="assets/css/app.css">
 <script defer src="assets/js/modules/storage.js"></script>
 <script defer src="assets/js/modules/ui.js"></script>
+<script defer src="assets/js/modules/import-export.js"></script>
 <script defer src="assets/js/app.js"></script>
 </head>
 
@@ -165,17 +166,9 @@
         <button onclick="startStandardImport()" id="importBtn">Importera</button>
         <button onclick="startDryRunImport()" id="importDryRunBtn">Torrkör import</button>
         <button onclick="startBackupValidation()" id="validateBackupBtn">Validera backup</button>
+        <button onclick="toggleBackupHealthPanel()" id="backupHealthToggleBtn">Visa backupstatus</button>
+        <button onclick="toggleRecoveryCenterPanel()" id="recoveryToggleBtn">Visa Recovery Center</button>
         <input type="file" id="fileInput" accept=".json,.enc" onchange="importData(event)">
-    </div>
-
-    <div id="backupHealthPanel" class="backup-health-panel" aria-live="polite">
-        <div class="backup-health-title">Backupstatus</div>
-        <div class="backup-health-grid">
-            <span id="healthCrypto" class="health-chip">Crypto: -</span>
-            <span id="healthStorage" class="health-chip">Lagring: -</span>
-            <span id="healthExport" class="health-chip">Export: -</span>
-            <span id="healthImport" class="health-chip">Import: -</span>
-        </div>
     </div>
 </div>
 
@@ -225,7 +218,7 @@
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <h3 id="doneTitle" style="margin:0;"></h3>
                 <div style="display:flex; gap:6px; align-items:center;">
-                    <button id="sideArchiveRestoreSafetyBtn" onclick="restoreAutoSafetySnapshot()" style="font-size:11px;padding:2px 8px;">♻️ Återställ safety</button>
+                    <button id="sideArchiveRestoreSafetyBtn" onclick="restoreAutoSafetySnapshot()" style="font-size:11px;padding:2px 8px;">Återställ safety</button>
                     <button id="sideArchiveClearBtn" onclick="clearArchiveWithBackupPrompt()" style="font-size:11px;padding:2px 8px;">🗑️ Rensa arkiv</button>
                 </div>
             </div>
@@ -246,6 +239,27 @@
         </div>
         <input id="searchInput" placeholder="🔍 Sök i Active" onkeyup="renderDebounced()" style="margin-bottom:8px;width:100%;">
         <ul id="activeList"></ul>
+    </div>
+</div>
+
+<div class="utility-panels-floating" aria-live="polite">
+    <div id="backupHealthPanel" class="backup-health-panel utility-floating-panel hidden">
+        <div class="backup-health-title">Backupstatus</div>
+        <div class="backup-health-grid">
+            <span id="healthCrypto" class="health-chip">Crypto: -</span>
+            <span id="healthStorage" class="health-chip">Lagring: -</span>
+            <span id="healthExport" class="health-chip">Export: -</span>
+            <span id="healthImport" class="health-chip">Import: -</span>
+        </div>
+    </div>
+
+    <div id="recoveryCenterPanel" class="backup-health-panel utility-floating-panel hidden">
+        <div class="backup-health-title" id="recoveryCenterTitle">Recovery Center</div>
+        <div class="recovery-center-list">
+            <div class="recovery-line" id="recoveryLastExport">Senaste export: -</div>
+            <div class="recovery-line" id="recoveryLastImport">Senaste import: -</div>
+            <div class="recovery-line" id="recoverySafetySnapshot">Safety snapshot: -</div>
+        </div>
     </div>
 </div>
 
@@ -347,7 +361,7 @@
         <div id="archiveContent"></div>
         <div class="archive-actions">
             <button id="archiveVaultBtn" type="button" onclick="vaultArchive()" disabled>🗄️ Flytta filer till vault</button>
-            <button id="archiveRestoreSafetyBtn" type="button" onclick="restoreAutoSafetySnapshot()">♻️ Återställ safety</button>
+            <button id="archiveRestoreSafetyBtn" type="button" onclick="restoreAutoSafetySnapshot()">Återställ safety</button>
             <button onclick="clearArchive()" id="archiveClearBtn">🗑️ Rensa arkiv</button>
             <button onclick="closeArchiveModal()" id="archiveCloseBtn">❌ Stäng</button>
         </div>

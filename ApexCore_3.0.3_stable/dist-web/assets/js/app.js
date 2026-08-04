@@ -58,6 +58,8 @@ let renderArchiveDebounceTimer = null;
 let isArchiveCleanupModalOpen = false;
 let isArchivePasswordModalOpen = false;
 let pendingImportAction = 'import';
+let isRecoveryCenterOpen = false;
+let isBackupHealthOpen = false;
 
 const BACKUP_FORMAT_VERSION = '3.0';
 const LEGACY_BACKUP_VERSION = '2.2';
@@ -1080,6 +1082,15 @@ function getBackupUiText() {
             importDryRun: 'Dry-run import',
             validateBackup: 'Validate backup',
             restoreSafety: 'Restore safety',
+            backupToggleShow: 'Show backup status',
+            backupToggleHide: 'Hide backup status',
+            recoveryCenterTitle: 'Recovery Center',
+            recoveryToggleShow: 'Show Recovery Center',
+            recoveryToggleHide: 'Hide Recovery Center',
+            recoveryLastExport: 'Last export',
+            recoveryLastImport: 'Last import',
+            recoverySafetySnapshot: 'Safety snapshot',
+            recoveryNoData: 'No data',
             healthTitle: 'Backup health',
             crypto: 'Crypto',
             storage: 'Storage',
@@ -1110,6 +1121,15 @@ function getBackupUiText() {
         importDryRun: 'Torrkör import',
         validateBackup: 'Validera backup',
         restoreSafety: 'Återställ safety',
+        backupToggleShow: 'Visa backupstatus',
+        backupToggleHide: 'Dölj backupstatus',
+        recoveryCenterTitle: 'Recovery Center',
+        recoveryToggleShow: 'Visa Recovery Center',
+        recoveryToggleHide: 'Dölj Recovery Center',
+        recoveryLastExport: 'Senaste export',
+        recoveryLastImport: 'Senaste import',
+        recoverySafetySnapshot: 'Safety snapshot',
+        recoveryNoData: 'Ingen data',
         healthTitle: 'Backupstatus',
         crypto: 'Crypto',
         storage: 'Lagring',
@@ -1135,6 +1155,13 @@ function getBackupUiText() {
         replacePromptFailed: 'Ersättning avbröts eftersom bekräftelsetexten inte stämde.',
         duplicateSkipped: 'Hoppade över {count} dubbletter vid arkivimport.'
     };
+}
+
+function getImportExportModule() {
+    if (typeof window !== 'undefined' && window.ImportExportModule) {
+        return window.ImportExportModule;
+    }
+    return null;
 }
 
 function readBackupHealthState() {
@@ -1207,6 +1234,8 @@ function updateBackupHealthPanel() {
     updateHealthChip('healthStorage', text.storage, state.storage);
     updateHealthChip('healthExport', text.exportStatus, state.export);
     updateHealthChip('healthImport', text.importStatus, state.import);
+
+    updateBackupHealthToggleButton();
 }
 
 function initBackupHealthPanel() {
@@ -1214,6 +1243,105 @@ function initBackupHealthPanel() {
     setBackupHealthStatus('crypto', typeof CryptoJS !== 'undefined' ? 'ok' : 'error', typeof CryptoJS !== 'undefined' ? '' : 'CryptoJS');
     setBackupHealthStatus('storage', storageOk ? 'ok' : 'error', storageOk ? '' : 'localStorage');
     updateBackupHealthPanel();
+}
+
+function updateBackupHealthToggleButton() {
+    var button = document.getElementById('backupHealthToggleBtn');
+    if (!button) return;
+
+    var text = getBackupUiText();
+    button.textContent = isBackupHealthOpen
+        ? text.backupToggleHide
+        : text.backupToggleShow;
+}
+
+function setBackupHealthOpenState(nextOpen) {
+    isBackupHealthOpen = !!nextOpen;
+
+    var panel = document.getElementById('backupHealthPanel');
+    if (panel) {
+        panel.classList.toggle('hidden', !isBackupHealthOpen);
+    }
+
+    updateBackupHealthToggleButton();
+}
+
+function toggleBackupHealthPanel() {
+    setBackupHealthOpenState(!isBackupHealthOpen);
+}
+
+function formatRecoveryEntry(entry, fallback) {
+    if (!entry) return fallback;
+
+    var atText = entry.at ? new Date(entry.at).toLocaleString() : '-';
+    var detail = '';
+
+    if (entry.kind) detail = entry.kind;
+    if (entry.mode) detail = entry.mode;
+    if (entry.action) detail = entry.action;
+    if (typeof entry.count === 'number') detail = (detail ? detail + ', ' : '') + entry.count;
+    if (entry.counts && typeof entry.counts === 'object') {
+        var c = entry.counts;
+        detail = (detail ? detail + ', ' : '') + [c.active || 0, c.done || 0, c.archived || 0].join('/');
+    }
+
+    return atText + (detail ? ' - ' + detail : '');
+}
+
+function updateRecoveryCenterPanel() {
+    var panel = document.getElementById('recoveryCenterPanel');
+    if (!panel) return;
+
+    var text = getBackupUiText();
+    var moduleApi = getImportExportModule();
+    var state = moduleApi && typeof moduleApi.readRecoveryState === 'function'
+        ? moduleApi.readRecoveryState()
+        : {};
+
+    var title = document.getElementById('recoveryCenterTitle');
+    if (title) title.textContent = text.recoveryCenterTitle;
+
+    var exportLine = document.getElementById('recoveryLastExport');
+    if (exportLine) {
+        exportLine.textContent = text.recoveryLastExport + ': ' + formatRecoveryEntry(state.lastExport, text.recoveryNoData);
+    }
+
+    var importLine = document.getElementById('recoveryLastImport');
+    if (importLine) {
+        importLine.textContent = text.recoveryLastImport + ': ' + formatRecoveryEntry(state.lastImport, text.recoveryNoData);
+    }
+
+    var safetyLine = document.getElementById('recoverySafetySnapshot');
+    if (safetyLine) {
+        safetyLine.textContent = text.recoverySafetySnapshot + ': ' + formatRecoveryEntry(state.safetySnapshot, text.recoveryNoData);
+    }
+
+    updateRecoveryCenterToggleButton();
+}
+
+function updateRecoveryCenterToggleButton() {
+    var button = document.getElementById('recoveryToggleBtn');
+    if (!button) return;
+
+    var text = getBackupUiText();
+    button.textContent = isRecoveryCenterOpen
+        ? text.recoveryToggleHide
+        : text.recoveryToggleShow;
+}
+
+function setRecoveryCenterOpenState(nextOpen) {
+    isRecoveryCenterOpen = !!nextOpen;
+
+    var panel = document.getElementById('recoveryCenterPanel');
+    if (panel) {
+        panel.classList.toggle('hidden', !isRecoveryCenterOpen);
+    }
+
+    updateRecoveryCenterToggleButton();
+}
+
+function toggleRecoveryCenterPanel() {
+    setRecoveryCenterOpenState(!isRecoveryCenterOpen);
 }
 
 function hasAutoSafetySnapshot() {
@@ -1317,6 +1445,8 @@ function applyLanguage() {
     var validateBackupBtn = document.getElementById('validateBackupBtn');
     if (validateBackupBtn) validateBackupBtn.textContent = backupText.validateBackup;
     updateBackupHealthPanel();
+    updateBackupHealthToggleButton();
+    updateRecoveryCenterPanel();
 
     setPlaceholder('searchInput', 'searchActive');
     setPlaceholder('doneSearchInput', 'archiveSearch');
@@ -1340,13 +1470,14 @@ function applyLanguage() {
     setText('archiveVaultBtn', 'archiveVaultBtn');
     var backupLabels = getBackupUiText();
     var archiveRestoreSafetyBtn = document.getElementById('archiveRestoreSafetyBtn');
-    if (archiveRestoreSafetyBtn) archiveRestoreSafetyBtn.textContent = '♻️ ' + backupLabels.restoreSafety;
+    if (archiveRestoreSafetyBtn) archiveRestoreSafetyBtn.textContent = backupLabels.restoreSafety;
     var sideArchiveRestoreSafetyBtn = document.getElementById('sideArchiveRestoreSafetyBtn');
-    if (sideArchiveRestoreSafetyBtn) sideArchiveRestoreSafetyBtn.textContent = '♻️ ' + backupLabels.restoreSafety;
+    if (sideArchiveRestoreSafetyBtn) sideArchiveRestoreSafetyBtn.textContent = backupLabels.restoreSafety;
     setText('archiveClearBtn', 'archiveClear');
     setText('sideArchiveClearBtn', 'archiveClear');
     setText('archiveCloseBtn', 'archiveClose');
     updateAutoSafetyRestoreButtons();
+    updateRecoveryCenterPanel();
     if (typeof updateReminderLanguageText === 'function') updateReminderLanguageText();
     if (typeof updateCategoryLanguageText === 'function') updateCategoryLanguageText();
     if (typeof updateSortLanguageText === 'function') updateSortLanguageText();
@@ -2257,6 +2388,11 @@ function exportJSON() {
     if (!fileName) return;
     downloadBlob(blob, fileName);
     setBackupHealthStatus('export', 'ok', 'json');
+    var moduleApi = getImportExportModule();
+    if (moduleApi && typeof moduleApi.markExportSuccess === 'function') {
+        moduleApi.markExportSuccess('json', data.totalItems);
+        updateRecoveryCenterPanel();
+    }
     showMessage(t('msgExported').replace('{count}', data.totalItems), 'success');
 }
 
@@ -2351,6 +2487,11 @@ function exportEncrypted() {
         downloadBlob(blob, fileName);
         hideProgress();
         setBackupHealthStatus('export', 'ok', 'encrypted');
+        var moduleApi = getImportExportModule();
+        if (moduleApi && typeof moduleApi.markExportSuccess === 'function') {
+            moduleApi.markExportSuccess('encrypted', data.totalItems);
+            updateRecoveryCenterPanel();
+        }
         showMessage(t('msgEncrypted').replace('{count}', data.totalItems), 'success');
     } catch (error) {
         hideProgress();
@@ -2389,6 +2530,11 @@ function exportCSV() {
         downloadBlob(blob, fileName);
         hideProgress();
         setBackupHealthStatus('export', 'ok', 'csv');
+        var moduleApi = getImportExportModule();
+        if (moduleApi && typeof moduleApi.markExportSuccess === 'function') {
+            moduleApi.markExportSuccess('csv', items.length + doneItems.length + archivedItems.length);
+            updateRecoveryCenterPanel();
+        }
         showMessage(t('msgCsvExported').replace('{count}', items.length + doneItems.length + archivedItems.length), 'success');
     } catch (error) {
         hideProgress();
@@ -2700,6 +2846,20 @@ function splitNewAndDuplicateArchiveItems(importedItems) {
 }
 
 function buildVaultImportPreviewMessage(deduped, incomingCount) {
+    var moduleApi = getImportExportModule();
+    if (moduleApi && typeof moduleApi.buildVaultPreviewMessage === 'function') {
+        return moduleApi.buildVaultPreviewMessage({
+            lang: getLang(),
+            title: getBackupUiText().importPreviewTitle,
+            continueText: getBackupUiText().importPreviewContinue,
+            beforeArchive: archivedItems.length,
+            incomingCount: incomingCount,
+            uniqueCount: deduped.uniqueItems.length,
+            duplicateCount: deduped.duplicateCount,
+            afterArchive: archivedItems.length + deduped.uniqueItems.length
+        });
+    }
+
     var lang = getLang();
     var beforeArchive = archivedItems.length;
     var afterArchive = beforeArchive + deduped.uniqueItems.length;
@@ -2726,6 +2886,24 @@ function buildVaultImportPreviewMessage(deduped, incomingCount) {
 }
 
 function buildFullImportPreviewMessage(data) {
+    var moduleApi = getImportExportModule();
+    if (moduleApi && typeof moduleApi.buildFullPreviewMessage === 'function') {
+        return moduleApi.buildFullPreviewMessage({
+            lang: getLang(),
+            title: getBackupUiText().importPreviewTitle,
+            continueText: getBackupUiText().importPreviewContinue,
+            currentActive: items.length,
+            currentDone: doneItems.length,
+            currentArchived: archivedItems.length,
+            incomingActive: data.items.length,
+            incomingDone: data.doneItems.length,
+            incomingArchived: data.archivedItems.length,
+            addActive: items.length + data.items.length,
+            addDone: doneItems.length + data.doneItems.length,
+            addArchived: archivedItems.length + data.archivedItems.length
+        });
+    }
+
     var lang = getLang();
     var currentActive = items.length;
     var currentDone = doneItems.length;
@@ -2772,7 +2950,10 @@ function buildFullImportPreviewMessage(data) {
 }
 
 function requestReplaceConfirmationPhrase() {
-    var token = getLang() === 'sv' ? 'ERSÄTT' : 'REPLACE';
+    var moduleApi = getImportExportModule();
+    var token = moduleApi && typeof moduleApi.getReplaceToken === 'function'
+        ? moduleApi.getReplaceToken(getLang())
+        : (getLang() === 'sv' ? 'ERSÄTT' : 'REPLACE');
     var typed = prompt(getBackupUiText().replacePrompt + ' [' + token + ']');
     if (typed === null) return false;
     return typed.trim().toUpperCase() === token;
@@ -2804,6 +2985,15 @@ function importProcess(data) {
         render();
         renderArchive();
         updateAutoSafetyRestoreButtons();
+        var moduleApi = getImportExportModule();
+        if (moduleApi && typeof moduleApi.markImportSuccess === 'function') {
+            moduleApi.markImportSuccess('vault', {
+                active: items.length,
+                done: doneItems.length,
+                archived: archivedItems.length
+            });
+            updateRecoveryCenterPanel();
+        }
         hideProgress();
         showMessage(getLang() === 'sv'
             ? '✅ ' + deduped.uniqueItems.length + ' arkivposter importerades till arkivet.'
@@ -2856,6 +3046,15 @@ function importProcess(data) {
             .replace('{active}', items.length)
             .replace('{done}', doneItems.length)
             .replace('{archived}', archivedItems.length), 'success');
+        var replaceModuleApi = getImportExportModule();
+        if (replaceModuleApi && typeof replaceModuleApi.markImportSuccess === 'function') {
+            replaceModuleApi.markImportSuccess('replace', {
+                active: items.length,
+                done: doneItems.length,
+                archived: archivedItems.length
+            });
+            updateRecoveryCenterPanel();
+        }
     } else {
         const beforeCount = items.length + doneItems.length + archivedItems.length;
         items = items.concat(data.items.map(normalizeItemData));
@@ -2867,6 +3066,15 @@ function importProcess(data) {
         }
         const addedCount = (items.length + doneItems.length + archivedItems.length) - beforeCount;
         showMessage(t('confirmAdded').replace('{count}', addedCount), 'success');
+        var addModuleApi = getImportExportModule();
+        if (addModuleApi && typeof addModuleApi.markImportSuccess === 'function') {
+            addModuleApi.markImportSuccess('add', {
+                active: items.length,
+                done: doneItems.length,
+                archived: archivedItems.length
+            });
+            updateRecoveryCenterPanel();
+        }
     }
 
     saveData();
@@ -4192,6 +4400,11 @@ function saveAutoSafetySnapshot() {
         localStorage.setItem('archiveAutoSafetyBackup', JSON.stringify(snapshot));
         setBackupHealthStatus('export', 'warn', 'auto safety backup');
         updateAutoSafetyRestoreButtons();
+        var moduleApi = getImportExportModule();
+        if (moduleApi && typeof moduleApi.markSafetySnapshot === 'function') {
+            moduleApi.markSafetySnapshot('created', archivedItems.length);
+            updateRecoveryCenterPanel();
+        }
         showMessage(getBackupUiText().autoSafetySaved, 'info');
     } catch (error) {
         setBackupHealthStatus('export', 'error', 'auto safety backup failed');
@@ -4247,6 +4460,18 @@ function restoreAutoSafetySnapshot() {
     renderArchive();
     setBackupHealthStatus('import', 'ok', 'safety restored');
     updateAutoSafetyRestoreButtons();
+    var moduleApi = getImportExportModule();
+    if (moduleApi && typeof moduleApi.markSafetySnapshot === 'function') {
+        moduleApi.markSafetySnapshot('restored', archivedItems.length);
+    }
+    if (moduleApi && typeof moduleApi.markImportSuccess === 'function') {
+        moduleApi.markImportSuccess('safety-restore', {
+            active: items.length,
+            done: doneItems.length,
+            archived: archivedItems.length
+        });
+    }
+    updateRecoveryCenterPanel();
     showMessage(getBackupUiText().autoSafetyRestored.replace('{count}', archivedItems.length), 'success');
 }
 
@@ -4543,6 +4768,9 @@ applyLanguage();
 loadTheme();
 updateSoundButton();
 initBackupHealthPanel();
+setBackupHealthOpenState(false);
+setRecoveryCenterOpenState(false);
+updateRecoveryCenterPanel();
 initReminderInputs();
 setupActiveColumnWheelScroll();
 setActiveSortMode(getStoredActiveSortMode());
