@@ -2006,8 +2006,14 @@ function downloadBlob(blob, fileName) {
     const a = document.createElement('a');
     a.href = url;
     a.download = fileName;
+    a.style.display = 'none';
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    // Keep URL alive longer to avoid intermittent truncated downloads on slower systems.
+    setTimeout(function() {
+        URL.revokeObjectURL(url);
+    }, 60000);
 }
 
 function requestExportFileName(defaultBaseName, extension) {
@@ -2025,7 +2031,8 @@ function requestExportFileName(defaultBaseName, extension) {
 }
 
 function requestEncryptionPassword() {
-    const password = prompt(t('msgEncryptedPassword'));
+    const passwordRaw = prompt(t('msgEncryptedPassword'));
+    const password = (passwordRaw || '').trim();
     if (!password) return null;
 
     if (password.length < 4) {
@@ -2033,7 +2040,8 @@ function requestEncryptionPassword() {
         return null;
     }
 
-    const confirmPassword = prompt('🔐 ' + (getLang() === 'sv' ? 'Bekräfta lösenordet:' : 'Confirm password:'));
+    const confirmRaw = prompt('🔐 ' + (getLang() === 'sv' ? 'Bekräfta lösenordet:' : 'Confirm password:'));
+    const confirmPassword = (confirmRaw || '').trim();
     if (password !== confirmPassword) {
         showMessage(t('msgPasswordMismatch'), 'error');
         return null;
@@ -2045,6 +2053,16 @@ function requestEncryptionPassword() {
 function createEncryptedExportBlob(data, password) {
     const json = JSON.stringify(data);
     const encrypted = CryptoJS.AES.encrypt(json, password).toString();
+
+    // Verify immediately with the same decrypt path used at import time.
+    try {
+        const roundtripText = decryptEncryptedPayload(encrypted, password);
+        JSON.parse(roundtripText);
+    } catch (error) {
+        throw new Error(getLang() === 'sv'
+            ? 'Krypterad export kunde inte verifieras internt.'
+            : 'Encrypted export could not be verified internally.');
+    }
 
     const exportData = {
         encrypted: encrypted,
@@ -2115,6 +2133,58 @@ function exportCSV() {
     }
 }
 
+function getPasswordCandidates(password) {
+    const base = String(password || '');
+    const candidates = [base];
+
+    try {
+        candidates.push(base.normalize('NFC'));
+        candidates.push(base.normalize('NFD'));
+    } catch (e) {
+        // String.normalize may be unavailable in very old runtimes.
+    }
+
+    const trimmed = base.trim();
+    if (trimmed && trimmed !== base) {
+        candidates.push(trimmed);
+        try {
+            candidates.push(trimmed.normalize('NFC'));
+            candidates.push(trimmed.normalize('NFD'));
+        } catch (e) {
+            // ignore
+        }
+    }
+
+    return candidates.filter(function(value, index, arr) {
+        return arr.indexOf(value) === index;
+    });
+}
+
+function decryptEncryptedPayload(encryptedValue, password) {
+    if (typeof CryptoJS === 'undefined') {
+        throw new Error('CryptoJS not loaded');
+    }
+
+    const encrypted = String(encryptedValue || '').trim();
+    if (!encrypted) {
+        throw new Error('Encrypted payload missing');
+    }
+
+    const encryptedNoWhitespace = encrypted.replace(/\s+/g, '');
+    const candidates = getPasswordCandidates(password);
+
+    for (let i = 0; i < candidates.length; i++) {
+        const candidate = candidates[i];
+        const decrypted = CryptoJS.AES.decrypt(encryptedNoWhitespace, candidate);
+        const decryptedText = decrypted.toString(CryptoJS.enc.Utf8).replace(/^\uFEFF/, '').trim();
+        if (decryptedText) {
+            return decryptedText;
+        }
+    }
+
+    throw new Error('Wrong password or corrupt encrypted payload');
+}
+
 function importData(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -2124,32 +2194,66 @@ function importData(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const content = e.target.result;
-            let data = JSON.parse(content);
+            const contentRaw = typeof e.target.result === 'string' ? e.target.result : '';
+            const content = contentRaw.replace(/^\uFEFF/, '').trim();
+
+            if (!content) {
+                hideProgress();
+                showMessage('❌ ' + (getLang() === 'sv' ? 'Filen är tom eller oläsbar.' : 'The file is empty or unreadable.'), 'error');
+                return;
+            }
+
+            let data;
+            try {
+                data = JSON.parse(content);
+            } catch (parseError) {
+                hideProgress();
+                if (/^<!doctype html/i.test(content) || /^<html/i.test(content)) {
+                    showMessage('❌ ' + (getLang() === 'sv' ? 'Fel filtyp: välj en backupfil (.json eller .enc), inte en HTML-sida.' : 'Wrong file type: select a backup file (.json or .enc), not an HTML page.'), 'error');
+                } else {
+                    showMessage(t('msgImportError'), 'error');
+                }
+                console.error('Import parse error:', parseError);
+                return;
+            }
             
             if (data.encrypted && data.algorithm === 'AES') {
-                const password = prompt(t('msgEncryptedPassword'));
-                if (!password) {
-                    hideProgress();
-                    showMessage('❌ ' + (getLang() === 'sv' ? 'Lösenord krävs för att importera!' : 'Password required to import!'), 'error');
-                    return;
+                function decryptAndImportWithPassword(password) {
+                    if (!password) {
+                        hideProgress();
+                        showMessage('❌ ' + (getLang() === 'sv' ? 'Lösenord krävs för att importera!' : 'Password required to import!'), 'error');
+                        return;
+                    }
+
+                    var decryptedData;
+                    try {
+                        const decryptedText = decryptEncryptedPayload(data.encrypted, password);
+                        decryptedData = JSON.parse(decryptedText);
+                    } catch (error) {
+                        hideProgress();
+                        showMessage('❌ ' + (getLang() === 'sv' ? 'Fel lösenord eller korrupt fil!' : 'Wrong password or corrupt file!'), 'error');
+                        return;
+                    }
+
+                    try {
+                        importProcess(decryptedData);
+                    } catch (error) {
+                        hideProgress();
+                        showMessage(t('msgImportError'), 'error');
+                        console.error('Import process error:', error);
+                        return;
+                    }
                 }
 
-                try {
-                    const decrypted = CryptoJS.AES.decrypt(data.encrypted, password);
-                    const decryptedText = decrypted.toString(CryptoJS.enc.Utf8);
-                    
-                    if (!decryptedText) {
-                        throw new Error('Fel lösenord eller korrupt data');
-                    }
-                    
-                    data = JSON.parse(decryptedText);
-                    importProcess(data);
-                } catch (error) {
-                    hideProgress();
-                    showMessage('❌ ' + (getLang() === 'sv' ? 'Fel lösenord eller korrupt fil!' : 'Wrong password or corrupt file!'), 'error');
-                    return;
-                }
+                hideProgress();
+                showArchivePasswordModal(function(password) {
+                    showProgress('📥 ' + (getLang() === 'sv' ? 'Läser fil...' : 'Reading file...'));
+                    decryptAndImportWithPassword(password);
+                }, {
+                    requireConfirm: false,
+                    labels: getImportPasswordTexts(),
+                    fallbackPromptText: t('msgEncryptedPassword')
+                });
             } else {
                 importProcess(data);
             }
@@ -2160,7 +2264,7 @@ function importData(event) {
         }
     };
 
-    reader.readAsText(file);
+    reader.readAsText(file, 'utf-8');
     event.target.value = '';
 }
 
@@ -2173,7 +2277,7 @@ function generateImportedItemId(usedIds) {
     return nextId;
 }
 
-function prepareVaultItemsForActive(vaultItems) {
+function prepareVaultItemsForArchive(vaultItems) {
     var usedIds = new Set();
 
     items.forEach(function(item) { usedIds.add(item.id); });
@@ -2198,18 +2302,25 @@ function prepareVaultItemsForActive(vaultItems) {
 
 function importProcess(data) {
     if (data.source === 'archive-vault' && Array.isArray(data.archivedItems)) {
-        const importedItems = prepareVaultItemsForActive(data.archivedItems);
+        const importedItems = prepareVaultItemsForArchive(data.archivedItems);
         if (Array.isArray(data.adminUpdates)) {
             const mergedUpdates = mergeAdminUpdates(data.adminUpdates, getAdminUpdates());
             saveAdminUpdates(mergedUpdates);
-            renderInfoContent();
-            renderAdminList();
+            if (typeof renderInfoContent === 'function') {
+                renderInfoContent();
+            }
+            if (typeof renderAdminList === 'function') {
+                renderAdminList();
+            }
         }
-        items = items.concat(importedItems);
+        archivedItems = archivedItems.concat(importedItems);
         saveData();
         render();
+        renderArchive();
         hideProgress();
-        showMessage(t('archiveVaultImported').replace('{count}', importedItems.length), 'success');
+        showMessage(getLang() === 'sv'
+            ? '✅ ' + importedItems.length + ' arkivposter importerades till arkivet.'
+            : '✅ ' + importedItems.length + ' archived items were imported to Archive.', 'success');
         return;
     }
 
@@ -3382,6 +3493,58 @@ function getArchivePasswordTexts() {
     };
 }
 
+function getImportPasswordTexts() {
+    var lang = getLang();
+    if (lang === 'en') {
+        return {
+            title: '🔓 Import encrypted file',
+            text: 'Enter the password for the encrypted import file.',
+            placeholder: 'Password',
+            placeholderConfirm: '',
+            cancel: '❌ Cancel',
+            save: '📥 Import'
+        };
+    }
+    if (lang === 'da') {
+        return {
+            title: '🔓 Importér krypteret fil',
+            text: 'Indtast kodeordet til den krypterede importfil.',
+            placeholder: 'Kodeord',
+            placeholderConfirm: '',
+            cancel: '❌ Annuller',
+            save: '📥 Importér'
+        };
+    }
+    if (lang === 'no') {
+        return {
+            title: '🔓 Importer kryptert fil',
+            text: 'Skriv inn passordet for den krypterte importfilen.',
+            placeholder: 'Passord',
+            placeholderConfirm: '',
+            cancel: '❌ Avbryt',
+            save: '📥 Importer'
+        };
+    }
+    if (lang === 'fi') {
+        return {
+            title: '🔓 Tuo salattu tiedosto',
+            text: 'Anna salatun tuontitiedoston salasana.',
+            placeholder: 'Salasana',
+            placeholderConfirm: '',
+            cancel: '❌ Peruuta',
+            save: '📥 Tuo'
+        };
+    }
+    return {
+        title: '🔓 Importera krypterad fil',
+        text: 'Ange lösenordet för den krypterade importfilen.',
+        placeholder: 'Lösenord',
+        placeholderConfirm: '',
+        cancel: '❌ Avbryt',
+        save: '📥 Importera'
+    };
+}
+
 function closeArchiveCleanupModal() {
     var modal = document.getElementById('archiveCleanupModal');
     if (!modal) return;
@@ -3396,7 +3559,8 @@ function closeArchivePasswordModal() {
     isArchivePasswordModalOpen = false;
 }
 
-function showArchivePasswordModal(onConfirm) {
+function showArchivePasswordModal(onConfirm, options) {
+    options = options || {};
     var modal = document.getElementById('archivePasswordModal');
     var title = document.getElementById('archivePasswordTitle');
     var text = document.getElementById('archivePasswordText');
@@ -3404,18 +3568,31 @@ function showArchivePasswordModal(onConfirm) {
     var confirmInput = document.getElementById('archivePasswordConfirmInput');
     var cancelBtn = document.getElementById('archivePasswordCancelBtn');
     var okBtn = document.getElementById('archivePasswordOkBtn');
+    var requireConfirm = options.requireConfirm !== false;
+    var labels = options.labels || getArchivePasswordTexts();
+
     if (!modal || !title || !text || !passwordInput || !confirmInput || !cancelBtn || !okBtn) {
-        var fallbackPassword = requestEncryptionPassword();
+        var fallbackPassword = null;
+        if (requireConfirm) {
+            fallbackPassword = requestEncryptionPassword();
+        } else {
+            var fallbackPromptText = options.fallbackPromptText || t('msgEncryptedPassword');
+            try {
+                fallbackPassword = prompt(fallbackPromptText);
+            } catch (fallbackPromptError) {
+                fallbackPassword = null;
+            }
+        }
         if (!fallbackPassword) return;
         onConfirm(fallbackPassword);
         return;
     }
 
-    var labels = getArchivePasswordTexts();
     title.textContent = labels.title;
     text.textContent = labels.text;
     passwordInput.placeholder = labels.placeholder;
-    confirmInput.placeholder = labels.placeholderConfirm;
+    confirmInput.placeholder = labels.placeholderConfirm || '';
+    confirmInput.style.display = requireConfirm ? '' : 'none';
     cancelBtn.textContent = labels.cancel;
     okBtn.textContent = labels.save;
     passwordInput.value = '';
@@ -3436,14 +3613,14 @@ function showArchivePasswordModal(onConfirm) {
     }
 
     function submit() {
-        var password = passwordInput.value;
-        var confirmPassword = confirmInput.value;
+        var password = (passwordInput.value || '').trim();
+        var confirmPassword = (confirmInput.value || '').trim();
 
         if (!password || password.length < 4) {
             showMessage(t('msgEncryptedPasswordShort'), 'error');
             return;
         }
-        if (password !== confirmPassword) {
+        if (requireConfirm && password !== confirmPassword) {
             showMessage(t('msgPasswordMismatch'), 'error');
             return;
         }
@@ -3469,7 +3646,11 @@ function showArchivePasswordModal(onConfirm) {
     passwordInput.onkeydown = function(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
-            confirmInput.focus();
+            if (requireConfirm) {
+                confirmInput.focus();
+            } else {
+                submit();
+            }
         }
         if (event.key === 'Escape') {
             event.preventDefault();
@@ -3478,6 +3659,7 @@ function showArchivePasswordModal(onConfirm) {
     };
 
     confirmInput.onkeydown = function(event) {
+        if (!requireConfirm) return;
         if (event.key === 'Enter') {
             event.preventDefault();
             submit();
