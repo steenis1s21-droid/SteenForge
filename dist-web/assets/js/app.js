@@ -1232,7 +1232,11 @@ function updateAutoSafetyRestoreButtons() {
     ['archiveRestoreSafetyBtn', 'sideArchiveRestoreSafetyBtn'].forEach(function(id) {
         var btn = document.getElementById(id);
         if (!btn) return;
-        btn.disabled = !hasSnapshot;
+        btn.disabled = false;
+        btn.style.opacity = hasSnapshot ? '1' : '0.65';
+        btn.title = hasSnapshot
+            ? (getLang() === 'en' ? 'Restore saved safety snapshot' : 'Återställ sparad safety-snapshot')
+            : (getLang() === 'en' ? 'No snapshot available yet. Clear archive once to create one.' : 'Ingen snapshot finns ännu. Rensa arkivet en gång för att skapa en.');
     });
 }
 
