@@ -3061,6 +3061,13 @@ function setupActiveColumnWheelScroll() {
         return false;
     }
 
+    function getGroupListFromTarget(target) {
+        if (!target || !target.closest) return null;
+        var group = target.closest('.active-group');
+        if (!group) return null;
+        return group.querySelector('.active-group-items');
+    }
+
     function hasOtherScrollableAncestor(target, activeList) {
         var current = target;
         while (current && current !== document.body) {
@@ -3084,11 +3091,22 @@ function setupActiveColumnWheelScroll() {
         if (isEditableTarget(event.target)) return;
         if (isArchiveListTarget(event.target)) return;
 
+        var groupListFromHeader = getGroupListFromTarget(event.target);
+        if (groupListFromHeader) {
+            event.preventDefault();
+            if (canScrollInDirection(groupListFromHeader, event.deltaY)) {
+                groupListFromHeader.scrollTop += event.deltaY;
+            }
+            return;
+        }
+
         var nestedList = event.target.closest('.active-group-items');
         if (nestedList && isScrollableElement(nestedList)) {
+            event.preventDefault();
             if (canScrollInDirection(nestedList, event.deltaY)) {
-                return;
+                nestedList.scrollTop += event.deltaY;
             }
+            return;
         }
 
         event.preventDefault();
