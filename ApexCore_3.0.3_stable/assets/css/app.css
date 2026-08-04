@@ -437,13 +437,13 @@ body {
     flex-wrap: nowrap;
     align-items: center;
     flex: 0 0 auto;
-    margin-left: auto;
-    padding-left: 4px;
+    margin-left: 0;
+    padding-left: 2px;
     border-left: 1px solid var(--border-color);
 }
 
 .export-import button {
-    padding: 6px 9px;
+    padding: 7px 10px;
     background: var(--btn-bg);
     color: var(--btn-text);
     border: 1px solid var(--border-color);
@@ -460,7 +460,7 @@ body {
 }
 
 .export-import > button:last-of-type {
-    margin-right: 0;
+    margin-right: 4px;
 }
 
 .export-import button:hover {
