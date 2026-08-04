@@ -132,7 +132,7 @@ body {
 
 /* LAYOUT */
 .container {
-    width: min(1000px, calc(100vw - 20px));
+    width: min(1180px, calc(100vw - 20px));
     max-width: 100%;
     margin: 0 auto;
     min-height: 100vh;
@@ -776,7 +776,7 @@ textarea {
 
 /* ACTIVE COLUMN - HÖGER (med scroll) */
 .active-column {
-    flex: 1;
+    flex: 1.25 1 460px;
     background: var(--bg-column);
     padding: 12px 15px;
     border: 1px solid var(--border-color);
@@ -1523,9 +1523,11 @@ button:hover {
     .form-active-row {
         overflow: hidden;
         align-items: stretch;
+        flex-wrap: nowrap;
     }
 
     .form-column {
+        flex: 1 1 380px;
         min-height: 0;
         height: 100%;
         overflow: hidden;
