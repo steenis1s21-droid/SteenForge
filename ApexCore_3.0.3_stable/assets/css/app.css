@@ -440,6 +440,52 @@ body {
     background: var(--btn-hover);
 }
 
+.backup-health-panel {
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+}
+
+.backup-health-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.backup-health-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.health-chip {
+    display: inline-block;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    font-size: 12px;
+    padding: 3px 8px;
+    color: var(--text-secondary);
+    background: var(--bg-input);
+}
+
+.health-chip.ok {
+    color: #1a7f37;
+    border-color: rgba(26, 127, 55, 0.35);
+}
+
+.health-chip.warn {
+    color: #9a6700;
+    border-color: rgba(154, 103, 0, 0.35);
+}
+
+.health-chip.error {
+    color: #cf222e;
+    border-color: rgba(207, 34, 46, 0.35);
+}
+
 /* IMPORT FIL INPUT - dold */
 #fileInput {
     display: none;
@@ -1485,6 +1531,10 @@ button:hover {
 
     .export-import {
         gap: 6px;
+    }
+
+    .backup-health-grid {
+        grid-template-columns: 1fr;
     }
 
     .export-import button {

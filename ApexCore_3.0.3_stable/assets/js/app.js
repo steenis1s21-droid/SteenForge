@@ -57,6 +57,11 @@ let renderDebounceTimer = null;
 let renderArchiveDebounceTimer = null;
 let isArchiveCleanupModalOpen = false;
 let isArchivePasswordModalOpen = false;
+let pendingImportAction = 'import';
+
+const BACKUP_FORMAT_VERSION = '3.0';
+const LEGACY_BACKUP_VERSION = '2.2';
+const BACKUP_HEALTH_STORAGE_KEY = 'backupHealthState';
 
 // ============================================
 // �️ SÄKERHETS-HJÄLPFUNKTIONER
@@ -1068,6 +1073,133 @@ function t(key) {
     return value || key;
 }
 
+function getBackupUiText() {
+    var lang = getLang();
+    if (lang === 'en') {
+        return {
+            importDryRun: 'Dry-run import',
+            validateBackup: 'Validate backup',
+            healthTitle: 'Backup health',
+            crypto: 'Crypto',
+            storage: 'Storage',
+            exportStatus: 'Export',
+            importStatus: 'Import',
+            ok: 'OK',
+            warn: 'Warning',
+            error: 'Error',
+            unknown: 'Unknown',
+            dryRunSummary: 'Dry-run: {type} with {active} active, {done} done, {archived} archived.',
+            dryRunVaultSummary: 'Dry-run: archive vault with {archived} archived items.',
+            validateBackupSuccess: '✅ Backup validation passed.',
+            importInvalidVersion: 'Unsupported backup version.',
+            importInvalidStructure: 'Backup file is missing required fields.',
+            importWrongPassword: 'Wrong password or corrupt file.',
+            autoSafetySaved: 'Automatic safety snapshot saved before clearing archive.',
+            duplicateSkipped: 'Skipped {count} duplicate archive items during import.'
+        };
+    }
+    return {
+        importDryRun: 'Torrkör import',
+        validateBackup: 'Validera backup',
+        healthTitle: 'Backupstatus',
+        crypto: 'Crypto',
+        storage: 'Lagring',
+        exportStatus: 'Export',
+        importStatus: 'Import',
+        ok: 'OK',
+        warn: 'Varning',
+        error: 'Fel',
+        unknown: 'Okänd',
+        dryRunSummary: 'Torrkörning: {type} med {active} aktiva, {done} färdiga, {archived} arkiverade.',
+        dryRunVaultSummary: 'Torrkörning: arkiv-vault med {archived} arkiverade poster.',
+        validateBackupSuccess: '✅ Backupvalidering lyckades.',
+        importInvalidVersion: 'Backupfilens version stöds inte.',
+        importInvalidStructure: 'Backupfilen saknar nödvändiga fält.',
+        importWrongPassword: 'Fel lösenord eller korrupt fil.',
+        autoSafetySaved: 'Automatisk säkerhetskopia sparades före arkivrensning.',
+        duplicateSkipped: 'Hoppade över {count} dubbletter vid arkivimport.'
+    };
+}
+
+function readBackupHealthState() {
+    try {
+        var raw = localStorage.getItem(BACKUP_HEALTH_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+    } catch (error) {
+        return {};
+    }
+}
+
+function writeBackupHealthState(state) {
+    try {
+        localStorage.setItem(BACKUP_HEALTH_STORAGE_KEY, JSON.stringify(state || {}));
+    } catch (error) {
+        // ignore localStorage write failures
+    }
+}
+
+function setBackupHealthStatus(key, status, detail) {
+    var current = readBackupHealthState();
+    current[key] = {
+        status: status,
+        detail: detail || '',
+        at: new Date().toISOString()
+    };
+    writeBackupHealthState(current);
+    updateBackupHealthPanel();
+}
+
+function testStorageAvailability() {
+    try {
+        var probeKey = '__apexcore_backup_probe__';
+        localStorage.setItem(probeKey, '1');
+        localStorage.removeItem(probeKey);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+function updateHealthChip(id, label, statusEntry) {
+    var el = document.getElementById(id);
+    if (!el) return;
+
+    var text = getBackupUiText();
+    var status = statusEntry && statusEntry.status ? statusEntry.status : 'unknown';
+    var detail = statusEntry && statusEntry.detail ? statusEntry.detail : '';
+
+    var statusText = text.unknown;
+    if (status === 'ok') statusText = text.ok;
+    if (status === 'warn') statusText = text.warn;
+    if (status === 'error') statusText = text.error;
+
+    el.className = 'health-chip ' + status;
+    el.textContent = label + ': ' + statusText + (detail ? ' - ' + detail : '');
+}
+
+function updateBackupHealthPanel() {
+    var panel = document.getElementById('backupHealthPanel');
+    if (!panel) return;
+
+    var text = getBackupUiText();
+    var title = panel.querySelector('.backup-health-title');
+    if (title) title.textContent = text.healthTitle;
+
+    var state = readBackupHealthState();
+
+    updateHealthChip('healthCrypto', text.crypto, state.crypto);
+    updateHealthChip('healthStorage', text.storage, state.storage);
+    updateHealthChip('healthExport', text.exportStatus, state.export);
+    updateHealthChip('healthImport', text.importStatus, state.import);
+}
+
+function initBackupHealthPanel() {
+    var storageOk = testStorageAvailability();
+    setBackupHealthStatus('crypto', typeof CryptoJS !== 'undefined' ? 'ok' : 'error', typeof CryptoJS !== 'undefined' ? '' : 'CryptoJS');
+    setBackupHealthStatus('storage', storageOk ? 'ok' : 'error', storageOk ? '' : 'localStorage');
+    updateBackupHealthPanel();
+}
+
 function toggleLanguageMenu() {
     document.getElementById('languageDropdown').classList.toggle('show');
 }
@@ -1138,6 +1270,13 @@ function applyLanguage() {
     setText('exportEncryptedBtn', 'exportEncrypted');
     setText('exportCsvBtn', 'exportCsv');
     setText('importBtn', 'importBtn');
+
+    var backupText = getBackupUiText();
+    var importDryRunBtn = document.getElementById('importDryRunBtn');
+    if (importDryRunBtn) importDryRunBtn.textContent = backupText.importDryRun;
+    var validateBackupBtn = document.getElementById('validateBackupBtn');
+    if (validateBackupBtn) validateBackupBtn.textContent = backupText.validateBackup;
+    updateBackupHealthPanel();
 
     setPlaceholder('searchInput', 'searchActive');
     setPlaceholder('doneSearchInput', 'archiveSearch');
@@ -1986,9 +2125,82 @@ function getExportData() {
         archivedItems: archivedItems,
         adminUpdates: getAdminUpdates(),
         exportedAt: new Date().toISOString(),
-        version: '2.2',
+        version: LEGACY_BACKUP_VERSION,
+        formatVersion: BACKUP_FORMAT_VERSION,
         totalItems: items.length + doneItems.length + archivedItems.length
     };
+}
+
+function getBackupFileType(data) {
+    if (data && data.source === 'archive-vault') return 'vault';
+    return 'full-backup';
+}
+
+function getPayloadFormatVersion(data) {
+    if (!data || typeof data !== 'object') return '';
+    return String(data.formatVersion || data.version || '').trim();
+}
+
+function isSupportedBackupVersion(version) {
+    return version === BACKUP_FORMAT_VERSION || version === LEGACY_BACKUP_VERSION;
+}
+
+function migrateImportedPayload(rawData) {
+    if (!rawData || typeof rawData !== 'object') {
+        return { ok: false, code: 'invalid-structure' };
+    }
+
+    var migrated = Object.assign({}, rawData);
+    var version = getPayloadFormatVersion(migrated);
+
+    if (!version) {
+        // Legacy backups may miss explicit versioning.
+        version = LEGACY_BACKUP_VERSION;
+    }
+
+    if (!isSupportedBackupVersion(version)) {
+        return { ok: false, code: 'invalid-version', version: version };
+    }
+
+    migrated.formatVersion = version === LEGACY_BACKUP_VERSION ? BACKUP_FORMAT_VERSION : version;
+    migrated.version = version;
+
+    if (migrated.source === 'archive-vault') {
+        if (!Array.isArray(migrated.archivedItems)) {
+            return { ok: false, code: 'invalid-structure' };
+        }
+        if (!Array.isArray(migrated.adminUpdates)) migrated.adminUpdates = [];
+        return { ok: true, data: migrated };
+    }
+
+    if (!Array.isArray(migrated.items) || !Array.isArray(migrated.doneItems) || !Array.isArray(migrated.archivedItems)) {
+        return { ok: false, code: 'invalid-structure' };
+    }
+
+    if (!Array.isArray(migrated.adminUpdates)) migrated.adminUpdates = [];
+    return { ok: true, data: migrated };
+}
+
+function getImportDiagnosticsMessage(code) {
+    var text = getBackupUiText();
+    if (code === 'invalid-version') return text.importInvalidVersion;
+    if (code === 'invalid-structure') return text.importInvalidStructure;
+    if (code === 'wrong-password') return text.importWrongPassword;
+    return t('msgImportError');
+}
+
+function parseImportJsonContent(content) {
+    var parsed;
+    try {
+        parsed = JSON.parse(content);
+    } catch (parseError) {
+        if (/^<!doctype html/i.test(content) || /^<html/i.test(content)) {
+            return { ok: false, code: 'wrong-file-type', error: parseError };
+        }
+        return { ok: false, code: 'parse-failed', error: parseError };
+    }
+
+    return { ok: true, data: parsed };
 }
 
 function exportJSON() {
@@ -1998,6 +2210,7 @@ function exportJSON() {
     const fileName = requestExportFileName('apexcore-backup-' + new Date().toISOString().split('T')[0], '.json');
     if (!fileName) return;
     downloadBlob(blob, fileName);
+    setBackupHealthStatus('export', 'ok', 'json');
     showMessage(t('msgExported').replace('{count}', data.totalItems), 'success');
 }
 
@@ -2067,7 +2280,8 @@ function createEncryptedExportBlob(data, password) {
     const exportData = {
         encrypted: encrypted,
         algorithm: 'AES',
-        version: '2.2',
+        version: LEGACY_BACKUP_VERSION,
+        formatVersion: BACKUP_FORMAT_VERSION,
         timestamp: new Date().toISOString()
     };
 
@@ -2090,9 +2304,11 @@ function exportEncrypted() {
         }
         downloadBlob(blob, fileName);
         hideProgress();
+        setBackupHealthStatus('export', 'ok', 'encrypted');
         showMessage(t('msgEncrypted').replace('{count}', data.totalItems), 'success');
     } catch (error) {
         hideProgress();
+        setBackupHealthStatus('export', 'error', 'encrypted failed');
         showMessage('❌ ' + (getLang() === 'sv' ? 'Fel vid kryptering: ' : 'Encryption error: ') + error.message, 'error');
     }
 }
@@ -2126,9 +2342,11 @@ function exportCSV() {
         }
         downloadBlob(blob, fileName);
         hideProgress();
+        setBackupHealthStatus('export', 'ok', 'csv');
         showMessage(t('msgCsvExported').replace('{count}', items.length + doneItems.length + archivedItems.length), 'success');
     } catch (error) {
         hideProgress();
+        setBackupHealthStatus('export', 'error', 'csv failed');
         showMessage('❌ ' + (getLang() === 'sv' ? 'Fel vid CSV-export: ' : 'CSV export error: ') + error.message, 'error');
     }
 }
@@ -2187,7 +2405,13 @@ function decryptEncryptedPayload(encryptedValue, password) {
 
 function importData(event) {
     const file = event.target.files[0];
-    if (!file) return;
+    if (!file) {
+        pendingImportAction = 'import';
+        return;
+    }
+
+    var action = pendingImportAction || 'import';
+    pendingImportAction = 'import';
 
     showProgress('📥 ' + (getLang() === 'sv' ? 'Läser fil...' : 'Reading file...'));
 
@@ -2199,66 +2423,28 @@ function importData(event) {
 
             if (!content) {
                 hideProgress();
+                setBackupHealthStatus('import', 'error', 'empty file');
                 showMessage('❌ ' + (getLang() === 'sv' ? 'Filen är tom eller oläsbar.' : 'The file is empty or unreadable.'), 'error');
                 return;
             }
 
-            let data;
-            try {
-                data = JSON.parse(content);
-            } catch (parseError) {
+            var parsed = parseImportJsonContent(content);
+            if (!parsed.ok) {
                 hideProgress();
-                if (/^<!doctype html/i.test(content) || /^<html/i.test(content)) {
+                setBackupHealthStatus('import', 'error', parsed.code);
+                if (parsed.code === 'wrong-file-type') {
                     showMessage('❌ ' + (getLang() === 'sv' ? 'Fel filtyp: välj en backupfil (.json eller .enc), inte en HTML-sida.' : 'Wrong file type: select a backup file (.json or .enc), not an HTML page.'), 'error');
                 } else {
-                    showMessage(t('msgImportError'), 'error');
+                    showMessage(getImportDiagnosticsMessage('invalid-structure'), 'error');
                 }
-                console.error('Import parse error:', parseError);
+                console.error('Import parse error:', parsed.error);
                 return;
             }
-            
-            if (data.encrypted && data.algorithm === 'AES') {
-                function decryptAndImportWithPassword(password) {
-                    if (!password) {
-                        hideProgress();
-                        showMessage('❌ ' + (getLang() === 'sv' ? 'Lösenord krävs för att importera!' : 'Password required to import!'), 'error');
-                        return;
-                    }
 
-                    var decryptedData;
-                    try {
-                        const decryptedText = decryptEncryptedPayload(data.encrypted, password);
-                        decryptedData = JSON.parse(decryptedText);
-                    } catch (error) {
-                        hideProgress();
-                        showMessage('❌ ' + (getLang() === 'sv' ? 'Fel lösenord eller korrupt fil!' : 'Wrong password or corrupt file!'), 'error');
-                        return;
-                    }
-
-                    try {
-                        importProcess(decryptedData);
-                    } catch (error) {
-                        hideProgress();
-                        showMessage(t('msgImportError'), 'error');
-                        console.error('Import process error:', error);
-                        return;
-                    }
-                }
-
-                hideProgress();
-                showArchivePasswordModal(function(password) {
-                    showProgress('📥 ' + (getLang() === 'sv' ? 'Läser fil...' : 'Reading file...'));
-                    decryptAndImportWithPassword(password);
-                }, {
-                    requireConfirm: false,
-                    labels: getImportPasswordTexts(),
-                    fallbackPromptText: t('msgEncryptedPassword')
-                });
-            } else {
-                importProcess(data);
-            }
+            handleParsedImportData(parsed.data, action);
         } catch (error) {
             hideProgress();
+            setBackupHealthStatus('import', 'error', 'runtime');
             showMessage(t('msgImportError'), 'error');
             console.error('Import error:', error);
         }
@@ -2266,6 +2452,136 @@ function importData(event) {
 
     reader.readAsText(file, 'utf-8');
     event.target.value = '';
+}
+
+function handleParsedImportData(data, action) {
+    if (data && data.encrypted && data.algorithm === 'AES') {
+        hideProgress();
+        showArchivePasswordModal(function(password) {
+            showProgress('📥 ' + (getLang() === 'sv' ? 'Läser fil...' : 'Reading file...'));
+            decryptAndHandleImport(data, password, action);
+        }, {
+            requireConfirm: false,
+            labels: getImportPasswordTexts(),
+            fallbackPromptText: t('msgEncryptedPassword')
+        });
+        return;
+    }
+
+    applyImportAction(data, action);
+}
+
+function decryptAndHandleImport(encryptedWrapper, password, action) {
+    if (!password) {
+        hideProgress();
+        setBackupHealthStatus('import', 'error', 'password missing');
+        showMessage('❌ ' + (getLang() === 'sv' ? 'Lösenord krävs för att importera!' : 'Password required to import!'), 'error');
+        return;
+    }
+
+    var decryptedData;
+    try {
+        const decryptedText = decryptEncryptedPayload(encryptedWrapper.encrypted, password);
+        decryptedData = JSON.parse(decryptedText);
+    } catch (error) {
+        hideProgress();
+        setBackupHealthStatus('import', 'error', 'decrypt failed');
+        showMessage('❌ ' + getImportDiagnosticsMessage('wrong-password'), 'error');
+        return;
+    }
+
+    applyImportAction(decryptedData, action);
+}
+
+function applyImportAction(rawData, action) {
+    var migration = migrateImportedPayload(rawData);
+    if (!migration.ok) {
+        hideProgress();
+        setBackupHealthStatus('import', 'error', migration.code);
+        showMessage('❌ ' + getImportDiagnosticsMessage(migration.code), 'error');
+        return;
+    }
+
+    var data = migration.data;
+
+    if (action === 'dry-run') {
+        runImportDryRun(data);
+        return;
+    }
+
+    if (action === 'validate') {
+        runBackupValidation(data);
+        return;
+    }
+
+    try {
+        importProcess(data);
+        setBackupHealthStatus('import', 'ok', data.version || BACKUP_FORMAT_VERSION);
+    } catch (error) {
+        hideProgress();
+        setBackupHealthStatus('import', 'error', 'process failed');
+        showMessage(t('msgImportError'), 'error');
+        console.error('Import process error:', error);
+    }
+}
+
+function runImportDryRun(data) {
+    var text = getBackupUiText();
+    var fileType = getBackupFileType(data);
+
+    if (fileType === 'vault') {
+        hideProgress();
+        setBackupHealthStatus('import', 'ok', 'dry-run vault');
+        showMessage(text.dryRunVaultSummary.replace('{archived}', data.archivedItems.length), 'info');
+        return;
+    }
+
+    hideProgress();
+    setBackupHealthStatus('import', 'ok', 'dry-run full');
+    showMessage(text.dryRunSummary
+        .replace('{type}', fileType)
+        .replace('{active}', data.items.length)
+        .replace('{done}', data.doneItems.length)
+        .replace('{archived}', data.archivedItems.length), 'info');
+}
+
+function runBackupValidation(data) {
+    var text = getBackupUiText();
+
+    // Validate that every item can be normalized without runtime exceptions.
+    if (data.source === 'archive-vault') {
+        prepareVaultItemsForArchive(data.archivedItems);
+    } else {
+        data.items.map(normalizeItemData);
+        data.doneItems.map(normalizeItemData);
+        data.archivedItems.map(normalizeItemData);
+    }
+
+    hideProgress();
+    setBackupHealthStatus('import', 'ok', 'validated');
+    showMessage(text.validateBackupSuccess, 'success');
+}
+
+function openImportFilePicker(action) {
+    pendingImportAction = action || 'import';
+    var fileInput = document.getElementById('fileInput');
+    if (!fileInput) {
+        pendingImportAction = 'import';
+        return;
+    }
+    fileInput.click();
+}
+
+function startDryRunImport() {
+    openImportFilePicker('dry-run');
+}
+
+function startBackupValidation() {
+    openImportFilePicker('validate');
+}
+
+function startStandardImport() {
+    openImportFilePicker('import');
 }
 
 function generateImportedItemId(usedIds) {
@@ -2300,9 +2616,47 @@ function prepareVaultItemsForArchive(vaultItems) {
     });
 }
 
+function getArchiveItemFingerprint(item) {
+    return [
+        String(item.name || '').trim().toLowerCase(),
+        String(item.age === undefined ? '' : item.age).trim(),
+        String(item.task || '').trim().toLowerCase(),
+        String(item.note || '').trim().toLowerCase(),
+        normalizePriorityValue(item.priority),
+        normalizeCategoryValue(item.category),
+        String(item.updated || '').trim()
+    ].join('|');
+}
+
+function splitNewAndDuplicateArchiveItems(importedItems) {
+    var existingFingerprints = new Set(
+        archivedItems.map(getArchiveItemFingerprint)
+    );
+    var seenIncoming = new Set();
+
+    var uniqueItems = [];
+    var duplicateCount = 0;
+
+    importedItems.forEach(function(item) {
+        var fp = getArchiveItemFingerprint(item);
+        if (existingFingerprints.has(fp) || seenIncoming.has(fp)) {
+            duplicateCount += 1;
+            return;
+        }
+        seenIncoming.add(fp);
+        uniqueItems.push(item);
+    });
+
+    return {
+        uniqueItems: uniqueItems,
+        duplicateCount: duplicateCount
+    };
+}
+
 function importProcess(data) {
     if (data.source === 'archive-vault' && Array.isArray(data.archivedItems)) {
         const importedItems = prepareVaultItemsForArchive(data.archivedItems);
+        const deduped = splitNewAndDuplicateArchiveItems(importedItems);
         if (Array.isArray(data.adminUpdates)) {
             const mergedUpdates = mergeAdminUpdates(data.adminUpdates, getAdminUpdates());
             saveAdminUpdates(mergedUpdates);
@@ -2313,14 +2667,17 @@ function importProcess(data) {
                 renderAdminList();
             }
         }
-        archivedItems = archivedItems.concat(importedItems);
+        archivedItems = archivedItems.concat(deduped.uniqueItems);
         saveData();
         render();
         renderArchive();
         hideProgress();
         showMessage(getLang() === 'sv'
-            ? '✅ ' + importedItems.length + ' arkivposter importerades till arkivet.'
-            : '✅ ' + importedItems.length + ' archived items were imported to Archive.', 'success');
+            ? '✅ ' + deduped.uniqueItems.length + ' arkivposter importerades till arkivet.'
+            : '✅ ' + deduped.uniqueItems.length + ' archived items were imported to Archive.', 'success');
+        if (deduped.duplicateCount > 0) {
+            showMessage(getBackupUiText().duplicateSkipped.replace('{count}', deduped.duplicateCount), 'info');
+        }
         return;
     }
 
@@ -3675,6 +4032,26 @@ function showArchivePasswordModal(onConfirm, options) {
     }, 0);
 }
 
+function saveAutoSafetySnapshot() {
+    var snapshot = {
+        archivedItems: archivedItems,
+        adminUpdates: getAdminUpdates(),
+        exportedAt: new Date().toISOString(),
+        version: LEGACY_BACKUP_VERSION,
+        formatVersion: BACKUP_FORMAT_VERSION,
+        source: 'auto-safety-archive-clear'
+    };
+
+    try {
+        localStorage.setItem('archiveAutoSafetyBackup', JSON.stringify(snapshot));
+        setBackupHealthStatus('export', 'warn', 'auto safety backup');
+        showMessage(getBackupUiText().autoSafetySaved, 'info');
+    } catch (error) {
+        setBackupHealthStatus('export', 'error', 'auto safety backup failed');
+        console.warn('Auto safety snapshot failed:', error);
+    }
+}
+
 function showArchiveCleanupModal() {
     var modal = document.getElementById('archiveCleanupModal');
     var title = document.getElementById('archiveCleanupTitle');
@@ -3722,6 +4099,7 @@ function showArchiveCleanupModal() {
 
     function clearWithoutBackup() {
         cleanup();
+        saveAutoSafetySnapshot();
         archivedItems = [];
         saveData();
         render();
@@ -3963,6 +4341,7 @@ updateLanguageMenu();
 applyLanguage();
 loadTheme();
 updateSoundButton();
+initBackupHealthPanel();
 initReminderInputs();
 setupActiveColumnWheelScroll();
 setActiveSortMode(getStoredActiveSortMode());

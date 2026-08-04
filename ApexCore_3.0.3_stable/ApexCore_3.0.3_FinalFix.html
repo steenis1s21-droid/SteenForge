@@ -162,8 +162,20 @@
         <button onclick="exportJSON()" id="exportJsonBtn">Exportera JSON</button>
         <button onclick="exportEncrypted()" id="exportEncryptedBtn">Exportera krypterad</button>
         <button onclick="exportCSV()" id="exportCsvBtn">Exportera CSV</button>
-        <button onclick="document.getElementById('fileInput').click()" id="importBtn">Importera</button>
+        <button onclick="startStandardImport()" id="importBtn">Importera</button>
+        <button onclick="startDryRunImport()" id="importDryRunBtn">Torrkör import</button>
+        <button onclick="startBackupValidation()" id="validateBackupBtn">Validera backup</button>
         <input type="file" id="fileInput" accept=".json,.enc" onchange="importData(event)">
+    </div>
+
+    <div id="backupHealthPanel" class="backup-health-panel" aria-live="polite">
+        <div class="backup-health-title">Backupstatus</div>
+        <div class="backup-health-grid">
+            <span id="healthCrypto" class="health-chip">Crypto: -</span>
+            <span id="healthStorage" class="health-chip">Lagring: -</span>
+            <span id="healthExport" class="health-chip">Export: -</span>
+            <span id="healthImport" class="health-chip">Import: -</span>
+        </div>
     </div>
 </div>
 
