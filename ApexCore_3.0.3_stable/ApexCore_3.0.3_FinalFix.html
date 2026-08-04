@@ -143,6 +143,17 @@
             <h2 style="font-size: 26px; margin: 0; line-height: 1; flex-shrink: 0;">⭕ApexCore</h2>
             <span style="font-size: 22px; font-weight: 700; letter-spacing: 0.3px; color: var(--text-secondary); line-height: 1; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; flex-shrink: 0;" id="subtitleSlogan">Hjärtat av ditt arbete</span>
         </div>
+    </div>
+
+    <div class="export-import">
+        <button onclick="exportJSON()" id="exportJsonBtn">Exportera JSON</button>
+        <button onclick="exportEncrypted()" id="exportEncryptedBtn">Exportera krypterad</button>
+        <button onclick="exportCSV()" id="exportCsvBtn">Exportera CSV</button>
+        <button onclick="startStandardImport()" id="importBtn">Importera</button>
+        <button onclick="startDryRunImport()" id="importDryRunBtn">Torrkör import</button>
+        <button onclick="startBackupValidation()" id="validateBackupBtn">Validera backup</button>
+        <button onclick="toggleBackupHealthPanel()" id="backupHealthToggleBtn">Visa backupstatus</button>
+        <button onclick="toggleRecoveryCenterPanel()" id="recoveryToggleBtn">Visa Recovery Center</button>
         <div class="header-buttons" style="display: flex; gap: 8px; flex-wrap: nowrap; align-items: center;">
             <button class="theme-btn" onclick="toggleSound()" id="soundBtn" title="Stäng av ljudnotiser">🔊 Ljud</button>
             <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Växla tema">🌓 Tema</button>
@@ -157,17 +168,6 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="export-import">
-        <button onclick="exportJSON()" id="exportJsonBtn">Exportera JSON</button>
-        <button onclick="exportEncrypted()" id="exportEncryptedBtn">Exportera krypterad</button>
-        <button onclick="exportCSV()" id="exportCsvBtn">Exportera CSV</button>
-        <button onclick="startStandardImport()" id="importBtn">Importera</button>
-        <button onclick="startDryRunImport()" id="importDryRunBtn">Torrkör import</button>
-        <button onclick="startBackupValidation()" id="validateBackupBtn">Validera backup</button>
-        <button onclick="toggleBackupHealthPanel()" id="backupHealthToggleBtn">Visa backupstatus</button>
-        <button onclick="toggleRecoveryCenterPanel()" id="recoveryToggleBtn">Visa Recovery Center</button>
         <input type="file" id="fileInput" accept=".json,.enc" onchange="importData(event)">
     </div>
 </div>

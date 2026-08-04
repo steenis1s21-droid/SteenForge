@@ -147,7 +147,7 @@ body {
     flex-shrink: 0;
     background: var(--bg-top);
     color: var(--text-primary);
-    padding: 10px 16px;
+    padding: 10px 16px 6px;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     box-shadow: 0 2px 8px var(--shadow-color);
@@ -155,22 +155,26 @@ body {
 
 .top-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-bottom: 6px;
     gap: 8px;
     min-width: 0;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .top-header .header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+    gap: 10px;
+    flex-wrap: nowrap;
     min-width: 0;
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     overflow: hidden;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 6px 10px;
 }
 
 .top-header .header-buttons {
@@ -205,8 +209,8 @@ body {
     border: 1px solid var(--border-color) !important;
     border-radius: 8px !important;
     width: auto !important;
-    height: 36px !important;
-    font-size: 13px !important;
+    height: 30px !important;
+    font-size: 12px !important;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -214,8 +218,8 @@ body {
     align-items: center;
     justify-content: center;
     color: var(--text-primary);
-    padding: 0 12px !important;
-    min-width: 72px !important;
+    padding: 0 8px !important;
+    min-width: 0 !important;
     gap: 6px;
     box-shadow: none !important;
 }
@@ -420,12 +424,22 @@ body {
 /* EXPORT/IMPORT KNAPPAR */
 .export-import {
     display: flex;
-    gap: 6px;
-    margin-bottom: 12px;
+    gap: 0;
+    margin-bottom: 2px;
     flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
+    align-items: center;
+    overflow: visible;
+}
+
+.export-import .header-buttons {
+    display: flex;
+    gap: 4px;
+    flex-wrap: nowrap;
+    align-items: center;
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding-left: 6px;
+    border-left: 1px solid var(--border-color);
 }
 
 .export-import button {
@@ -439,6 +453,14 @@ body {
     white-space: nowrap;
     flex: 0 0 auto;
     transition: background-color 0.2s ease;
+}
+
+.export-import > button {
+    margin-right: 4px;
+}
+
+.export-import > button:last-of-type {
+    margin-right: 0;
 }
 
 .export-import button:hover {
@@ -1496,13 +1518,11 @@ button:hover {
 
 @media (max-width: 980px) {
     .top-header {
-        flex-direction: column;
-        align-items: stretch;
+        align-items: flex-start;
     }
 
-    .top-header .header-buttons {
-        margin-left: 0;
-        justify-content: flex-start;
+    .top-header .header-left {
+        flex-wrap: wrap;
     }
 
     .form-active-row {
@@ -1516,12 +1536,12 @@ button:hover {
 
 @media (min-width: 981px) {
     .container {
-        height: 100vh;
+        height: auto;
         min-height: 100vh;
     }
 
     .form-active-row {
-        overflow: hidden;
+        overflow: visible;
         align-items: stretch;
         flex-wrap: nowrap;
     }
@@ -1529,20 +1549,20 @@ button:hover {
     .form-column {
         flex: 1 1 380px;
         min-height: 0;
-        height: 100%;
-        overflow: hidden;
+        height: auto;
+        overflow: visible;
     }
 
     .done-column {
-        flex: 1 1 0;
-        height: 0;
-        min-height: 0;
+        flex: 1 1 auto;
+        height: auto;
+        min-height: 140px;
         max-height: none;
     }
 
     .active-column {
-        height: 100%;
-        max-height: 100%;
+        height: auto;
+        max-height: none;
     }
 }
 
