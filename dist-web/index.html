@@ -284,6 +284,17 @@
     <button onclick="closeEdit()" data-i18n="editCancel">❌ Avbryt</button>
 </div>
 
+<div id="saveEditConfirmModal">
+    <div class="confirm-modal-content" onclick="event.stopPropagation();">
+        <h3 id="saveEditConfirmTitle" data-i18n="confirmDialogTitle">✅ Bekräfta ändring</h3>
+        <p id="saveEditConfirmText">Är du säker på att du vill spara ändringarna?</p>
+        <div class="confirm-actions">
+            <button type="button" class="btn-cancel" id="saveEditConfirmCancelBtn" data-i18n="editCancel">❌ Avbryt</button>
+            <button type="button" class="btn-save" id="saveEditConfirmOkBtn" data-i18n="editSave">💾 Spara</button>
+        </div>
+    </div>
+</div>
+
 <div id="undoBar">
     🗑️ <span id="undoText">Objekt borttaget</span> - <button onclick="undoDelete()" id="undoBtn">↩️ Ångra</button>
 </div>

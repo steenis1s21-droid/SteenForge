@@ -49,6 +49,7 @@ let archivedItems = []
 let activeEditId = null
 let dragId = null
 let isDragging = false
+let isSaveEditConfirmOpen = false
 let notificationInterval = null;
 let currentLanguage = 'sv';
 let activeGroupsCollapsed = {};
@@ -283,6 +284,8 @@ const translations = {
         adminImportAdded: '✅ Lade till {count} info-poster!',
         adminImportInvalid: '❌ Ogiltig info-fil!',
         confirmLogout: 'Är du säker på att du vill logga ut?',
+        confirmDialogTitle: '✅ Bekräfta ändring',
+        confirmSaveEdit: 'Är du säker på att du vill spara ändringarna?',
         confirmImport: '📥 Importera data?\n\n📊 {active} aktiva poster\n✅ {done} färdiga poster\n📦 {archived} arkiverade poster\n📅 Exporterad: {date}\n\nKlicka "OK" för att ERSÄTTA all nuvarande data.\nKlicka "Avbryt" för att LÄGGA TILL data.',
         confirmReplace: '✅ Importerade {active} aktiva, {done} färdiga och {archived} arkiverade poster! (ERSATTE)',
         confirmAdded: '✅ Importerade {count} nya poster! (LADE TILL)',
@@ -423,6 +426,8 @@ const translations = {
         adminImportAdded: '✅ Added {count} info items!',
         adminImportInvalid: '❌ Invalid info file!',
         confirmLogout: 'Are you sure you want to logout?',
+        confirmDialogTitle: '✅ Confirm changes',
+        confirmSaveEdit: 'Are you sure you want to save the changes?',
         confirmImport: '📥 Import data?\n\n📊 {active} active items\n✅ {done} completed items\n📦 {archived} archived items\n📅 Exported: {date}\n\nClick "OK" to REPLACE all current data.\nClick "Cancel" to ADD data.',
         confirmReplace: '✅ Imported {active} active, {done} completed and {archived} archived items! (REPLACED)',
         confirmAdded: '✅ Imported {count} new items! (ADDED)',
@@ -563,6 +568,8 @@ const translations = {
         adminImportAdded: '✅ Tilføjede {count} info-poster!',
         adminImportInvalid: '❌ Ugyldig info-fil!',
         confirmLogout: 'Er du sikker på, at du vil logge ud?',
+        confirmDialogTitle: '✅ Bekræft ændring',
+        confirmSaveEdit: 'Er du sikker på, at du vil gemme ændringerne?',
         confirmImport: '📥 Importer data?\n\n📊 {active} aktive poster\n✅ {done} færdige poster\n📦 {archived} arkiverede poster\n📅 Eksporteret: {date}\n\nKlik "OK" for at ERSÆTTE alle nuværende data.\nKlik "Annuller" for at TILFØJE data.',
         confirmReplace: '✅ Importerede {active} aktive, {done} færdige og {archived} arkiverede poster! (ERSATTE)',
         confirmAdded: '✅ Importerede {count} nye poster! (TILFØJET)',
@@ -703,6 +710,8 @@ const translations = {
         adminImportAdded: '✅ La til {count} info-poster!',
         adminImportInvalid: '❌ Ugyldig info-fil!',
         confirmLogout: 'Er du sikker på at du vil logge ut?',
+        confirmDialogTitle: '✅ Bekreft endring',
+        confirmSaveEdit: 'Er du sikker på at du vil lagre endringene?',
         confirmImport: '📥 Importer data?\n\n📊 {active} aktive poster\n✅ {done} ferdige poster\n📦 {archived} arkiverte poster\n📅 Eksportert: {date}\n\nKlikk "OK" for å ERSATTE alle nåværende data.\nKlikk "Avbryt" for å LEGGE TIL data.',
         confirmReplace: '✅ Importerte {active} aktive, {done} ferdige og {archived} arkiverte poster! (ERSATTE)',
         confirmAdded: '✅ Importerte {count} nye poster! (LAGT TIL)',
@@ -843,6 +852,8 @@ const translations = {
         adminImportAdded: '✅ Lisättiin {count} infokohdetta!',
         adminImportInvalid: '❌ Virheellinen infotiedosto!',
         confirmLogout: 'Haluatko varmasti kirjautua ulos?',
+        confirmDialogTitle: '✅ Vahvista muutokset',
+        confirmSaveEdit: 'Haluatko varmasti tallentaa muutokset?',
         confirmImport: '📥 Tuo tietoja?\n\n📊 {active} aktiivista kohdetta\n✅ {done} valmista kohdetta\n📦 {archived} arkistoitua kohdetta\n📅 Viety: {date}\n\nNapsauta "OK" KORVATAKSESI kaikki nykyiset tiedot.\nNapsauta "Peruuta" LISÄTÄKSESI tietoja.',
         confirmReplace: '✅ Tuotiin {active} aktiivista, {done} valmista ja {archived} arkistoitua kohdetta! (KORVATTU)',
         confirmAdded: '✅ Tuotiin {count} uutta kohdetta! (LISÄTTY)',
@@ -2510,27 +2521,106 @@ function editItem(id) {
     document.getElementById('editor').style.display = 'block';
 }
 
+function showSaveEditConfirm(onConfirm) {
+    var modal = document.getElementById('saveEditConfirmModal');
+    var title = document.getElementById('saveEditConfirmTitle');
+    var text = document.getElementById('saveEditConfirmText');
+    var confirmBtn = document.getElementById('saveEditConfirmOkBtn');
+    var cancelBtn = document.getElementById('saveEditConfirmCancelBtn');
+
+    if (!modal || !title || !text || !confirmBtn || !cancelBtn) {
+        if (confirm(t('confirmSaveEdit'))) {
+            onConfirm();
+        }
+        return;
+    }
+
+    title.textContent = t('confirmDialogTitle');
+    text.textContent = t('confirmSaveEdit');
+    cancelBtn.textContent = t('editCancel');
+    confirmBtn.textContent = t('editSave');
+
+    isSaveEditConfirmOpen = true;
+    modal.style.display = 'flex';
+
+    function cleanup() {
+        modal.style.display = 'none';
+        isSaveEditConfirmOpen = false;
+        modal.onclick = null;
+        confirmBtn.onclick = null;
+        cancelBtn.onclick = null;
+        document.removeEventListener('keydown', onKeyDown);
+    }
+
+    function cancelConfirm() {
+        cleanup();
+    }
+
+    function approveConfirm() {
+        cleanup();
+        onConfirm();
+    }
+
+    function onKeyDown(event) {
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            cancelConfirm();
+            return;
+        }
+
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            approveConfirm();
+        }
+    }
+
+    modal.onclick = function(event) {
+        if (event.target === modal) {
+            cancelConfirm();
+        }
+    };
+
+    cancelBtn.onclick = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        cancelConfirm();
+    };
+
+    confirmBtn.onclick = function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        approveConfirm();
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    setTimeout(function() {
+        confirmBtn.focus();
+    }, 0);
+}
+
 function saveEdit() {
     var p = items.find(function(item) { return item.id === activeEditId; });
     if (!p) return;
 
-    var editAgeInput = document.getElementById('editAge').value.trim();
-    var editAgeVal = editAgeInput === '' ? '' : parseInt(editAgeInput);
+    showSaveEditConfirm(function() {
+        var editAgeInput = document.getElementById('editAge').value.trim();
+        var editAgeVal = editAgeInput === '' ? '' : parseInt(editAgeInput);
 
-    p.name = document.getElementById('editName').value;
-    p.age = editAgeVal;
-    p.task = document.getElementById('editTask').value;
-    p.note = document.getElementById('editNote').value;
-    p.category = normalizeCategoryValue(document.getElementById('editCategory').value);
-    p.priority = p.category === 'high' ? 'high' : 'normal';
-    p.notification = document.getElementById('editNotification').value || '';
-    populateReminderFields('editNotification', p.notification || '');
-    p.notificationShown = false;
-    p.updated = Date.now();
+        p.name = document.getElementById('editName').value;
+        p.age = editAgeVal;
+        p.task = document.getElementById('editTask').value;
+        p.note = document.getElementById('editNote').value;
+        p.category = normalizeCategoryValue(document.getElementById('editCategory').value);
+        p.priority = p.category === 'high' ? 'high' : 'normal';
+        p.notification = document.getElementById('editNotification').value || '';
+        populateReminderFields('editNotification', p.notification || '');
+        p.notificationShown = false;
+        p.updated = Date.now();
 
-    closeEdit();
-    saveData();
-    render();
+        closeEdit();
+        saveData();
+        render();
+    });
 }
 
 function closeEdit() {
@@ -2541,6 +2631,8 @@ function closeEdit() {
 document.addEventListener('mousedown', function(e) {
     var editor = document.getElementById('editor');
     if (!editor || editor.style.display !== 'block') return;
+
+    if (isSaveEditConfirmOpen) return;
 
     if (!editor.contains(e.target)) {
         closeEdit();
