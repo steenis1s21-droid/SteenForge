@@ -53,6 +53,8 @@ let isSaveEditConfirmOpen = false
 let notificationInterval = null;
 let currentLanguage = 'sv';
 let activeGroupsCollapsed = {};
+let renderDebounceTimer = null;
+let renderArchiveDebounceTimer = null;
 
 // ============================================
 // �️ SÄKERHETS-HJÄLPFUNKTIONER
@@ -2912,8 +2914,8 @@ function render() {
         groupContainer.className = 'active-group' + (groupClassName ? ' ' + groupClassName : '');
 
         groupContainer.innerHTML = `
-            <button type="button" class="active-group-toggle category-${groupKey}" onclick="event.stopPropagation(); toggleActiveGroup('${groupKey}')">
-                <span class="group-left"><span>${collapsed ? '▸' : '▾'}</span>${escapeHTML(groupTitle)}</span>
+            <button type="button" class="active-group-toggle category-${groupKey}" data-group-key="${groupKey}" onclick="event.stopPropagation(); toggleActiveGroup('${groupKey}')">
+                <span class="group-left"><span class="group-arrow">${collapsed ? '▸' : '▾'}</span>${escapeHTML(groupTitle)}</span>
                 <span class="active-group-count">${groupItems.length}</span>
             </button>
             <ul class="active-group-items${listClassName ? ' ' + listClassName : ''}${collapsed ? ' collapsed' : ''}"></ul>
@@ -2990,9 +2992,47 @@ function render() {
 }
 
 function toggleActiveGroup(groupKey) {
-    activeGroupsCollapsed[groupKey] = !(activeGroupsCollapsed[groupKey] === true);
+    var collapsed = !(activeGroupsCollapsed[groupKey] === true);
+    activeGroupsCollapsed[groupKey] = collapsed;
     saveData();
-    render();
+
+    var toggle = document.querySelector('.active-group-toggle[data-group-key="' + groupKey + '"]');
+    if (!toggle) {
+        render();
+        return;
+    }
+
+    var groupList = toggle.parentElement ? toggle.parentElement.querySelector('.active-group-items') : null;
+    if (!groupList) {
+        render();
+        return;
+    }
+
+    groupList.classList.toggle('collapsed', collapsed);
+    var arrow = toggle.querySelector('.group-arrow');
+    if (arrow) {
+        arrow.textContent = collapsed ? '▸' : '▾';
+    }
+}
+
+function renderDebounced() {
+    if (renderDebounceTimer !== null) {
+        clearTimeout(renderDebounceTimer);
+    }
+    renderDebounceTimer = setTimeout(function() {
+        renderDebounceTimer = null;
+        render();
+    }, 120);
+}
+
+function renderArchiveDebounced() {
+    if (renderArchiveDebounceTimer !== null) {
+        clearTimeout(renderArchiveDebounceTimer);
+    }
+    renderArchiveDebounceTimer = setTimeout(function() {
+        renderArchiveDebounceTimer = null;
+        renderArchive();
+    }, 120);
 }
 
 function setupActiveColumnWheelScroll() {
@@ -3012,6 +3052,13 @@ function setupActiveColumnWheelScroll() {
         var style = window.getComputedStyle(element);
         var overflowY = style.overflowY;
         return overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay';
+    }
+
+    function canScrollInDirection(element, deltaY) {
+        if (!isScrollableElement(element)) return false;
+        if (deltaY < 0) return element.scrollTop > 0;
+        if (deltaY > 0) return element.scrollTop + element.clientHeight < element.scrollHeight - 1;
+        return false;
     }
 
     function hasOtherScrollableAncestor(target, activeList) {
@@ -3039,7 +3086,9 @@ function setupActiveColumnWheelScroll() {
 
         var nestedList = event.target.closest('.active-group-items');
         if (nestedList && isScrollableElement(nestedList)) {
-            return;
+            if (canScrollInDirection(nestedList, event.deltaY)) {
+                return;
+            }
         }
 
         event.preventDefault();

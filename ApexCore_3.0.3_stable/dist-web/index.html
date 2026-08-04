@@ -213,7 +213,7 @@
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <h3 id="doneTitle" style="margin:0;"></h3>
             </div>
-            <input id="doneSearchInput" placeholder="🔍 Sök i arkivet" onkeyup="render()" style="margin-bottom:6px;width:100%;">
+            <input id="doneSearchInput" placeholder="🔍 Sök i arkivet" onkeyup="renderDebounced()" style="margin-bottom:6px;width:100%;">
             <ul id="doneList"></ul>
         </div>
     </div>
@@ -228,7 +228,7 @@
                 <option id="sortOptionNameDesc" value="name-desc">Namn Ö-A</option>
             </select>
         </div>
-        <input id="searchInput" placeholder="🔍 Sök i Active" onkeyup="render()" style="margin-bottom:8px;width:100%;">
+        <input id="searchInput" placeholder="🔍 Sök i Active" onkeyup="renderDebounced()" style="margin-bottom:8px;width:100%;">
         <ul id="activeList"></ul>
     </div>
 </div>
@@ -302,7 +302,7 @@
 <div id="archiveOverlay" onclick="closeArchiveModal()">
     <div id="archiveModal" onclick="event.stopPropagation();">
         <h2 id="archiveTitle">📦 Arkiv</h2>
-        <input id="archiveSearch" placeholder="🔍 Sök i arkivet" onkeyup="renderArchive()">
+        <input id="archiveSearch" placeholder="🔍 Sök i arkivet" onkeyup="renderArchiveDebounced()">
         <div id="archiveContent"></div>
         <div class="archive-actions">
             <button id="archiveVaultBtn" type="button" onclick="vaultArchive()" disabled>🗄️ Flytta filer till vault</button>
