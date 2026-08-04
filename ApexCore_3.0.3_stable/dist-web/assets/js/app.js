@@ -2857,8 +2857,9 @@ function render() {
         return li;
     }
 
-    function renderActiveGroup(groupKey, groupTitle, groupItems) {
+    function renderActiveGroup(groupKey, groupTitle, groupItems, showCategoryTag) {
         if (!groupItems.length) return;
+        if (showCategoryTag === undefined) showCategoryTag = true;
 
         var collapsed = activeGroupsCollapsed[groupKey] === true;
         var groupContainer = document.createElement('li');
@@ -2874,7 +2875,7 @@ function render() {
 
         var groupList = groupContainer.querySelector('.active-group-items');
         sortActiveItems(groupItems).forEach(function(item) {
-            groupList.appendChild(createActiveListItem(item, true, groupKey));
+            groupList.appendChild(createActiveListItem(item, showCategoryTag, groupKey));
         });
 
         activeList.appendChild(groupContainer);
@@ -2901,11 +2902,8 @@ function render() {
         }
     });
 
-    sortActiveItems(highPriorityItems).forEach(function(item) {
-        activeList.appendChild(createActiveListItem(item, false, 'high'));
-    });
-
     var categoryText = getCategoryTexts();
+    renderActiveGroup('high', getCategoryIcon('high') + ' ' + categoryText.high, highPriorityItems, false);
     renderActiveGroup('patients', getCategoryIcon('patients') + ' ' + categoryText.patients, groupedItems.patients);
     renderActiveGroup('administration', getCategoryIcon('administration') + ' ' + categoryText.administration, groupedItems.administration);
     renderActiveGroup('private', getCategoryIcon('private') + ' ' + categoryText.private, groupedItems.private);
