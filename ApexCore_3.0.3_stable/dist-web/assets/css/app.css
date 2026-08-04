@@ -740,14 +740,14 @@ textarea {
     background: var(--bg-column);
     padding: 12px 15px;
     border: 1px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: 0 2px 8px var(--shadow-color);
     display: flex;
     flex-direction: column;
-    height: 100%;
-    max-height: 100%;
+    box-sizing: border-box;
     min-height: 0;
     overflow: hidden;
+    background-clip: padding-box;
 }
 
 .active-column h3 {
@@ -773,10 +773,11 @@ textarea {
     overflow-y: auto;
     overflow-x: hidden;
     height: 0;
-    padding: 0;
+    padding: 0 2px 8px 0;
     margin: 0;
     list-style: none;
     min-height: 0;
+    border-radius: 0 0 10px 10px;
 }
 
 .active-column > ul::-webkit-scrollbar {
