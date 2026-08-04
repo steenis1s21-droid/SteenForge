@@ -882,6 +882,7 @@ function getCategoryTexts() {
             label: 'Category:',
             high: 'High Priority',
             patients: 'Patients',
+            authorities: 'Authorities',
             administration: 'Administration',
             private: 'Private',
             games: 'Games',
@@ -894,6 +895,7 @@ function getCategoryTexts() {
             label: 'Kategori:',
             high: 'Høj prioritet',
             patients: 'Patienter',
+            authorities: 'Myndigheder',
             administration: 'Administration',
             private: 'Privat',
             games: 'Spil',
@@ -906,6 +908,7 @@ function getCategoryTexts() {
             label: 'Kategori:',
             high: 'Høy prioritet',
             patients: 'Pasienter',
+            authorities: 'Myndigheter',
             administration: 'Administrasjon',
             private: 'Privat',
             games: 'Spill',
@@ -918,6 +921,7 @@ function getCategoryTexts() {
             label: 'Kategoria:',
             high: 'Korkea prioriteetti',
             patients: 'Potilaat',
+            authorities: 'Viranomaiset',
             administration: 'Hallinto',
             private: 'Yksityinen',
             games: 'Pelit',
@@ -930,6 +934,7 @@ function getCategoryTexts() {
         label: 'Kategori:',
         high: 'Hög prioritet',
         patients: 'Patienter',
+        authorities: 'Myndigheter',
         administration: 'Administration',
         private: 'Privat',
         games: 'Spel',
@@ -998,6 +1003,7 @@ function getCategoryIcon(categoryKey) {
     var normalized = normalizeCategoryValue(categoryKey);
     if (normalized === 'high') return '🔴';
     if (normalized === 'patients') return '🏥';
+    if (normalized === 'authorities') return '🏛️';
     if (normalized === 'administration') return '🗂️';
     if (normalized === 'private') return '🏠';
     if (normalized === 'games') return '🎮';
@@ -1017,6 +1023,8 @@ function updateCategoryLanguageText() {
     if (categoryOptionHigh) categoryOptionHigh.textContent = getCategoryIcon('high') + ' ' + text.high;
     const categoryOptionPatients = document.getElementById('categoryOptionPatients');
     if (categoryOptionPatients) categoryOptionPatients.textContent = getCategoryIcon('patients') + ' ' + text.patients;
+    const categoryOptionAuthorities = document.getElementById('categoryOptionAuthorities');
+    if (categoryOptionAuthorities) categoryOptionAuthorities.textContent = getCategoryIcon('authorities') + ' ' + text.authorities;
     const categoryOptionAdministration = document.getElementById('categoryOptionAdministration');
     if (categoryOptionAdministration) categoryOptionAdministration.textContent = getCategoryIcon('administration') + ' ' + text.administration;
     const categoryOptionPrivate = document.getElementById('categoryOptionPrivate');
@@ -1030,6 +1038,8 @@ function updateCategoryLanguageText() {
     if (editCategoryOptionHigh) editCategoryOptionHigh.textContent = getCategoryIcon('high') + ' ' + text.high;
     const editCategoryOptionPatients = document.getElementById('editCategoryOptionPatients');
     if (editCategoryOptionPatients) editCategoryOptionPatients.textContent = getCategoryIcon('patients') + ' ' + text.patients;
+    const editCategoryOptionAuthorities = document.getElementById('editCategoryOptionAuthorities');
+    if (editCategoryOptionAuthorities) editCategoryOptionAuthorities.textContent = getCategoryIcon('authorities') + ' ' + text.authorities;
     const editCategoryOptionAdministration = document.getElementById('editCategoryOptionAdministration');
     if (editCategoryOptionAdministration) editCategoryOptionAdministration.textContent = getCategoryIcon('administration') + ' ' + text.administration;
     const editCategoryOptionPrivate = document.getElementById('editCategoryOptionPrivate');
@@ -1382,7 +1392,7 @@ function normalizePriorityValue(value) {
 
 function normalizeCategoryValue(value) {
     var normalized = String(value || '').toLowerCase();
-    if (normalized === 'high' || normalized === 'patients' || normalized === 'administration' || normalized === 'private' || normalized === 'games' || normalized === 'other') {
+    if (normalized === 'high' || normalized === 'patients' || normalized === 'authorities' || normalized === 'administration' || normalized === 'private' || normalized === 'games' || normalized === 'other') {
         return normalized;
     }
     return 'other';
@@ -2857,20 +2867,22 @@ function render() {
         return li;
     }
 
-    function renderActiveGroup(groupKey, groupTitle, groupItems, showCategoryTag) {
+    function renderActiveGroup(groupKey, groupTitle, groupItems, showCategoryTag, groupClassName, listClassName) {
         if (!groupItems.length) return;
         if (showCategoryTag === undefined) showCategoryTag = true;
+        if (!groupClassName) groupClassName = '';
+        if (!listClassName) listClassName = '';
 
         var collapsed = activeGroupsCollapsed[groupKey] === true;
         var groupContainer = document.createElement('li');
-        groupContainer.className = 'active-group';
+        groupContainer.className = 'active-group' + (groupClassName ? ' ' + groupClassName : '');
 
         groupContainer.innerHTML = `
             <button type="button" class="active-group-toggle category-${groupKey}" onclick="event.stopPropagation(); toggleActiveGroup('${groupKey}')">
                 <span class="group-left"><span>${collapsed ? '▸' : '▾'}</span>${escapeHTML(groupTitle)}</span>
                 <span class="active-group-count">${groupItems.length}</span>
             </button>
-            <ul class="active-group-items${collapsed ? ' collapsed' : ''}"></ul>
+            <ul class="active-group-items${listClassName ? ' ' + listClassName : ''}${collapsed ? ' collapsed' : ''}"></ul>
         `;
 
         var groupList = groupContainer.querySelector('.active-group-items');
@@ -2883,6 +2895,7 @@ function render() {
 
     var groupedItems = {
         patients: [],
+        authorities: [],
         administration: [],
         private: [],
         games: [],
@@ -2903,8 +2916,9 @@ function render() {
     });
 
     var categoryText = getCategoryTexts();
-    renderActiveGroup('high', getCategoryIcon('high') + ' ' + categoryText.high, highPriorityItems, false);
+    renderActiveGroup('high', getCategoryIcon('high') + ' ' + categoryText.high, highPriorityItems, false, 'high-priority-strip', 'high-priority-items');
     renderActiveGroup('patients', getCategoryIcon('patients') + ' ' + categoryText.patients, groupedItems.patients);
+    renderActiveGroup('authorities', getCategoryIcon('authorities') + ' ' + categoryText.authorities, groupedItems.authorities);
     renderActiveGroup('administration', getCategoryIcon('administration') + ' ' + categoryText.administration, groupedItems.administration);
     renderActiveGroup('private', getCategoryIcon('private') + ' ' + categoryText.private, groupedItems.private);
     renderActiveGroup('games', getCategoryIcon('games') + ' ' + categoryText.games, groupedItems.games);
@@ -2945,6 +2959,61 @@ function toggleActiveGroup(groupKey) {
     activeGroupsCollapsed[groupKey] = !(activeGroupsCollapsed[groupKey] === true);
     saveData();
     render();
+}
+
+function setupActiveColumnWheelScroll() {
+    function isEditableTarget(target) {
+        if (!target || !target.closest) return false;
+        return !!target.closest('input, textarea, select, [contenteditable="true"]');
+    }
+
+    function isScrollableElement(element) {
+        if (!element || element === document.body || element === document.documentElement) return false;
+        if (element.scrollHeight <= element.clientHeight + 1) return false;
+
+        var style = window.getComputedStyle(element);
+        var overflowY = style.overflowY;
+        return overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay';
+    }
+
+    function hasOtherScrollableAncestor(target, activeList) {
+        var current = target;
+        while (current && current !== document.body) {
+            if (current === activeList) return false;
+            if (activeList && activeList.contains(current)) return false;
+            if (isScrollableElement(current)) return true;
+            current = current.parentElement;
+        }
+        return false;
+    }
+
+    var activeColumn = document.querySelector('.active-column');
+    var activeList = document.getElementById('activeList');
+    if (!activeColumn || !activeList) return;
+
+    if (setupActiveColumnWheelScroll._initialized) return;
+    setupActiveColumnWheelScroll._initialized = true;
+
+    activeColumn.addEventListener('wheel', function(event) {
+        if (isEditableTarget(event.target)) return;
+
+        var nestedList = event.target.closest('.active-group-items');
+        if (nestedList && isScrollableElement(nestedList)) {
+            return;
+        }
+
+        event.preventDefault();
+        activeList.scrollTop += event.deltaY;
+    }, { passive: false });
+
+    document.addEventListener('wheel', function(event) {
+        if (activeColumn.contains(event.target)) return;
+        if (isEditableTarget(event.target)) return;
+        if (hasOtherScrollableAncestor(event.target, activeList)) return;
+
+        event.preventDefault();
+        activeList.scrollTop += event.deltaY;
+    }, { passive: false });
 }
 
 // ============================================
@@ -3267,6 +3336,7 @@ applyLanguage();
 loadTheme();
 updateSoundButton();
 initReminderInputs();
+setupActiveColumnWheelScroll();
 setActiveSortMode(getStoredActiveSortMode());
 saveData();
 

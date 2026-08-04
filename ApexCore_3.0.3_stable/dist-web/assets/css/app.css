@@ -1,5 +1,15 @@
 
 /* ============================================
+@media (min-width: 981px) {
+    .container {
+        height: 100vh;
+        min-height: 100vh;
+    }
+
+    .form-active-row {
+        overflow: hidden;
+    }
+}
    🌓 MÖRKT TEMA - CSS-variabler
    ============================================ */
 
@@ -35,6 +45,8 @@
     --category-high-border: #d56a6a;
     --category-patients-bg: #e9f5ff;
     --category-patients-border: #6ca3d6;
+    --category-authorities-bg: #eef2ff;
+    --category-authorities-border: #6d7fcc;
     --category-administration-bg: #f0edff;
     --category-administration-border: #8a7ad9;
     --category-private-bg: #fff4e8;
@@ -85,6 +97,8 @@
     --category-high-border: #c56b74;
     --category-patients-bg: #1f2f40;
     --category-patients-border: #6da2d3;
+    --category-authorities-bg: #262d48;
+    --category-authorities-border: #869be0;
     --category-administration-bg: #2b2445;
     --category-administration-border: #9584d8;
     --category-private-bg: #3b2b21;
@@ -714,7 +728,10 @@ textarea {
     box-shadow: 0 2px 8px var(--shadow-color);
     display: flex;
     flex-direction: column;
+    height: 100%;
+    max-height: 100%;
     min-height: 0;
+    overflow: hidden;
 }
 
 .active-column h3 {
@@ -735,31 +752,32 @@ textarea {
     margin: 0;
 }
 
-.active-column ul {
+.active-column > ul {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    height: 0;
     padding: 0;
     margin: 0;
     list-style: none;
     min-height: 0;
 }
 
-.active-column ul::-webkit-scrollbar {
+.active-column > ul::-webkit-scrollbar {
     width: 8px;
 }
 
-.active-column ul::-webkit-scrollbar-track {
+.active-column > ul::-webkit-scrollbar-track {
     background: var(--scrollbar-track);
     border-radius: 4px;
 }
 
-.active-column ul::-webkit-scrollbar-thumb {
+.active-column > ul::-webkit-scrollbar-thumb {
     background: var(--scrollbar-thumb);
     border-radius: 4px;
 }
 
-.active-column ul::-webkit-scrollbar-thumb:hover {
+.active-column > ul::-webkit-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover);
 }
 
@@ -816,6 +834,11 @@ textarea {
     border-color: var(--category-patients-border);
 }
 
+.active-group-toggle.category-authorities {
+    background: var(--category-authorities-bg);
+    border-color: var(--category-authorities-border);
+}
+
 .active-group-toggle.category-administration {
     background: var(--category-administration-bg);
     border-color: var(--category-administration-border);
@@ -864,6 +887,22 @@ textarea {
     overscroll-behavior: contain;
 }
 
+.active-group.high-priority-strip {
+    border: 1px solid var(--category-high-border) !important;
+    border-radius: 8px;
+    padding: 6px !important;
+    background: var(--category-high-bg);
+}
+
+.active-group.high-priority-strip .active-group-toggle {
+    border-radius: 6px;
+}
+
+.active-group-items.high-priority-items {
+    margin-top: 8px;
+    max-height: min(28vh, 220px);
+}
+
 .active-group-items.collapsed {
     display: none;
 }
@@ -887,6 +926,11 @@ textarea {
 .category-item-patients {
     border-left: 4px solid var(--category-patients-border) !important;
     background-color: var(--category-patients-bg) !important;
+}
+
+.category-item-authorities {
+    border-left: 4px solid var(--category-authorities-border) !important;
+    background-color: var(--category-authorities-bg) !important;
 }
 
 .category-item-administration {
