@@ -212,6 +212,7 @@
         <div class="done-column" id="doneDrop">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <h3 id="doneTitle" style="margin:0;"></h3>
+                <button id="sideArchiveClearBtn" onclick="clearArchiveWithBackupPrompt()" style="font-size:11px;padding:2px 8px;">🗑️ Rensa arkiv</button>
             </div>
             <input id="doneSearchInput" placeholder="🔍 Sök i arkivet" onkeyup="renderDebounced()" style="margin-bottom:6px;width:100%;">
             <ul id="doneList"></ul>
@@ -289,6 +290,31 @@
         <div class="confirm-actions">
             <button type="button" class="btn-cancel" id="saveEditConfirmCancelBtn" data-i18n="editCancel">❌ Avbryt</button>
             <button type="button" class="btn-save" id="saveEditConfirmOkBtn" data-i18n="editSave">💾 Spara</button>
+        </div>
+    </div>
+</div>
+
+<div id="archiveCleanupModal">
+    <div class="confirm-modal-content" onclick="event.stopPropagation();">
+        <h3 id="archiveCleanupTitle">🧹 Rensa arkiv</h3>
+        <p id="archiveCleanupText">Vill du spara en krypterad backup-fil innan arkivet rensas?</p>
+        <div class="confirm-actions">
+            <button type="button" class="btn-save" id="archiveCleanupBackupBtn">🗄️ Spara krypterad fil</button>
+            <button type="button" class="btn-cancel" id="archiveCleanupClearBtn">🗑️ Rensa utan backup</button>
+            <button type="button" class="btn-cancel" id="archiveCleanupCancelBtn">❌ Avbryt</button>
+        </div>
+    </div>
+</div>
+
+<div id="archivePasswordModal">
+    <div class="confirm-modal-content" onclick="event.stopPropagation();">
+        <h3 id="archivePasswordTitle">🔐 Krypterad backup</h3>
+        <p id="archivePasswordText">Ange lösenord för backup-filen.</p>
+        <input type="password" id="archivePasswordInput" placeholder="Lösenord" style="margin-bottom:8px;">
+        <input type="password" id="archivePasswordConfirmInput" placeholder="Bekräfta lösenord">
+        <div class="confirm-actions">
+            <button type="button" class="btn-cancel" id="archivePasswordCancelBtn">❌ Avbryt</button>
+            <button type="button" class="btn-save" id="archivePasswordOkBtn">💾 Spara backup</button>
         </div>
     </div>
 </div>

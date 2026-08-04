@@ -1,34 +1,5 @@
 
 /* ============================================
-@media (min-width: 981px) {
-    .container {
-        height: 100vh;
-        min-height: 100vh;
-    }
-
-    .form-active-row {
-        overflow: hidden;
-        align-items: stretch;
-    }
-
-    .form-column {
-        min-height: 0;
-        height: 100%;
-        overflow: hidden;
-    }
-
-    .done-column {
-        flex: 1 1 0;
-        height: 0;
-        min-height: 0;
-        max-height: none;
-    }
-
-    .active-column {
-        height: 100%;
-        max-height: 100%;
-    }
-}
    🌓 MÖRKT TEMA - CSS-variabler
    ============================================ */
 
@@ -86,54 +57,54 @@
 
 /* MÖRKT TEMA */
 [data-theme="dark"] {
-    --bg-body: #1a1a2e;
-    --bg-white: #16213e;
-    --bg-top: #1a1a2e;
-    --bg-column: #16213e;
-    --bg-hover: #2a2a4e;
-    --bg-input: #0f0f23;
-    --text-primary: #e0e0e0;
-    --text-secondary: #aaaaaa;
-    --text-muted: #777777;
-    --border-color: #333366;
-    --shadow-color: rgba(0,0,0,0.4);
-    --scrollbar-track: #1a1a2e;
-    --scrollbar-thumb: #333366;
-    --scrollbar-thumb-hover: #444488;
-    --badge-new-bg: #1a237e;
-    --badge-new-text: #90caf9;
-    --badge-update-bg: #1b3a1b;
-    --badge-update-text: #81c784;
-    --badge-bugfix-bg: #3b2618;
-    --badge-bugfix-text: #ffb07c;
-    --badge-plan-bg: #3e2a1b;
-    --badge-plan-text: #ffb74d;
-    --priority-high-bg: #2a1a1a;
-    --priority-high-border: #ef5350;
-    --priority-neutral-bg: #1e2a3b;
-    --priority-neutral-border: #93a9c3;
-    --category-high-bg: #3a2024;
-    --category-high-border: #c56b74;
-    --category-patients-bg: #1f2f40;
-    --category-patients-border: #6da2d3;
-    --category-authorities-bg: #262d48;
-    --category-authorities-border: #869be0;
-    --category-administration-bg: #2b2445;
-    --category-administration-border: #9584d8;
-    --category-private-bg: #3b2b21;
-    --category-private-border: #d2a06a;
-    --category-games-bg: #1f3426;
-    --category-games-border: #6fb07f;
-    --category-other-bg: #263141;
-    --category-other-border: #9ca9bc;
-    --done-color: #666666;
-    --footer-color: #666666;
-    --login-bg: #16213e;
-    --login-shadow: rgba(0,0,0,0.4);
-    --modal-overlay: rgba(0,0,0,0.7);
-    --btn-bg: #1a1a3e;
-    --btn-hover: #2a2a4e;
-    --btn-text: #e0e0e0;
+    --bg-body: #1d2329;
+    --bg-white: #232a31;
+    --bg-top: #232a31;
+    --bg-column: #262e36;
+    --bg-hover: #2d3640;
+    --bg-input: #1a2026;
+    --text-primary: #e7ecf1;
+    --text-secondary: #c2cdd8;
+    --text-muted: #a7b3bf;
+    --border-color: #36414c;
+    --shadow-color: rgba(0,0,0,0.35);
+    --scrollbar-track: #1d2329;
+    --scrollbar-thumb: #36414c;
+    --scrollbar-thumb-hover: #4b5a68;
+    --badge-new-bg: #243646;
+    --badge-new-text: #b9d4ea;
+    --badge-update-bg: #22372a;
+    --badge-update-text: #add6b4;
+    --badge-bugfix-bg: #3b2f27;
+    --badge-bugfix-text: #efc0a0;
+    --badge-plan-bg: #403526;
+    --badge-plan-text: #f2cfa2;
+    --priority-high-bg: #39292d;
+    --priority-high-border: #c98b95;
+    --priority-neutral-bg: #27313a;
+    --priority-neutral-border: #8fa3b6;
+    --category-high-bg: #3a2b30;
+    --category-high-border: #bb838e;
+    --category-patients-bg: #253947;
+    --category-patients-border: #7ea4c3;
+    --category-authorities-bg: #2a2f46;
+    --category-authorities-border: #8e9fdf;
+    --category-administration-bg: #312f42;
+    --category-administration-border: #9a95c2;
+    --category-private-bg: #3b3128;
+    --category-private-border: #c1a286;
+    --category-games-bg: #273a2f;
+    --category-games-border: #88b39a;
+    --category-other-bg: #2d3640;
+    --category-other-border: #97a9ba;
+    --done-color: #9aa7b3;
+    --footer-color: #a7b3bf;
+    --login-bg: #232a31;
+    --login-shadow: rgba(0,0,0,0.35);
+    --modal-overlay: rgba(0,0,0,0.6);
+    --btn-bg: #262e36;
+    --btn-hover: #2d3640;
+    --btn-text: #e7ecf1;
 }
 
 /* ============================================
@@ -143,8 +114,10 @@
 /* Gör att sidan inte scrollar */
 html, body {
     height: 100%;
+    min-height: 100%;
     margin: 0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 body {
@@ -159,10 +132,11 @@ body {
 
 /* LAYOUT */
 .container {
-    width: 1000px;
+    width: min(1000px, calc(100vw - 20px));
+    max-width: 100%;
     margin: 0 auto;
-    height: 100vh;
-    padding: 10px 0;
+    min-height: 100vh;
+    padding: 10px 10px 20px;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -186,13 +160,14 @@ body {
     margin-bottom: 8px;
     gap: 8px;
     min-width: 0;
+    flex-wrap: wrap;
 }
 
 .top-header .header-left {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     min-width: 0;
     flex: 1 1 auto;
     overflow: hidden;
@@ -201,7 +176,7 @@ body {
 .top-header .header-buttons {
     display: flex;
     gap: 6px;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
     flex-shrink: 0;
     margin-left: auto;
@@ -496,7 +471,7 @@ textarea {
 
 /* FORMULÄR + DONE - VÄNSTER KOLUMN */
 .form-column {
-    flex: 1;
+    flex: 1 1 320px;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -713,6 +688,7 @@ textarea {
     gap: 20px;
     flex: 1;
     min-height: 0;
+    flex-wrap: wrap;
 }
 
 /* ACTIVE COLUMN - HÖGER (med scroll) */
@@ -1057,7 +1033,7 @@ button:hover {
     position: fixed;
     top: 40px;
     right: 20px;
-    width: 340px;
+    width: min(340px, calc(100vw - 32px));
     display: none;
     background: var(--bg-white);
     color: var(--text-primary);
@@ -1126,18 +1102,20 @@ button:hover {
     color: var(--text-primary);
     padding: 30px;
     border-radius: 8px;
-    width: 400px;
+    width: min(400px, calc(100vw - 20px));
     text-align: center;
+    box-sizing: border-box;
 }
 
 #changePasswordModal input {
-    width: 80%;
+    width: 100%;
     padding: 10px;
     margin: 8px 0;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     background: var(--bg-input);
     color: var(--text-primary);
+    box-sizing: border-box;
 }
 
 #changePasswordModal button {
@@ -1191,6 +1169,20 @@ button:hover {
     z-index: 3200;
 }
 
+#archiveCleanupModal,
+#archivePasswordModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--modal-overlay);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 3200;
+}
+
 #saveEditConfirmModal .confirm-modal-content {
     background: var(--bg-white);
     color: var(--text-primary);
@@ -1203,12 +1195,37 @@ button:hover {
     animation: scaleIn 0.2s ease;
 }
 
+#archiveCleanupModal .confirm-modal-content,
+#archivePasswordModal .confirm-modal-content {
+    background: var(--bg-white);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    width: min(460px, calc(100vw - 20px));
+    padding: 22px;
+    box-sizing: border-box;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    animation: scaleIn 0.2s ease;
+}
+
 #saveEditConfirmModal h3 {
+    margin: 0 0 8px;
+}
+
+#archiveCleanupModal h3,
+#archivePasswordModal h3 {
     margin: 0 0 8px;
 }
 
 #saveEditConfirmText {
     margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+#archiveCleanupText,
+#archivePasswordText {
+    margin: 0 0 12px;
     color: var(--text-secondary);
     line-height: 1.45;
 }
@@ -1220,7 +1237,24 @@ button:hover {
     gap: 10px;
 }
 
+#archiveCleanupModal .confirm-actions,
+#archivePasswordModal .confirm-actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 #saveEditConfirmModal button {
+    padding: 9px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+#archiveCleanupModal button,
+#archivePasswordModal button {
     padding: 9px 16px;
     border-radius: 6px;
     border: 1px solid var(--border-color);
@@ -1233,8 +1267,23 @@ button:hover {
     color: var(--btn-text);
 }
 
+#archiveCleanupModal .btn-save,
+#archiveCleanupModal .btn-cancel,
+#archivePasswordModal .btn-save,
+#archivePasswordModal .btn-cancel {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+}
+
 #saveEditConfirmModal .btn-save:hover,
 #saveEditConfirmModal .btn-cancel:hover {
+    background: var(--btn-hover);
+}
+
+#archiveCleanupModal .btn-save:hover,
+#archiveCleanupModal .btn-cancel:hover,
+#archivePasswordModal .btn-save:hover,
+#archivePasswordModal .btn-cancel:hover {
     background: var(--btn-hover);
 }
 
@@ -1362,6 +1411,108 @@ button:hover {
     100% { transform: rotate(360deg); }
 }
 
+@media (max-width: 980px) {
+    .top-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .top-header .header-buttons {
+        margin-left: 0;
+        justify-content: flex-start;
+    }
+
+    .form-active-row {
+        flex-direction: column;
+    }
+
+    .active-column {
+        min-width: 0;
+    }
+}
+
+@media (min-width: 981px) {
+    .container {
+        height: 100vh;
+        min-height: 100vh;
+    }
+
+    .form-active-row {
+        overflow: hidden;
+        align-items: stretch;
+    }
+
+    .form-column {
+        min-height: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .done-column {
+        flex: 1 1 0;
+        height: 0;
+        min-height: 0;
+        max-height: none;
+    }
+
+    .active-column {
+        height: 100%;
+        max-height: 100%;
+    }
+}
+
+@media (max-width: 760px) {
+    .container {
+        padding: 8px 8px 16px;
+    }
+
+    .top {
+        padding: 10px;
+    }
+
+    .top-header .header-left {
+        gap: 8px;
+    }
+
+    .top-header .header-left h2 {
+        font-size: clamp(18px, 4vw, 24px);
+    }
+
+    .header-buttons button {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .export-import {
+        gap: 6px;
+    }
+
+    .export-import button {
+        flex: 1 1 calc(50% - 6px);
+    }
+
+    .notification-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .reminder-custom {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .reminder-display {
+        min-width: 0;
+    }
+
+    #editor {
+        top: 12px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+    }
+}
+
 /* ARKIV MODAL */
 #archiveOverlay {
     display: none;
@@ -1377,8 +1528,9 @@ button:hover {
 #archiveModal {
     position: fixed;
     top: 10%;
-    left: 20%;
-    width: 60%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(860px, calc(100vw - 20px));
     max-height: 70vh;
     overflow: hidden;
     background: var(--bg-white);
@@ -1389,6 +1541,7 @@ button:hover {
     z-index: 9999;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
 }
 
 #archiveModal input {
@@ -1445,13 +1598,14 @@ button:hover {
     color: var(--text-primary);
     padding: 30px;
     border-radius: 12px;
-    width: 600px;
-    max-width: 90%;
+    width: min(600px, calc(100vw - 20px));
+    max-width: 100%;
     max-height: 80vh;
     overflow: hidden;
     box-shadow: 0 10px 40px var(--shadow-color);
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
 }
 
 #adminPanel .admin-content h2 {

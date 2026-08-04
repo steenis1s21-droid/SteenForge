@@ -55,6 +55,8 @@ let currentLanguage = 'sv';
 let activeGroupsCollapsed = {};
 let renderDebounceTimer = null;
 let renderArchiveDebounceTimer = null;
+let isArchiveCleanupModalOpen = false;
+let isArchivePasswordModalOpen = false;
 
 // ============================================
 // �️ SÄKERHETS-HJÄLPFUNKTIONER
@@ -1158,6 +1160,7 @@ function applyLanguage() {
     setPlaceholder('archiveSearch', 'archiveSearch');
     setText('archiveVaultBtn', 'archiveVaultBtn');
     setText('archiveClearBtn', 'archiveClear');
+    setText('sideArchiveClearBtn', 'archiveClear');
     setText('archiveCloseBtn', 'archiveClose');
     if (typeof updateReminderLanguageText === 'function') updateReminderLanguageText();
     if (typeof updateCategoryLanguageText === 'function') updateCategoryLanguageText();
@@ -3209,7 +3212,8 @@ function renderArchive() {
     container.innerHTML = html;
 }
 
-function vaultArchive() {
+function vaultArchive(options) {
+    options = options || {};
     if (archivedItems.length === 0) {
         showMessage(t('archiveEmpty'), 'info');
         updateArchiveVaultButton();
@@ -3217,9 +3221,11 @@ function vaultArchive() {
     }
 
     var archiveCount = archivedItems.length;
-    if (!confirm(t('archiveVaultConfirm').replace('{count}', archiveCount))) return;
+    var skipConfirm = options.skipConfirm === true;
+    var clearAfterExport = options.clearAfterExport !== false;
+    if (!skipConfirm && !confirm(t('archiveVaultConfirm').replace('{count}', archiveCount))) return;
 
-    var password = requestEncryptionPassword();
+    var password = options.password || requestEncryptionPassword();
     if (!password) return;
 
     showProgress(t('archiveVaultProgress'));
@@ -3235,23 +3241,351 @@ function vaultArchive() {
         };
 
         var blob = createEncryptedExportBlob(vaultData, password);
-        var fileName = requestExportFileName('apexcore-archive-vault-' + new Date().toISOString().split('T')[0], '.enc');
+        var fileName = options.fileName || requestExportFileName('apexcore-archive-vault-' + new Date().toISOString().split('T')[0], '.enc');
         if (!fileName) {
             hideProgress();
             return;
         }
         downloadBlob(blob, fileName);
 
-        archivedItems = [];
-        saveData();
-        render();
-        renderArchive();
+        if (clearAfterExport) {
+            archivedItems = [];
+            saveData();
+            render();
+            renderArchive();
+        }
         hideProgress();
-        showMessage(t('archiveVaultSuccess').replace('{count}', archiveCount), 'success');
+        if (clearAfterExport) {
+            showMessage(t('archiveVaultSuccess').replace('{count}', archiveCount), 'success');
+        } else {
+            showMessage(t('msgEncrypted').replace('{count}', archiveCount), 'success');
+        }
     } catch (error) {
         hideProgress();
         showMessage('❌ ' + (getLang() === 'sv' ? 'Fel vid kryptering: ' : 'Encryption error: ') + error.message, 'error');
     }
+}
+
+function getArchiveSaveBeforeClearPrompt() {
+    var lang = getLang();
+    if (lang === 'en') {
+        return 'Do you want to save an encrypted backup file before clearing the archive?\n\nOK = Save encrypted file, then clear archive\nCancel = Continue without backup';
+    }
+    if (lang === 'da') {
+        return 'Vil du gemme en krypteret backupfil, før arkivet ryddes?\n\nOK = Gem krypteret fil og ryd arkivet\nAnnuller = Fortsæt uden backup';
+    }
+    if (lang === 'no') {
+        return 'Vil du lagre en kryptert backupfil før arkivet tømmes?\n\nOK = Lagre kryptert fil og tøm arkivet\nAvbryt = Fortsett uten backup';
+    }
+    if (lang === 'fi') {
+        return 'Haluatko tallentaa salatun varmuuskopiotiedoston ennen arkiston tyhjennystä?\n\nOK = Tallenna salattu tiedosto ja tyhjennä arkisto\nPeruuta = Jatka ilman varmuuskopiota';
+    }
+    return 'Vill du spara en krypterad backup-fil innan arkivet rensas?\n\nOK = Spara krypterad fil och rensa arkivet\nAvbryt = Fortsätt utan backup';
+}
+
+function getArchiveCleanupTexts() {
+    var lang = getLang();
+    if (lang === 'en') {
+        return {
+            title: '🧹 Clear archive',
+            text: 'Do you want to save an encrypted backup file before clearing the archive?',
+            cancel: '❌ Cancel',
+            clear: '🗑️ Clear without backup',
+            save: '🗄️ Save encrypted file'
+        };
+    }
+    if (lang === 'da') {
+        return {
+            title: '🧹 Ryd arkiv',
+            text: 'Vil du gemme en krypteret backupfil, før arkivet ryddes?',
+            cancel: '❌ Annuller',
+            clear: '🗑️ Ryd uden backup',
+            save: '🗄️ Gem krypteret fil'
+        };
+    }
+    if (lang === 'no') {
+        return {
+            title: '🧹 Tøm arkiv',
+            text: 'Vil du lagre en kryptert backupfil før arkivet tømmes?',
+            cancel: '❌ Avbryt',
+            clear: '🗑️ Tøm uten backup',
+            save: '🗄️ Lagre kryptert fil'
+        };
+    }
+    if (lang === 'fi') {
+        return {
+            title: '🧹 Tyhjennä arkisto',
+            text: 'Haluatko tallentaa salatun varmuuskopiotiedoston ennen arkiston tyhjennystä?',
+            cancel: '❌ Peruuta',
+            clear: '🗑️ Tyhjennä ilman varmuuskopiota',
+            save: '🗄️ Tallenna salattu tiedosto'
+        };
+    }
+    return {
+        title: '🧹 Rensa arkiv',
+        text: 'Vill du spara en krypterad backup-fil innan arkivet rensas?',
+        cancel: '❌ Avbryt',
+        clear: '🗑️ Rensa utan backup',
+        save: '🗄️ Spara krypterad fil'
+    };
+}
+
+function getArchivePasswordTexts() {
+    var lang = getLang();
+    if (lang === 'en') {
+        return {
+            title: '🔐 Encrypted backup',
+            text: 'Enter a password for the backup file.',
+            placeholder: 'Password',
+            placeholderConfirm: 'Confirm password',
+            cancel: '❌ Cancel',
+            save: '💾 Save backup'
+        };
+    }
+    if (lang === 'da') {
+        return {
+            title: '🔐 Krypteret backup',
+            text: 'Angiv et kodeord til backupfilen.',
+            placeholder: 'Kodeord',
+            placeholderConfirm: 'Bekræft kodeord',
+            cancel: '❌ Annuller',
+            save: '💾 Gem backup'
+        };
+    }
+    if (lang === 'no') {
+        return {
+            title: '🔐 Kryptert backup',
+            text: 'Angi passord for backupfilen.',
+            placeholder: 'Passord',
+            placeholderConfirm: 'Bekreft passord',
+            cancel: '❌ Avbryt',
+            save: '💾 Lagre backup'
+        };
+    }
+    if (lang === 'fi') {
+        return {
+            title: '🔐 Salattu varmuuskopio',
+            text: 'Anna salasana varmuuskopiotiedostolle.',
+            placeholder: 'Salasana',
+            placeholderConfirm: 'Vahvista salasana',
+            cancel: '❌ Peruuta',
+            save: '💾 Tallenna varmuuskopio'
+        };
+    }
+    return {
+        title: '🔐 Krypterad backup',
+        text: 'Ange lösenord för backup-filen.',
+        placeholder: 'Lösenord',
+        placeholderConfirm: 'Bekräfta lösenord',
+        cancel: '❌ Avbryt',
+        save: '💾 Spara backup'
+    };
+}
+
+function closeArchiveCleanupModal() {
+    var modal = document.getElementById('archiveCleanupModal');
+    if (!modal) return;
+    modal.style.display = 'none';
+    isArchiveCleanupModalOpen = false;
+}
+
+function closeArchivePasswordModal() {
+    var modal = document.getElementById('archivePasswordModal');
+    if (!modal) return;
+    modal.style.display = 'none';
+    isArchivePasswordModalOpen = false;
+}
+
+function showArchivePasswordModal(onConfirm) {
+    var modal = document.getElementById('archivePasswordModal');
+    var title = document.getElementById('archivePasswordTitle');
+    var text = document.getElementById('archivePasswordText');
+    var passwordInput = document.getElementById('archivePasswordInput');
+    var confirmInput = document.getElementById('archivePasswordConfirmInput');
+    var cancelBtn = document.getElementById('archivePasswordCancelBtn');
+    var okBtn = document.getElementById('archivePasswordOkBtn');
+    if (!modal || !title || !text || !passwordInput || !confirmInput || !cancelBtn || !okBtn) {
+        var fallbackPassword = requestEncryptionPassword();
+        if (!fallbackPassword) return;
+        onConfirm(fallbackPassword);
+        return;
+    }
+
+    var labels = getArchivePasswordTexts();
+    title.textContent = labels.title;
+    text.textContent = labels.text;
+    passwordInput.placeholder = labels.placeholder;
+    confirmInput.placeholder = labels.placeholderConfirm;
+    cancelBtn.textContent = labels.cancel;
+    okBtn.textContent = labels.save;
+    passwordInput.value = '';
+    confirmInput.value = '';
+
+    isArchivePasswordModalOpen = true;
+    modal.style.display = 'flex';
+
+    function cleanup() {
+        closeArchivePasswordModal();
+        modal.onclick = null;
+        cancelBtn.onclick = null;
+        okBtn.onclick = null;
+    }
+
+    function cancel() {
+        cleanup();
+    }
+
+    function submit() {
+        var password = passwordInput.value;
+        var confirmPassword = confirmInput.value;
+
+        if (!password || password.length < 4) {
+            showMessage(t('msgEncryptedPasswordShort'), 'error');
+            return;
+        }
+        if (password !== confirmPassword) {
+            showMessage(t('msgPasswordMismatch'), 'error');
+            return;
+        }
+
+        cleanup();
+        onConfirm(password);
+    }
+
+    modal.onclick = function(event) {
+        if (event.target === modal) cancel();
+    };
+
+    cancelBtn.onclick = function(event) {
+        event.preventDefault();
+        cancel();
+    };
+
+    okBtn.onclick = function(event) {
+        event.preventDefault();
+        submit();
+    };
+
+    passwordInput.onkeydown = function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            confirmInput.focus();
+        }
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            cancel();
+        }
+    };
+
+    confirmInput.onkeydown = function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            submit();
+        }
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            cancel();
+        }
+    };
+
+    setTimeout(function() {
+        passwordInput.focus();
+    }, 0);
+}
+
+function showArchiveCleanupModal() {
+    var modal = document.getElementById('archiveCleanupModal');
+    var title = document.getElementById('archiveCleanupTitle');
+    var text = document.getElementById('archiveCleanupText');
+    var cancelBtn = document.getElementById('archiveCleanupCancelBtn');
+    var clearBtn = document.getElementById('archiveCleanupClearBtn');
+    var backupBtn = document.getElementById('archiveCleanupBackupBtn');
+
+    if (!modal || !title || !text || !cancelBtn || !clearBtn || !backupBtn) {
+        var wantsBackupFallback = confirm(getArchiveSaveBeforeClearPrompt());
+        if (wantsBackupFallback) {
+            vaultArchive({ skipConfirm: true, clearAfterExport: true });
+            return;
+        }
+        if (!confirm(t('archiveConfirmClear'))) return;
+        archivedItems = [];
+        saveData();
+        render();
+        renderArchive();
+        showMessage(t('archiveCleared'), 'info');
+        return;
+    }
+
+    var labels = getArchiveCleanupTexts();
+    title.textContent = labels.title;
+    text.textContent = labels.text;
+    cancelBtn.textContent = labels.cancel;
+    clearBtn.textContent = labels.clear;
+    backupBtn.textContent = labels.save;
+
+    isArchiveCleanupModalOpen = true;
+    modal.style.display = 'flex';
+
+    function cleanup() {
+        closeArchiveCleanupModal();
+        modal.onclick = null;
+        cancelBtn.onclick = null;
+        clearBtn.onclick = null;
+        backupBtn.onclick = null;
+    }
+
+    function cancel() {
+        cleanup();
+    }
+
+    function clearWithoutBackup() {
+        cleanup();
+        archivedItems = [];
+        saveData();
+        render();
+        renderArchive();
+        showMessage(t('archiveCleared'), 'info');
+    }
+
+    function saveBackupThenClear() {
+        cleanup();
+        showArchivePasswordModal(function(password) {
+            var fileName = 'apexcore-archive-vault-' + new Date().toISOString().split('T')[0] + '.enc';
+            vaultArchive({
+                skipConfirm: true,
+                clearAfterExport: true,
+                password: password,
+                fileName: fileName
+            });
+        });
+    }
+
+    modal.onclick = function(event) {
+        if (event.target === modal) cancel();
+    };
+
+    cancelBtn.onclick = function(event) {
+        event.preventDefault();
+        cancel();
+    };
+
+    clearBtn.onclick = function(event) {
+        event.preventDefault();
+        clearWithoutBackup();
+    };
+
+    backupBtn.onclick = function(event) {
+        event.preventDefault();
+        saveBackupThenClear();
+    };
+}
+
+function clearArchiveWithBackupPrompt() {
+    if (archivedItems.length === 0) {
+        showMessage(t('archiveEmpty'), 'info');
+        return;
+    }
+    showArchiveCleanupModal();
 }
 
 function restoreArchive(id) {
@@ -3274,11 +3608,7 @@ function deleteArchiveItem(id) {
 }
 
 function clearArchive() {
-    if (!confirm(t('archiveConfirmClear'))) return;
-    archivedItems = [];
-    saveData();
-    renderArchive();
-    showMessage(t('archiveCleared'), 'info');
+    clearArchiveWithBackupPrompt();
 }
 
 // ============================================

@@ -1169,6 +1169,20 @@ button:hover {
     z-index: 3200;
 }
 
+#archiveCleanupModal,
+#archivePasswordModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--modal-overlay);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 3200;
+}
+
 #saveEditConfirmModal .confirm-modal-content {
     background: var(--bg-white);
     color: var(--text-primary);
@@ -1181,12 +1195,37 @@ button:hover {
     animation: scaleIn 0.2s ease;
 }
 
+#archiveCleanupModal .confirm-modal-content,
+#archivePasswordModal .confirm-modal-content {
+    background: var(--bg-white);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    width: min(460px, calc(100vw - 20px));
+    padding: 22px;
+    box-sizing: border-box;
+    box-shadow: 0 10px 30px var(--shadow-color);
+    animation: scaleIn 0.2s ease;
+}
+
 #saveEditConfirmModal h3 {
+    margin: 0 0 8px;
+}
+
+#archiveCleanupModal h3,
+#archivePasswordModal h3 {
     margin: 0 0 8px;
 }
 
 #saveEditConfirmText {
     margin: 0;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+#archiveCleanupText,
+#archivePasswordText {
+    margin: 0 0 12px;
     color: var(--text-secondary);
     line-height: 1.45;
 }
@@ -1198,7 +1237,24 @@ button:hover {
     gap: 10px;
 }
 
+#archiveCleanupModal .confirm-actions,
+#archivePasswordModal .confirm-actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 #saveEditConfirmModal button {
+    padding: 9px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+#archiveCleanupModal button,
+#archivePasswordModal button {
     padding: 9px 16px;
     border-radius: 6px;
     border: 1px solid var(--border-color);
@@ -1211,8 +1267,23 @@ button:hover {
     color: var(--btn-text);
 }
 
+#archiveCleanupModal .btn-save,
+#archiveCleanupModal .btn-cancel,
+#archivePasswordModal .btn-save,
+#archivePasswordModal .btn-cancel {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+}
+
 #saveEditConfirmModal .btn-save:hover,
 #saveEditConfirmModal .btn-cancel:hover {
+    background: var(--btn-hover);
+}
+
+#archiveCleanupModal .btn-save:hover,
+#archiveCleanupModal .btn-cancel:hover,
+#archivePasswordModal .btn-save:hover,
+#archivePasswordModal .btn-cancel:hover {
     background: var(--btn-hover);
 }
 
