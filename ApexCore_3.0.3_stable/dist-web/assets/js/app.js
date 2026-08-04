@@ -1079,6 +1079,7 @@ function getBackupUiText() {
         return {
             importDryRun: 'Dry-run import',
             validateBackup: 'Validate backup',
+            restoreSafety: 'Restore safety',
             healthTitle: 'Backup health',
             crypto: 'Crypto',
             storage: 'Storage',
@@ -1095,12 +1096,20 @@ function getBackupUiText() {
             importInvalidStructure: 'Backup file is missing required fields.',
             importWrongPassword: 'Wrong password or corrupt file.',
             autoSafetySaved: 'Automatic safety snapshot saved before clearing archive.',
+            autoSafetyMissing: 'No safety snapshot available.',
+            autoSafetyRestored: '✅ Safety snapshot restored ({count} archived items).',
+            importPreviewTitle: 'Import preview',
+            importPreviewContinue: 'Continue import?',
+            importCancelled: 'Import cancelled before writing data.',
+            replacePrompt: 'Type REPLACE to confirm full replacement:',
+            replacePromptFailed: 'Replacement cancelled because confirmation phrase did not match.',
             duplicateSkipped: 'Skipped {count} duplicate archive items during import.'
         };
     }
     return {
         importDryRun: 'Torrkör import',
         validateBackup: 'Validera backup',
+        restoreSafety: 'Återställ safety',
         healthTitle: 'Backupstatus',
         crypto: 'Crypto',
         storage: 'Lagring',
@@ -1117,6 +1126,13 @@ function getBackupUiText() {
         importInvalidStructure: 'Backupfilen saknar nödvändiga fält.',
         importWrongPassword: 'Fel lösenord eller korrupt fil.',
         autoSafetySaved: 'Automatisk säkerhetskopia sparades före arkivrensning.',
+        autoSafetyMissing: 'Ingen safety-snapshot tillgänglig.',
+        autoSafetyRestored: '✅ Safety-snapshot återställd ({count} arkiverade poster).',
+        importPreviewTitle: 'Importförhandsgranskning',
+        importPreviewContinue: 'Fortsätt importen?',
+        importCancelled: 'Importen avbröts innan data skrevs.',
+        replacePrompt: 'Skriv ERSÄTT för att bekräfta total ersättning:',
+        replacePromptFailed: 'Ersättning avbröts eftersom bekräftelsetexten inte stämde.',
         duplicateSkipped: 'Hoppade över {count} dubbletter vid arkivimport.'
     };
 }
@@ -1198,6 +1214,26 @@ function initBackupHealthPanel() {
     setBackupHealthStatus('crypto', typeof CryptoJS !== 'undefined' ? 'ok' : 'error', typeof CryptoJS !== 'undefined' ? '' : 'CryptoJS');
     setBackupHealthStatus('storage', storageOk ? 'ok' : 'error', storageOk ? '' : 'localStorage');
     updateBackupHealthPanel();
+}
+
+function hasAutoSafetySnapshot() {
+    try {
+        var raw = localStorage.getItem('archiveAutoSafetyBackup');
+        if (!raw) return false;
+        var parsed = JSON.parse(raw);
+        return parsed && Array.isArray(parsed.archivedItems);
+    } catch (error) {
+        return false;
+    }
+}
+
+function updateAutoSafetyRestoreButtons() {
+    var hasSnapshot = hasAutoSafetySnapshot();
+    ['archiveRestoreSafetyBtn', 'sideArchiveRestoreSafetyBtn'].forEach(function(id) {
+        var btn = document.getElementById(id);
+        if (!btn) return;
+        btn.disabled = !hasSnapshot;
+    });
 }
 
 function toggleLanguageMenu() {
@@ -1298,9 +1334,15 @@ function applyLanguage() {
     }
     setPlaceholder('archiveSearch', 'archiveSearch');
     setText('archiveVaultBtn', 'archiveVaultBtn');
+    var backupLabels = getBackupUiText();
+    var archiveRestoreSafetyBtn = document.getElementById('archiveRestoreSafetyBtn');
+    if (archiveRestoreSafetyBtn) archiveRestoreSafetyBtn.textContent = '♻️ ' + backupLabels.restoreSafety;
+    var sideArchiveRestoreSafetyBtn = document.getElementById('sideArchiveRestoreSafetyBtn');
+    if (sideArchiveRestoreSafetyBtn) sideArchiveRestoreSafetyBtn.textContent = '♻️ ' + backupLabels.restoreSafety;
     setText('archiveClearBtn', 'archiveClear');
     setText('sideArchiveClearBtn', 'archiveClear');
     setText('archiveCloseBtn', 'archiveClose');
+    updateAutoSafetyRestoreButtons();
     if (typeof updateReminderLanguageText === 'function') updateReminderLanguageText();
     if (typeof updateCategoryLanguageText === 'function') updateCategoryLanguageText();
     if (typeof updateSortLanguageText === 'function') updateSortLanguageText();
@@ -2653,10 +2695,96 @@ function splitNewAndDuplicateArchiveItems(importedItems) {
     };
 }
 
+function buildVaultImportPreviewMessage(deduped, incomingCount) {
+    var lang = getLang();
+    var beforeArchive = archivedItems.length;
+    var afterArchive = beforeArchive + deduped.uniqueItems.length;
+
+    if (lang === 'en') {
+        return '🔎 ' + getBackupUiText().importPreviewTitle + '\n\n'
+            + 'Vault import:\n'
+            + '📦 Current archive: ' + beforeArchive + '\n'
+            + '📥 Incoming archived: ' + incomingCount + '\n'
+            + '➕ Unique to add: ' + deduped.uniqueItems.length + '\n'
+            + '⚠️ Duplicates skipped: ' + deduped.duplicateCount + '\n'
+            + '📊 Archive after import: ' + afterArchive + '\n\n'
+            + getBackupUiText().importPreviewContinue;
+    }
+
+    return '🔎 ' + getBackupUiText().importPreviewTitle + '\n\n'
+        + 'Vault-import:\n'
+        + '📦 Nuvarande arkiv: ' + beforeArchive + '\n'
+        + '📥 Inkommande arkivposter: ' + incomingCount + '\n'
+        + '➕ Unika att lägga till: ' + deduped.uniqueItems.length + '\n'
+        + '⚠️ Dubbletter som hoppas över: ' + deduped.duplicateCount + '\n'
+        + '📊 Arkiv efter import: ' + afterArchive + '\n\n'
+        + getBackupUiText().importPreviewContinue;
+}
+
+function buildFullImportPreviewMessage(data) {
+    var lang = getLang();
+    var currentActive = items.length;
+    var currentDone = doneItems.length;
+    var currentArchived = archivedItems.length;
+    var incomingActive = data.items.length;
+    var incomingDone = data.doneItems.length;
+    var incomingArchived = data.archivedItems.length;
+
+    var addActive = currentActive + incomingActive;
+    var addDone = currentDone + incomingDone;
+    var addArchived = currentArchived + incomingArchived;
+
+    if (lang === 'en') {
+        return '🔎 ' + getBackupUiText().importPreviewTitle + '\n\n'
+            + 'Current data:\n'
+            + '📋 Active: ' + currentActive + '\n'
+            + '✅ Done: ' + currentDone + '\n'
+            + '📦 Archive: ' + currentArchived + '\n\n'
+            + 'Incoming backup:\n'
+            + '📋 Active: ' + incomingActive + '\n'
+            + '✅ Done: ' + incomingDone + '\n'
+            + '📦 Archive: ' + incomingArchived + '\n\n'
+            + 'If you later choose REPLACE in next step:\n'
+            + '📊 Result: ' + incomingActive + ' / ' + incomingDone + ' / ' + incomingArchived + '\n\n'
+            + 'If you later choose ADD in next step:\n'
+            + '📊 Result: ' + addActive + ' / ' + addDone + ' / ' + addArchived + '\n\n'
+            + getBackupUiText().importPreviewContinue;
+    }
+
+    return '🔎 ' + getBackupUiText().importPreviewTitle + '\n\n'
+        + 'Nuvarande data:\n'
+        + '📋 Aktiv: ' + currentActive + '\n'
+        + '✅ Färdig: ' + currentDone + '\n'
+        + '📦 Arkiv: ' + currentArchived + '\n\n'
+        + 'Inkommande backup:\n'
+        + '📋 Aktiv: ' + incomingActive + '\n'
+        + '✅ Färdig: ' + incomingDone + '\n'
+        + '📦 Arkiv: ' + incomingArchived + '\n\n'
+        + 'Om du väljer ERSÄTT i nästa steg:\n'
+        + '📊 Resultat: ' + incomingActive + ' / ' + incomingDone + ' / ' + incomingArchived + '\n\n'
+        + 'Om du väljer LÄGG TILL i nästa steg:\n'
+        + '📊 Resultat: ' + addActive + ' / ' + addDone + ' / ' + addArchived + '\n\n'
+        + getBackupUiText().importPreviewContinue;
+}
+
+function requestReplaceConfirmationPhrase() {
+    var token = getLang() === 'sv' ? 'ERSÄTT' : 'REPLACE';
+    var typed = prompt(getBackupUiText().replacePrompt + ' [' + token + ']');
+    if (typed === null) return false;
+    return typed.trim().toUpperCase() === token;
+}
+
 function importProcess(data) {
     if (data.source === 'archive-vault' && Array.isArray(data.archivedItems)) {
         const importedItems = prepareVaultItemsForArchive(data.archivedItems);
         const deduped = splitNewAndDuplicateArchiveItems(importedItems);
+
+        if (!confirm(buildVaultImportPreviewMessage(deduped, data.archivedItems.length))) {
+            hideProgress();
+            showMessage(getBackupUiText().importCancelled, 'info');
+            return;
+        }
+
         if (Array.isArray(data.adminUpdates)) {
             const mergedUpdates = mergeAdminUpdates(data.adminUpdates, getAdminUpdates());
             saveAdminUpdates(mergedUpdates);
@@ -2671,6 +2799,7 @@ function importProcess(data) {
         saveData();
         render();
         renderArchive();
+        updateAutoSafetyRestoreButtons();
         hideProgress();
         showMessage(getLang() === 'sv'
             ? '✅ ' + deduped.uniqueItems.length + ' arkivposter importerades till arkivet.'
@@ -2684,6 +2813,12 @@ function importProcess(data) {
     if (!data.items || !data.doneItems || !data.archivedItems) {
         hideProgress();
         showMessage('❌ ' + (getLang() === 'sv' ? 'Ogiltig datafil!' : 'Invalid data file!'), 'error');
+        return;
+    }
+
+    if (!confirm(buildFullImportPreviewMessage(data))) {
+        hideProgress();
+        showMessage(getBackupUiText().importCancelled, 'info');
         return;
     }
 
@@ -2701,6 +2836,12 @@ function importProcess(data) {
     const choice = confirm(confirmMsg);
 
     if (choice) {
+        if (!requestReplaceConfirmationPhrase()) {
+            hideProgress();
+            showMessage(getBackupUiText().replacePromptFailed, 'error');
+            return;
+        }
+
         items = data.items.map(normalizeItemData);
         doneItems = data.doneItems.map(normalizeItemData);
         archivedItems = (data.archivedItems || []).map(normalizeItemData);
@@ -2726,6 +2867,7 @@ function importProcess(data) {
 
     saveData();
     render();
+    updateAutoSafetyRestoreButtons();
     hideProgress();
 }
 
@@ -4045,11 +4187,63 @@ function saveAutoSafetySnapshot() {
     try {
         localStorage.setItem('archiveAutoSafetyBackup', JSON.stringify(snapshot));
         setBackupHealthStatus('export', 'warn', 'auto safety backup');
+        updateAutoSafetyRestoreButtons();
         showMessage(getBackupUiText().autoSafetySaved, 'info');
     } catch (error) {
         setBackupHealthStatus('export', 'error', 'auto safety backup failed');
         console.warn('Auto safety snapshot failed:', error);
     }
+}
+
+function restoreAutoSafetySnapshot() {
+    var raw = localStorage.getItem('archiveAutoSafetyBackup');
+    if (!raw) {
+        showMessage(getBackupUiText().autoSafetyMissing, 'info');
+        updateAutoSafetyRestoreButtons();
+        return;
+    }
+
+    var parsed;
+    try {
+        parsed = JSON.parse(raw);
+    } catch (error) {
+        showMessage(getBackupUiText().autoSafetyMissing, 'error');
+        updateAutoSafetyRestoreButtons();
+        return;
+    }
+
+    if (!parsed || !Array.isArray(parsed.archivedItems)) {
+        showMessage(getBackupUiText().autoSafetyMissing, 'error');
+        updateAutoSafetyRestoreButtons();
+        return;
+    }
+
+    var exportedAtText = parsed.exportedAt ? new Date(parsed.exportedAt).toLocaleString() : '-';
+    var confirmText = (getLang() === 'en'
+        ? 'Restore safety snapshot from ' + exportedAtText + '?\n\nArchived items: ' + parsed.archivedItems.length
+        : 'Återställ safety-snapshot från ' + exportedAtText + '?\n\nArkiverade poster: ' + parsed.archivedItems.length);
+
+    if (!confirm(confirmText)) {
+        return;
+    }
+
+    archivedItems = parsed.archivedItems.map(normalizeItemData);
+    if (Array.isArray(parsed.adminUpdates)) {
+        saveAdminUpdates(dedupeAdminUpdates(parsed.adminUpdates));
+        if (typeof renderInfoContent === 'function') {
+            renderInfoContent();
+        }
+        if (typeof renderAdminList === 'function') {
+            renderAdminList();
+        }
+    }
+
+    saveData();
+    render();
+    renderArchive();
+    setBackupHealthStatus('import', 'ok', 'safety restored');
+    updateAutoSafetyRestoreButtons();
+    showMessage(getBackupUiText().autoSafetyRestored.replace('{count}', archivedItems.length), 'success');
 }
 
 function showArchiveCleanupModal() {
@@ -4067,10 +4261,12 @@ function showArchiveCleanupModal() {
             return;
         }
         if (!confirm(t('archiveConfirmClear'))) return;
+        saveAutoSafetySnapshot();
         archivedItems = [];
         saveData();
         render();
         renderArchive();
+        updateAutoSafetyRestoreButtons();
         showMessage(t('archiveCleared'), 'info');
         return;
     }
@@ -4104,6 +4300,7 @@ function showArchiveCleanupModal() {
         saveData();
         render();
         renderArchive();
+        updateAutoSafetyRestoreButtons();
         showMessage(t('archiveCleared'), 'info');
     }
 

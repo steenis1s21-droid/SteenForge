@@ -224,7 +224,10 @@
         <div class="done-column" id="doneDrop">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <h3 id="doneTitle" style="margin:0;"></h3>
-                <button id="sideArchiveClearBtn" onclick="clearArchiveWithBackupPrompt()" style="font-size:11px;padding:2px 8px;">🗑️ Rensa arkiv</button>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <button id="sideArchiveRestoreSafetyBtn" onclick="restoreAutoSafetySnapshot()" style="font-size:11px;padding:2px 8px;" disabled>♻️ Återställ safety</button>
+                    <button id="sideArchiveClearBtn" onclick="clearArchiveWithBackupPrompt()" style="font-size:11px;padding:2px 8px;">🗑️ Rensa arkiv</button>
+                </div>
             </div>
             <input id="doneSearchInput" placeholder="🔍 Sök i arkivet" onkeyup="renderDebounced()" style="margin-bottom:6px;width:100%;">
             <ul id="doneList"></ul>
@@ -344,6 +347,7 @@
         <div id="archiveContent"></div>
         <div class="archive-actions">
             <button id="archiveVaultBtn" type="button" onclick="vaultArchive()" disabled>🗄️ Flytta filer till vault</button>
+            <button id="archiveRestoreSafetyBtn" type="button" onclick="restoreAutoSafetySnapshot()" disabled>♻️ Återställ safety</button>
             <button onclick="clearArchive()" id="archiveClearBtn">🗑️ Rensa arkiv</button>
             <button onclick="closeArchiveModal()" id="archiveCloseBtn">❌ Stäng</button>
         </div>
