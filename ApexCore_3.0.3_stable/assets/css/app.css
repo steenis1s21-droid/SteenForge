@@ -570,7 +570,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 textarea {
-    height: 50px;
+    height: 260px;
     resize: vertical;
 }
 
@@ -1159,6 +1159,28 @@ button:hover {
 
 #editor button {
     margin: 4px;
+}
+
+.active-column.is-editing > h3,
+.active-column.is-editing > .active-tools,
+.active-column.is-editing > #searchInput,
+.active-column.is-editing > #activeList {
+    display: none;
+}
+
+#editor.inline-editor {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    align-self: stretch;
+    max-height: 100%;
+    z-index: auto;
+    margin: 0;
+    box-shadow: none;
+    border-radius: 8px;
 }
 
 /* UNDO */

@@ -58,6 +58,8 @@ let renderArchiveDebounceTimer = null;
 let isArchiveCleanupModalOpen = false;
 let isArchivePasswordModalOpen = false;
 let pendingImportAction = 'import';
+let editorOriginalParent = null;
+let editorOriginalNextSibling = null;
 let isRecoveryCenterOpen = false;
 let isBackupHealthOpen = false;
 
@@ -3389,7 +3391,38 @@ function editItem(id) {
     document.getElementById('editNotification').value = p.notification || '';
     populateReminderFields('editNotification', p.notification || '');
 
+    setEditorInlineMode(true);
     document.getElementById('editor').style.display = 'block';
+}
+
+function setEditorInlineMode(isInline) {
+    var editor = document.getElementById('editor');
+    var activeColumn = document.getElementById('activeDrop');
+    if (!editor || !activeColumn) return;
+
+    if (isInline) {
+        if (!editorOriginalParent) {
+            editorOriginalParent = editor.parentNode;
+        }
+        editorOriginalNextSibling = editor.nextSibling;
+
+        activeColumn.classList.add('is-editing');
+        editor.classList.add('inline-editor');
+        activeColumn.appendChild(editor);
+        return;
+    }
+
+    activeColumn.classList.remove('is-editing');
+    editor.classList.remove('inline-editor');
+
+    if (!editorOriginalParent) return;
+
+    if (editorOriginalNextSibling && editorOriginalNextSibling.parentNode === editorOriginalParent) {
+        editorOriginalParent.insertBefore(editor, editorOriginalNextSibling);
+        return;
+    }
+
+    editorOriginalParent.appendChild(editor);
 }
 
 function showSaveEditConfirm(onConfirm) {
@@ -3495,7 +3528,9 @@ function saveEdit() {
 }
 
 function closeEdit() {
+    closeReminderEditor('editNotification');
     document.getElementById('editor').style.display = 'none';
+    setEditorInlineMode(false);
     activeEditId = null;
 }
 
