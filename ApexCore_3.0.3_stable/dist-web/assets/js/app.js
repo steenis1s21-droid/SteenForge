@@ -18,7 +18,6 @@ let dragId = null
 let isDragging = false
 let currentLanguage = 'sv';
 let activeGroupsCollapsed = {};
-let renderDebounceTimer = null;
 let renderArchiveDebounceTimer = null;
 let pendingImportAction = 'import';
 
@@ -785,6 +784,10 @@ function getImportExportCoreModule() {
     return window.ApexImportExportCoreModule || {};
 }
 
+function getActiveRenderingModule() {
+    return window.ApexActiveRenderingModule || {};
+}
+
 function getAdminModule() {
     return window.ApexAdminUpdatesModule || {};
 }
@@ -866,6 +869,37 @@ function getImportExportContext() {
         setArchivedItems: function(nextItems) { archivedItems = nextItems; },
         getPendingImportAction: function() { return pendingImportAction; },
         setPendingImportAction: function(nextAction) { pendingImportAction = nextAction || 'import'; }
+    };
+}
+
+function getActiveRenderingContext() {
+    return {
+        t: t,
+        escapeHTML: escapeHTML,
+        getItems: function() { return items; },
+        getArchivedItems: function() { return archivedItems; },
+        normalizeCategoryValue: normalizeCategoryValue,
+        normalizePriorityValue: normalizePriorityValue,
+        getCategoryTexts: getCategoryTexts,
+        getCategoryIcon: getCategoryIcon,
+        getPriorityLabel: getPriorityLabel,
+        getStoredActiveSortMode: getStoredActiveSortMode,
+        sortActiveItems: sortActiveItems,
+        moveToDoneById: moveToDoneById,
+        deleteItem: deleteItem,
+        restoreArchive: restoreArchive,
+        deleteArchiveItem: deleteArchiveItem,
+        startDrag: startDrag,
+        reorderActiveItems: reorderActiveItems,
+        editItem: editItem,
+        getDragId: function() { return dragId; },
+        setDragId: function(nextId) { dragId = nextId; },
+        getIsDragging: function() { return isDragging; },
+        getActiveGroupsCollapsed: function() { return activeGroupsCollapsed; },
+        setActiveGroupsCollapsed: function(nextGroups) { activeGroupsCollapsed = nextGroups || {}; },
+        saveData: saveData,
+        updateArchiveVaultButton: updateArchiveVaultButton,
+        renderSelf: function() { render(); }
     };
 }
 
@@ -2559,216 +2593,32 @@ function setupEnterKey() {
 // ============================================
 
 function formatTime(date) {
-    return new Date(date).toLocaleString('sv-SE', {
-        year: 'numeric',
-        month: 'long',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-    });
+    var moduleApi = getActiveRenderingModule();
+    if (typeof moduleApi.formatTime === 'function') {
+        return moduleApi.formatTime(date);
+    }
+    return new Date(date).toLocaleString('sv-SE');
 }
 
 function render() {
-    var activeList = document.getElementById('activeList');
-    var doneList = document.getElementById('doneList');
-    
-    activeList.innerHTML = '';
-    doneList.innerHTML = '';
-
-    var sortSelect = document.getElementById('activeSortSelect');
-    if (sortSelect) {
-        sortSelect.value = getStoredActiveSortMode();
+    var moduleApi = getActiveRenderingModule();
+    if (typeof moduleApi.render === 'function') {
+        moduleApi.render(getActiveRenderingContext());
     }
-
-    var searchText = (document.getElementById('searchInput')?.value || '').toLowerCase();
-    var filteredItems = items.filter(function(x) {
-        var normalizedCategory = normalizeCategoryValue(x.category);
-        var categoryText = getCategoryTexts()[normalizedCategory] || getCategoryTexts().highPriority || '';
-        return (x.name + ' ' + (x.task || '') + ' ' + (x.note || '') + ' ' + categoryText).toLowerCase().includes(searchText);
-    });
-
-    function createActiveListItem(p, showCategoryTag, displayCategoryKey) {
-        if (showCategoryTag === undefined) showCategoryTag = true;
-        if (!displayCategoryKey) displayCategoryKey = normalizeCategoryValue(p.category);
-
-        var li = document.createElement('li');
-
-        var normalizedPriority = normalizePriorityValue(p.priority);
-        var normalizedCategory = normalizeCategoryValue(p.category);
-        li.className = 'category-item-' + displayCategoryKey;
-
-        var priorityText = getPriorityLabel(normalizedPriority);
-        var categoryText = getCategoryTexts()[normalizedCategory] || getCategoryTexts().other;
-        var categoryIcon = getCategoryIcon(normalizedCategory);
-        var taskLabel = t('cardTask');
-        var notesLabel = t('cardNotes');
-        var doneBtnText = t('doneBtn');
-        var deleteBtnText = t('deleteBtn');
-        var noteText = (p.note || '').trim();
-        var notesLine = noteText ? '<br><b>' + escapeHTML(notesLabel) + ':</b> ' + escapeHTML(noteText) : '';
-        
-        var notifIcon = p.notification && p.notification !== '' ? ' 🔔' : '';
-        var ageText = p.age === '' || p.age === null || p.age === undefined ? '' : ` (${escapeHTML(p.age)})`;
-        
-        li.innerHTML = `
-            <div class="active-item">
-                <div class="item-content">
-                    <strong>${escapeHTML(p.name)}</strong>${ageText}
-                    <br><b>${escapeHTML(taskLabel)}:</b> ${escapeHTML(p.task || '')}
-                    ${notesLine}
-                    <br><span style="font-size: 12px; color: var(--text-muted);">${priorityText}${showCategoryTag ? ' • ' + categoryIcon + ' ' + escapeHTML(categoryText) : ''}${notifIcon}</span>
-                    <div class='litenText'>${formatTime(p.updated)}</div>
-                </div>
-                <div class="item-actions">
-                    <button class="done-btn" onclick="event.stopPropagation(); moveToDoneById(${p.id})">${escapeHTML(doneBtnText)}</button>
-                    <button class="delete-btn" onclick="event.stopPropagation(); deleteItem(${p.id})">${escapeHTML(deleteBtnText)}</button>
-                </div>
-            </div>
-        `;
-
-        li.draggable = true;
-        li.ondragstart = function() { startDrag(p.id); };
-        li.ondragover = function(e) {
-            e.preventDefault();
-        };
-        li.ondrop = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (dragId !== null && dragId !== p.id) {
-                reorderActiveItems(dragId, p.id);
-            }
-            dragId = null;
-        };
-
-        li.onclick = function() {
-            if (isDragging) return;
-            editItem(p.id);
-        };
-
-        return li;
-    }
-
-    function renderActiveGroup(groupKey, groupTitle, groupItems, showCategoryTag, groupClassName, listClassName) {
-        if (!groupItems.length) return;
-        if (showCategoryTag === undefined) showCategoryTag = true;
-        if (!groupClassName) groupClassName = '';
-        if (!listClassName) listClassName = '';
-
-        var collapsed = activeGroupsCollapsed[groupKey] === true;
-        var groupContainer = document.createElement('li');
-        groupContainer.className = 'active-group' + (groupClassName ? ' ' + groupClassName : '');
-
-        groupContainer.innerHTML = `
-            <button type="button" class="active-group-toggle category-${groupKey}" data-group-key="${groupKey}" onclick="event.stopPropagation(); toggleActiveGroup('${groupKey}')">
-                <span class="group-left"><span class="group-arrow">${collapsed ? '▸' : '▾'}</span>${escapeHTML(groupTitle)}</span>
-                <span class="active-group-count">${groupItems.length}</span>
-            </button>
-            <ul class="active-group-items${listClassName ? ' ' + listClassName : ''}${collapsed ? ' collapsed' : ''}"></ul>
-        `;
-
-        var groupList = groupContainer.querySelector('.active-group-items');
-        sortActiveItems(groupItems).forEach(function(item) {
-            groupList.appendChild(createActiveListItem(item, showCategoryTag, groupKey));
-        });
-
-        activeList.appendChild(groupContainer);
-    }
-
-    var groupedItems = {
-        patients: [],
-        authorities: [],
-        administration: [],
-        private: [],
-        games: [],
-        other: []
-    };
-
-    var highPriorityItems = [];
-
-    filteredItems.forEach(function(item) {
-        var normalizedPriority = normalizePriorityValue(item.priority);
-        var normalizedCategory = normalizeCategoryValue(item.category);
-
-        if (normalizedPriority === 'high' || normalizedCategory === 'high') {
-            highPriorityItems.push(item);
-        } else {
-            groupedItems[normalizedCategory].push(item);
-        }
-    });
-
-    var categoryText = getCategoryTexts();
-    renderActiveGroup('high', getCategoryIcon('high') + ' ' + categoryText.high, highPriorityItems, false, 'high-priority-strip', 'high-priority-items');
-    renderActiveGroup('patients', getCategoryIcon('patients') + ' ' + categoryText.patients, groupedItems.patients);
-    renderActiveGroup('authorities', getCategoryIcon('authorities') + ' ' + categoryText.authorities, groupedItems.authorities);
-    renderActiveGroup('administration', getCategoryIcon('administration') + ' ' + categoryText.administration, groupedItems.administration);
-    renderActiveGroup('private', getCategoryIcon('private') + ' ' + categoryText.private, groupedItems.private);
-    renderActiveGroup('games', getCategoryIcon('games') + ' ' + categoryText.games, groupedItems.games);
-    renderActiveGroup('other', getCategoryIcon('other') + ' ' + categoryText.other, groupedItems.other);
-
-    if (filteredItems.length === 0) {
-        var emptyLi = document.createElement('li');
-        emptyLi.style.cursor = 'default';
-        emptyLi.textContent = t('activeEmptySearch');
-        activeList.appendChild(emptyLi);
-    }
-
-    var doneSearch = (document.getElementById('doneSearchInput')?.value || '').toLowerCase();
-    archivedItems.filter(function(p) {
-        return (p.name + ' ' + (p.task || '') + ' ' + (p.note || '')).toLowerCase().includes(doneSearch);
-    }).forEach(function(p) {
-        var li = document.createElement('li');
-        var ageText = p.age === '' || p.age === null || p.age === undefined ? '' : ` (${escapeHTML(p.age)})`;
-        
-        li.innerHTML = `
-            ${escapeHTML(p.name)}${ageText} - ${escapeHTML(p.task || '')}
-            <button class="undo-done-btn" onclick="event.stopPropagation(); restoreArchive(${p.id})">${t('restoreBtn')}</button>
-            <button class="done-btn" onclick="event.stopPropagation(); deleteArchiveItem(${p.id})">${t('archiveDelete')}</button>
-        `;
-        li.draggable = true;
-        li.ondragstart = function() { startDrag(p.id); };
-        doneList.appendChild(li);
-    });
-
-    document.getElementById('activeTitle').textContent = t('activeTitle') + ' (' + items.length + ')';
-    document.getElementById('doneTitle').textContent = t('archiveModalTitle') + ' (' + archivedItems.length + ')';
-    updateArchiveVaultButton();
-
-    // saveData borttagen från render för att förhindra överskrivning vid uppstart
 }
 
 function toggleActiveGroup(groupKey) {
-    var collapsed = !(activeGroupsCollapsed[groupKey] === true);
-    activeGroupsCollapsed[groupKey] = collapsed;
-    saveData();
-
-    var toggle = document.querySelector('.active-group-toggle[data-group-key="' + groupKey + '"]');
-    if (!toggle) {
-        render();
-        return;
-    }
-
-    var groupList = toggle.parentElement ? toggle.parentElement.querySelector('.active-group-items') : null;
-    if (!groupList) {
-        render();
-        return;
-    }
-
-    groupList.classList.toggle('collapsed', collapsed);
-    var arrow = toggle.querySelector('.group-arrow');
-    if (arrow) {
-        arrow.textContent = collapsed ? '▸' : '▾';
+    var moduleApi = getActiveRenderingModule();
+    if (typeof moduleApi.toggleActiveGroup === 'function') {
+        moduleApi.toggleActiveGroup(getActiveRenderingContext(), groupKey);
     }
 }
 
 function renderDebounced() {
-    if (renderDebounceTimer !== null) {
-        clearTimeout(renderDebounceTimer);
+    var moduleApi = getActiveRenderingModule();
+    if (typeof moduleApi.renderDebounced === 'function') {
+        moduleApi.renderDebounced(getActiveRenderingContext());
     }
-    renderDebounceTimer = setTimeout(function() {
-        renderDebounceTimer = null;
-        render();
-    }, 120);
 }
 
 function renderArchiveDebounced() {
@@ -2782,98 +2632,9 @@ function renderArchiveDebounced() {
 }
 
 function setupActiveColumnWheelScroll() {
-    function isEditableTarget(target) {
-        if (!target || !target.closest) return false;
-        return !!target.closest('input, textarea, select, [contenteditable="true"]');
-    }
-
-    function isArchiveListTarget(target) {
-        return !!(target && target.closest && target.closest('.done-column ul'));
-    }
-
-    function isScrollableElement(element) {
-        if (!element || element === document.body || element === document.documentElement) return false;
-        if (element.scrollHeight <= element.clientHeight + 1) return false;
-
-        var style = window.getComputedStyle(element);
-        var overflowY = style.overflowY;
-        return overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay';
-    }
-
-    function canScrollInDirection(element, deltaY) {
-        if (!isScrollableElement(element)) return false;
-        if (deltaY < 0) return element.scrollTop > 0;
-        if (deltaY > 0) return element.scrollTop + element.clientHeight < element.scrollHeight - 1;
-        return false;
-    }
-
-    function getGroupListFromTarget(target) {
-        if (!target || !target.closest) return null;
-        var group = target.closest('.active-group');
-        if (!group) return null;
-        return group.querySelector('.active-group-items');
-    }
-
-    function hasOtherScrollableAncestor(target, activeList) {
-        var current = target;
-        while (current && current !== document.body) {
-            if (current === activeList) return false;
-            if (activeList && activeList.contains(current)) return false;
-            if (isScrollableElement(current)) return true;
-            current = current.parentElement;
-        }
-        return false;
-    }
-
-    var activeColumn = document.querySelector('.active-column');
-    var activeList = document.getElementById('activeList');
-    var archiveList = document.querySelector('.done-column ul');
-    if (!activeColumn || !activeList) return;
-
-    if (setupActiveColumnWheelScroll._initialized) return;
-    setupActiveColumnWheelScroll._initialized = true;
-
-    activeColumn.addEventListener('wheel', function(event) {
-        if (isEditableTarget(event.target)) return;
-        if (isArchiveListTarget(event.target)) return;
-
-        var groupListFromHeader = getGroupListFromTarget(event.target);
-        if (groupListFromHeader) {
-            event.preventDefault();
-            if (canScrollInDirection(groupListFromHeader, event.deltaY)) {
-                groupListFromHeader.scrollTop += event.deltaY;
-            }
-            return;
-        }
-
-        var nestedList = event.target.closest('.active-group-items');
-        if (nestedList && isScrollableElement(nestedList)) {
-            event.preventDefault();
-            if (canScrollInDirection(nestedList, event.deltaY)) {
-                nestedList.scrollTop += event.deltaY;
-            }
-            return;
-        }
-
-        event.preventDefault();
-        activeList.scrollTop += event.deltaY;
-    }, { passive: false });
-
-    document.addEventListener('wheel', function(event) {
-        if (activeColumn.contains(event.target)) return;
-        if (isEditableTarget(event.target)) return;
-        if (isArchiveListTarget(event.target)) return;
-        if (hasOtherScrollableAncestor(event.target, activeList)) return;
-
-        event.preventDefault();
-        activeList.scrollTop += event.deltaY;
-    }, { passive: false });
-
-    if (archiveList) {
-        archiveList.addEventListener('wheel', function(event) {
-            event.preventDefault();
-            archiveList.scrollTop += event.deltaY;
-        }, { passive: false });
+    var moduleApi = getActiveRenderingModule();
+    if (typeof moduleApi.setupActiveColumnWheelScroll === 'function') {
+        moduleApi.setupActiveColumnWheelScroll();
     }
 }
 
