@@ -1,3 +1,44 @@
+/*
+============================================
+KOMMENTARSINDEX (for snabb sokning)
+============================================
+Tips: Tryck Ctrl+F och sok pa rubriken nedan.
+
+1) MORKT TEMA - CSS-variabler
+    Vad: Fargreglage for hela appen i ljust och morkt tema.
+
+2) GRUNDLAGGANDE STILAR
+    Vad: Basregler for sidan (html, body, layout).
+
+3) LAYOUT
+    Vad: Storlek och placering av huvudytor.
+
+4) TEMA-KNAPP / SPRAK / INFO
+    Vad: Knappar i toppen och dropdown/modal.
+
+5) EXPORT/IMPORT KNAPPAR
+    Vad: Knappraden med export/import/backup/recovery.
+
+6) INPUT FALT
+    Vad: Standardutseende for input, textarea, select.
+
+7) FORMULAR + DONE + ACTIVE
+    Vad: Vansterkolumn (form + arkiv) och hogerkolumn (aktiv).
+
+8) EDIT
+    Vad: Redigeringsrutan (#editor) och inline-laget i Aktiv-panelen.
+
+9) SAVE EDIT CONFIRM MODAL / ARKIV MODAL / ADMIN PANEL
+    Vad: Overlays och modalfonstren.
+
+10) DATUMVALJARE
+     Vad: Sarskild styling for date/time-falt i olika webblasare.
+
+Barnenkel forklaring:
+- Tanka att filen ar ett stort hus.
+- Rubrikerna ar skyltar pa dorren till varje rum.
+- Indexet ar kartan som visar vilken dorr du ska ga till.
+*/
 
 /* ============================================
    🌓 MÖRKT TEMA - CSS-variabler
@@ -570,7 +611,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 textarea {
-    height: 50px;
+    height: 260px;
     resize: vertical;
 }
 
@@ -1134,7 +1175,12 @@ button:hover {
     background: var(--btn-hover);
 }
 
-/* EDIT */
+/* EDIT
+    Detta styr redigeringsrutan.
+    - #editor: hur rutan ser ut i normallaget.
+    - .active-column.is-editing: gommer aktiv-listan medan man redigerar.
+    - #editor.inline-editor: gor att editorn bor "inuti" aktiv-panelen.
+*/
 #editor {
     position: fixed;
     top: 40px;
