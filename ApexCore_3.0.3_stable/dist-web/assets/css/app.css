@@ -353,6 +353,65 @@ body {
     font-weight: bold;
 }
 
+.settings-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.settings-btn {
+    background: var(--btn-bg) !important;
+}
+
+.settings-btn:hover {
+    background: var(--btn-hover) !important;
+    border-color: var(--border-color) !important;
+    transform: none;
+}
+
+.settings-dropdown {
+    display: none;
+    position: absolute;
+    top: 38px;
+    right: 0;
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    z-index: 1000;
+    min-width: 220px;
+    padding: 6px;
+}
+
+.settings-dropdown.show {
+    display: block;
+}
+
+.settings-dropdown button {
+    width: 100%;
+    text-align: left;
+    margin: 0;
+    display: block;
+}
+
+.settings-divider {
+    border-top: 1px solid var(--border-color);
+    margin: 6px 0;
+}
+
+.settings-language-wrapper {
+    display: block;
+}
+
+.settings-language-wrapper .language-btn {
+    width: 100%;
+    text-align: left;
+}
+
+.settings-language-wrapper .language-dropdown {
+    top: 0;
+    right: calc(100% + 6px);
+}
+
 /* INFO-KNAPP */
 .info-btn {
     background: var(--btn-bg) !important;
@@ -465,7 +524,7 @@ body {
 /* EXPORT/IMPORT KNAPPAR */
 .export-import {
     display: flex;
-    gap: 0;
+    gap: 4px;
     margin-bottom: 2px;
     flex-wrap: nowrap;
     align-items: center;
@@ -502,6 +561,10 @@ body {
 
 .export-import > button:last-of-type {
     margin-right: 4px;
+}
+
+.export-import .settings-wrapper {
+    margin-left: 2px;
 }
 
 .export-import button:hover {
@@ -1689,6 +1752,17 @@ button:hover {
 
     .export-import {
         gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .settings-dropdown {
+        min-width: min(240px, calc(100vw - 24px));
+        right: 0;
+    }
+
+    .settings-language-wrapper .language-dropdown {
+        right: 0;
+        top: 34px;
     }
 
     .backup-health-grid {

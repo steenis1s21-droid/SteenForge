@@ -123,6 +123,38 @@
         };
     }
 
+    function getHeaderMenuTexts(lang) {
+        if (lang === 'en') {
+            return {
+                settings: '⚙️ Settings',
+                language: '🌍 Language'
+            };
+        }
+        if (lang === 'da') {
+            return {
+                settings: '⚙️ Indstillinger',
+                language: '🌍 Sprog'
+            };
+        }
+        if (lang === 'no') {
+            return {
+                settings: '⚙️ Innstillinger',
+                language: '🌍 Språk'
+            };
+        }
+        if (lang === 'fi') {
+            return {
+                settings: '⚙️ Asetukset',
+                language: '🌍 Kieli'
+            };
+        }
+
+        return {
+            settings: '⚙️ Inställningar',
+            language: '🌍 Språk'
+        };
+    }
+
     function updateSortLanguageText(lang) {
         var text = getSortTexts(lang || getLang());
         var dateDesc = document.getElementById('sortOptionDateDesc');
@@ -312,6 +344,7 @@
 
         var dropdown = document.getElementById('languageDropdown');
         if (dropdown) dropdown.classList.remove('show');
+        if (typeof global.closeSettingsMenu === 'function') global.closeSettingsMenu();
 
         if (typeof deps.applyLanguage === 'function') deps.applyLanguage();
     }
@@ -319,6 +352,7 @@
     function applyLanguage(ctx) {
         var deps = ctx || {};
         var translate = typeof deps.t === 'function' ? deps.t : t;
+        var headerMenuText = getHeaderMenuTexts(getLang());
 
         document.querySelectorAll('[data-i18n]').forEach(function(el) {
             var key = el.getAttribute('data-i18n');
@@ -360,6 +394,10 @@
         setText('exportEncryptedBtn', 'exportEncrypted');
         setText('exportCsvBtn', 'exportCsv');
         setText('importBtn', 'importBtn');
+        var settingsBtn = document.getElementById('settingsBtn');
+        if (settingsBtn) settingsBtn.textContent = headerMenuText.settings;
+        var languageBtn = document.getElementById('languageBtn');
+        if (languageBtn) languageBtn.textContent = headerMenuText.language;
 
         var backupText = typeof deps.getBackupUiText === 'function' ? deps.getBackupUiText() : getBackupUiText(getLang());
         var importDryRunBtn = document.getElementById('importDryRunBtn');
@@ -408,6 +446,8 @@
         if (typeof deps.updateReminderLanguageText === 'function') deps.updateReminderLanguageText();
         if (typeof deps.updateCategoryLanguageText === 'function') deps.updateCategoryLanguageText();
         if (typeof deps.updateSortLanguageText === 'function') deps.updateSortLanguageText();
+        if (typeof global.updateSoundButton === 'function') global.updateSoundButton();
+        if (typeof global.updateThemeButton === 'function') global.updateThemeButton();
 
         var statusDiv = document.getElementById('loginStatus');
         if (statusDiv) {

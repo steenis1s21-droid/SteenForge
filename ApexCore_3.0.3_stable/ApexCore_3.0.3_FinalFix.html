@@ -163,21 +163,25 @@
         <button onclick="exportEncrypted()" id="exportEncryptedBtn">Exportera krypterad</button>
         <button onclick="exportCSV()" id="exportCsvBtn">Exportera CSV</button>
         <button onclick="startStandardImport()" id="importBtn">Importera</button>
-        <button onclick="startDryRunImport()" id="importDryRunBtn">Torrkör import</button>
-        <button onclick="startBackupValidation()" id="validateBackupBtn">Validera backup</button>
-        <button onclick="toggleBackupHealthPanel()" id="backupHealthToggleBtn">Visa backupstatus</button>
-        <button onclick="toggleRecoveryCenterPanel()" id="recoveryToggleBtn">Visa Recovery Center</button>
-        <div class="header-buttons" style="display: flex; gap: 8px; flex-wrap: nowrap; align-items: center;">
-            <button class="theme-btn" onclick="toggleSound()" id="soundBtn" title="Stäng av ljudnotiser">🔊 Ljud</button>
-            <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Växla tema">🌓 Tema</button>
-            <div class="language-wrapper">
-                <button class="language-btn" onclick="toggleLanguageMenu()" title="Språk">🌍 Språk</button>
-                <div class="language-dropdown" id="languageDropdown">
-                    <button onclick="changeLanguage('sv')" data-lang="sv">🇸🇪 Svenska</button>
-                    <button onclick="changeLanguage('en')" data-lang="en">🇬🇧 English</button>
-                    <button onclick="changeLanguage('da')" data-lang="da">🇩🇰 Dansk</button>
-                    <button onclick="changeLanguage('no')" data-lang="no">🇳🇴 Norsk</button>
-                    <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
+        <div class="settings-wrapper" id="settingsWrapper">
+            <button class="settings-btn" onclick="toggleSettingsMenu()" id="settingsBtn">⚙️ Inställningar</button>
+            <div class="settings-dropdown" id="settingsDropdown">
+                <button onclick="startDryRunImport(); closeSettingsMenu()" id="importDryRunBtn">Torrkör import</button>
+                <button onclick="startBackupValidation(); closeSettingsMenu()" id="validateBackupBtn">Validera backup</button>
+                <button onclick="toggleBackupHealthPanel(); closeSettingsMenu()" id="backupHealthToggleBtn">Visa backupstatus</button>
+                <button onclick="toggleRecoveryCenterPanel(); closeSettingsMenu()" id="recoveryToggleBtn">Visa Recovery Center</button>
+                <div class="settings-divider"></div>
+                <button class="theme-btn" onclick="toggleSound(); closeSettingsMenu()" id="soundBtn" title="Stäng av ljudnotiser">🔊 Ljud</button>
+                <button class="theme-btn" onclick="toggleTheme(); closeSettingsMenu()" id="themeBtn" title="Växla tema">🌓 Tema</button>
+                <div class="language-wrapper settings-language-wrapper">
+                    <button class="language-btn" onclick="toggleLanguageMenu()" id="languageBtn" title="Språk">🌍 Språk</button>
+                    <div class="language-dropdown" id="languageDropdown">
+                        <button onclick="changeLanguage('sv')" data-lang="sv">🇸🇪 Svenska</button>
+                        <button onclick="changeLanguage('en')" data-lang="en">🇬🇧 English</button>
+                        <button onclick="changeLanguage('da')" data-lang="da">🇩🇰 Dansk</button>
+                        <button onclick="changeLanguage('no')" data-lang="no">🇳🇴 Norsk</button>
+                        <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
+                    </div>
                 </div>
             </div>
         </div>

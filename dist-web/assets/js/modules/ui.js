@@ -28,6 +28,105 @@ function closeNotificationPopup() {
     document.getElementById('notificationPopup').style.display = 'none';
 }
 
+let settingsMenuOutsideClickRegistered = false;
+
+function getUiControlTexts(lang) {
+    if (lang === 'en') {
+        return {
+            soundOn: '🔊 Sound',
+            soundOff: '🔈 Sound',
+            soundOnTitle: 'Disable sound notifications',
+            soundOffTitle: 'Enable sound notifications',
+            themeDark: '☀️ Theme',
+            themeLight: '🌓 Theme',
+            themeDarkTitle: 'Switch to light theme',
+            themeLightTitle: 'Switch to dark theme'
+        };
+    }
+    if (lang === 'da') {
+        return {
+            soundOn: '🔊 Lyd',
+            soundOff: '🔈 Lyd',
+            soundOnTitle: 'Slå lydnotifikationer fra',
+            soundOffTitle: 'Aktivér lydnotifikationer',
+            themeDark: '☀️ Tema',
+            themeLight: '🌓 Tema',
+            themeDarkTitle: 'Skift til lyst tema',
+            themeLightTitle: 'Skift til mørkt tema'
+        };
+    }
+    if (lang === 'no') {
+        return {
+            soundOn: '🔊 Lyd',
+            soundOff: '🔈 Lyd',
+            soundOnTitle: 'Slå av lydvarsler',
+            soundOffTitle: 'Aktiver lydvarsler',
+            themeDark: '☀️ Tema',
+            themeLight: '🌓 Tema',
+            themeDarkTitle: 'Bytt til lyst tema',
+            themeLightTitle: 'Bytt til mørkt tema'
+        };
+    }
+    if (lang === 'fi') {
+        return {
+            soundOn: '🔊 Ääni',
+            soundOff: '🔈 Ääni',
+            soundOnTitle: 'Poista ääni-ilmoitukset käytöstä',
+            soundOffTitle: 'Ota ääni-ilmoitukset käyttöön',
+            themeDark: '☀️ Teema',
+            themeLight: '🌓 Teema',
+            themeDarkTitle: 'Vaihda vaaleaan teemaan',
+            themeLightTitle: 'Vaihda tummaan teemaan'
+        };
+    }
+    return {
+        soundOn: '🔊 Ljud',
+        soundOff: '🔈 Ljud',
+        soundOnTitle: 'Stäng av ljudnotiser',
+        soundOffTitle: 'Aktivera ljudnotiser',
+        themeDark: '☀️ Tema',
+        themeLight: '🌓 Tema',
+        themeDarkTitle: 'Byt till ljust tema',
+        themeLightTitle: 'Byt till mörkt tema'
+    };
+}
+
+function getCurrentUiLang() {
+    if (typeof getLang === 'function') {
+        return getLang();
+    }
+    return localStorage.getItem('appLanguage') || 'sv';
+}
+
+function closeSettingsMenu() {
+    const dropdown = document.getElementById('settingsDropdown');
+    if (dropdown) {
+        dropdown.classList.remove('show');
+    }
+}
+
+function toggleSettingsMenu() {
+    const dropdown = document.getElementById('settingsDropdown');
+    if (!dropdown) return;
+    dropdown.classList.toggle('show');
+}
+
+function registerSettingsOutsideClickClose() {
+    if (settingsMenuOutsideClickRegistered) return;
+    settingsMenuOutsideClickRegistered = true;
+
+    document.addEventListener('click', function(e) {
+        const wrapper = document.getElementById('settingsWrapper');
+        if (!wrapper) return;
+
+        if (!wrapper.contains(e.target)) {
+            closeSettingsMenu();
+        }
+    });
+}
+
+registerSettingsOutsideClickClose();
+
 function toggleSound() {
     const newState = !getSoundEnabled();
     setSoundEnabled(newState);
@@ -36,9 +135,10 @@ function toggleSound() {
 function updateSoundButton() {
     const btn = document.getElementById('soundBtn');
     if (btn) {
+        const text = getUiControlTexts(getCurrentUiLang());
         const enabled = getSoundEnabled();
-        btn.textContent = enabled ? '🔊 Ljud' : '🔈 Ljud';
-        btn.title = enabled ? 'Stäng av ljudnotiser' : 'Aktivera ljudnotiser';
+        btn.textContent = enabled ? text.soundOn : text.soundOff;
+        btn.title = enabled ? text.soundOnTitle : text.soundOffTitle;
     }
 }
 
@@ -51,9 +151,10 @@ function toggleTheme() {
 function updateThemeButton() {
     const btn = document.getElementById('themeBtn');
     if (btn) {
+        const text = getUiControlTexts(getCurrentUiLang());
         const theme = getTheme();
-        btn.textContent = theme === 'dark' ? '☀️ Tema' : '🌓 Tema';
-        btn.title = theme === 'dark' ? 'Byt till ljust tema' : 'Byt till mörkt tema';
+        btn.textContent = theme === 'dark' ? text.themeDark : text.themeLight;
+        btn.title = theme === 'dark' ? text.themeDarkTitle : text.themeLightTitle;
     }
 }
 
