@@ -796,6 +796,14 @@ function getItemActionsModule() {
     return window.ApexItemActionsModule || {};
 }
 
+function getLoginSessionModule() {
+    return window.ApexLoginSessionModule || {};
+}
+
+function getUIFeedbackModule() {
+    return window.ApexUIFeedbackModule || {};
+}
+
 function getAdminModule() {
     return window.ApexAdminUpdatesModule || {};
 }
@@ -953,6 +961,16 @@ function getItemActionsContext() {
         moveToDone: moveToDone,
         moveToActive: moveToActive,
         reorderActiveItems: reorderActiveItems
+    };
+}
+
+function getLoginSessionContext() {
+    return {
+        t: t,
+        updateLanguageMenu: updateLanguageMenu,
+        applyLanguage: applyLanguage,
+        loadTheme: loadTheme,
+        checkNotifications: checkNotifications
     };
 }
 
@@ -1302,47 +1320,44 @@ function updateAdminPanelLanguage() {
 // ============================================
 
 function getStoredPassword() {
-    try {
-        return localStorage.getItem("userPassword");
-    } catch (e) {
-        return null;
+    var moduleApi = getLoginSessionModule();
+    if (typeof moduleApi.getStoredPassword === 'function') {
+        return moduleApi.getStoredPassword();
     }
+    return null;
 }
 
 function setStoredPassword(password) {
-    try {
-        localStorage.setItem("userPassword", hashPassword(password));
-    } catch (e) {
-        console.warn('Kunde inte spara lösenord:', e);
+    var moduleApi = getLoginSessionModule();
+    if (typeof moduleApi.setStoredPassword === 'function') {
+        moduleApi.setStoredPassword(password);
     }
 }
 
 function isFirstTimeUser() {
-    const storedPassword = getStoredPassword();
+    var moduleApi = getLoginSessionModule();
+    if (typeof moduleApi.isFirstTimeUser === 'function') {
+        return moduleApi.isFirstTimeUser();
+    }
+    var storedPassword = getStoredPassword();
     return storedPassword === null || storedPassword === '';
 }
 
 function checkPassword() {
+    var moduleApi = getLoginSessionModule();
+    if (typeof moduleApi.checkPassword === 'function') {
+        moduleApi.checkPassword(getLoginSessionContext());
+        return;
+    }
     showApp();
 }
 
 function showApp() {
-    const loginBox = document.getElementById("loginBox");
-    if (loginBox) {
-        loginBox.style.display = "none";
+    var moduleApi = getLoginSessionModule();
+    if (typeof moduleApi.showApp === 'function') {
+        moduleApi.showApp(getLoginSessionContext());
+        return;
     }
-
-    const app = document.getElementById("app");
-    if (app) {
-        app.classList.remove("hidden");
-    }
-
-    updateLanguageMenu();
-    applyLanguage();
-    loadTheme();
-    setTimeout(function() {
-        checkNotifications();
-    }, 1000);
 }
 
 try {
@@ -1356,9 +1371,10 @@ try {
 // ============================================
 
 function logout() {
-    if (confirm(t('confirmLogout'))) {
-        localStorage.removeItem("login");
-        location.reload();
+    var moduleApi = getLoginSessionModule();
+    if (typeof moduleApi.logout === 'function') {
+        moduleApi.logout(getLoginSessionContext());
+        return;
     }
 }
 
@@ -1367,62 +1383,24 @@ function logout() {
 // ============================================
 
 function showChangePassword() {
-    document.getElementById("changePasswordModal").style.display = "flex";
-    document.getElementById("changeError").textContent = "";
-    document.getElementById("changeSuccess").textContent = "";
-    document.getElementById("oldPassword").value = "";
-    document.getElementById("newPassword1").value = "";
-    document.getElementById("newPassword2").value = "";
+    var moduleApi = getLoginSessionModule();
+    if (typeof moduleApi.showChangePassword === 'function') {
+        moduleApi.showChangePassword();
+    }
 }
 
 function closeChangePassword() {
-    document.getElementById("changePasswordModal").style.display = "none";
+    var moduleApi = getLoginSessionModule();
+    if (typeof moduleApi.closeChangePassword === 'function') {
+        moduleApi.closeChangePassword();
+    }
 }
 
 function changePassword() {
-    const oldPw = document.getElementById("oldPassword").value;
-    const newPw1 = document.getElementById("newPassword1").value;
-    const newPw2 = document.getElementById("newPassword2").value;
-    const errorDiv = document.getElementById("changeError");
-    const successDiv = document.getElementById("changeSuccess");
-
-    errorDiv.textContent = "";
-    successDiv.textContent = "";
-
-    const storedPw = getStoredPassword();
-    const oldPwMatch = isPasswordHashed(storedPw)
-        ? hashPassword(oldPw) === storedPw
-        : oldPw === storedPw;
-
-    if (!oldPwMatch) {
-        errorDiv.textContent = t('msgPasswordWrong');
-        return;
+    var moduleApi = getLoginSessionModule();
+    if (typeof moduleApi.changePassword === 'function') {
+        moduleApi.changePassword(getLoginSessionContext());
     }
-
-    if (newPw1.length < 4) {
-        errorDiv.textContent = t('msgPasswordShort');
-        return;
-    }
-
-    if (newPw1 !== newPw2) {
-        errorDiv.textContent = t('msgPasswordMismatch');
-        return;
-    }
-
-    if (newPw1 === oldPw) {
-        errorDiv.textContent = t('msgPasswordSame');
-        return;
-    }
-
-    setStoredPassword(newPw1);
-    successDiv.textContent = t('msgPasswordChanged');
-    document.getElementById("oldPassword").value = "";
-    document.getElementById("newPassword1").value = "";
-    document.getElementById("newPassword2").value = "";
-
-    setTimeout(function() {
-        closeChangePassword();
-    }, 2000);
 }
 
 // ============================================
@@ -1517,23 +1495,24 @@ function loadData() {
 // ============================================
 
 function showMessage(text, type) {
-    if (!type) type = 'info';
-    const msg = document.getElementById('message');
-    msg.textContent = text;
-    msg.className = 'message ' + type;
-    msg.style.display = 'block';
-    setTimeout(function() {
-        msg.style.display = 'none';
-    }, 4000);
+    var moduleApi = getUIFeedbackModule();
+    if (typeof moduleApi.showMessage === 'function') {
+        moduleApi.showMessage(text, type);
+    }
 }
 
 function showProgress(text) {
-    document.getElementById('progressText').textContent = text;
-    document.getElementById('progressOverlay').style.display = 'flex';
+    var moduleApi = getUIFeedbackModule();
+    if (typeof moduleApi.showProgress === 'function') {
+        moduleApi.showProgress(text);
+    }
 }
 
 function hideProgress() {
-    document.getElementById('progressOverlay').style.display = 'none';
+    var moduleApi = getUIFeedbackModule();
+    if (typeof moduleApi.hideProgress === 'function') {
+        moduleApi.hideProgress();
+    }
 }
 
 function getDefaultUpdates() {
