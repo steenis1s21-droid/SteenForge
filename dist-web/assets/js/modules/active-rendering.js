@@ -243,6 +243,11 @@
             return group.querySelector('.active-group-items');
         }
 
+        function getEditorFromTarget(target) {
+            if (!target || !target.closest) return null;
+            return target.closest('#editor');
+        }
+
         function hasOtherScrollableAncestor(target, activeList) {
             var current = target;
             while (current && current !== document.body) {
@@ -265,6 +270,15 @@
         activeColumn.addEventListener('wheel', function(event) {
             if (isEditableTarget(event.target)) return;
             if (isArchiveListTarget(event.target)) return;
+
+            var editor = getEditorFromTarget(event.target);
+            if (editor && isScrollableElement(editor)) {
+                event.preventDefault();
+                if (canScrollInDirection(editor, event.deltaY)) {
+                    editor.scrollTop += event.deltaY;
+                }
+                return;
+            }
 
             var groupListFromHeader = getGroupListFromTarget(event.target);
             if (groupListFromHeader) {
