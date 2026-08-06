@@ -1292,6 +1292,96 @@ button:hover {
     border-radius: 8px;
 }
 
+#phonebookPanel {
+    position: fixed;
+    top: 40px;
+    right: 20px;
+    width: min(340px, calc(100vw - 32px));
+    display: none;
+    background: var(--bg-white);
+    color: var(--text-primary);
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    z-index: 1000;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 2px 10px var(--shadow-color);
+    border-radius: 8px;
+}
+
+#phonebookPanel input {
+    max-width: 100%;
+    width: 100%;
+}
+
+#phonebookPanel button {
+    margin: 4px;
+}
+
+.active-column.is-phonebook-open > h3,
+.active-column.is-phonebook-open > .active-tools,
+.active-column.is-phonebook-open > #searchInput,
+.active-column.is-phonebook-open > #activeList {
+    display: none;
+}
+
+#phonebookPanel.inline-phonebook {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    align-self: stretch;
+    max-height: 100%;
+    z-index: auto;
+    margin: 0;
+    box-shadow: none;
+    border-radius: 8px;
+}
+
+#phonebookList {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.phonebook-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.phonebook-entry {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+}
+
+.phonebook-entry strong,
+.phonebook-entry span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.phonebook-empty {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 10px;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+}
+
 /* UNDO */
 #undoBar {
     position: fixed;
@@ -1793,6 +1883,13 @@ button:hover {
     }
 
     #editor {
+        top: 12px;
+        right: 12px;
+        left: 12px;
+        width: auto;
+    }
+
+    #phonebookPanel {
         top: 12px;
         right: 12px;
         left: 12px;

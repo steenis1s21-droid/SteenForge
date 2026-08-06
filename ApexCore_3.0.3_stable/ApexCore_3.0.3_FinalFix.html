@@ -20,6 +20,7 @@
 <script defer src="assets/js/modules/reminders.js"></script>
 <script defer src="assets/js/modules/archive-ui.js"></script>
 <script defer src="assets/js/modules/admin-updates.js"></script>
+<script defer src="assets/js/modules/phonebook.js"></script>
 <script defer src="assets/js/modules/active-rendering.js"></script>
 <script defer src="assets/js/modules/item-actions.js"></script>
 <script defer src="assets/js/modules/login-session.js"></script>
@@ -163,6 +164,7 @@
         <button onclick="exportEncrypted()" id="exportEncryptedBtn">Exportera krypterad</button>
         <button onclick="exportCSV()" id="exportCsvBtn">Exportera CSV</button>
         <button onclick="startStandardImport()" id="importBtn">Importera</button>
+        <button onclick="openPhonebook()" id="phonebookBtn">Telefonbok</button>
         <div class="settings-wrapper" id="settingsWrapper">
             <button class="settings-btn" onclick="toggleSettingsMenu()" id="settingsBtn">⚙️ Inställningar</button>
             <div class="settings-dropdown" id="settingsDropdown">
@@ -327,6 +329,22 @@
 
     <button onclick="saveEdit()" data-i18n="editSave">💾 Spara</button>
     <button onclick="closeEdit()" data-i18n="editCancel">❌ Avbryt</button>
+</div>
+
+<div id="phonebookPanel">
+    <h3 id="phonebookTitle">📞 Telefonbok</h3>
+
+    <label id="phonebookNameLabel">Namn:</label><br>
+    <input id="phonebookName" placeholder="Namn"><br><br>
+
+    <label id="phonebookPhoneLabel">Telefon:</label><br>
+    <input id="phonebookPhone" placeholder="Telefonnummer" onkeypress="if(event.key==='Enter') phonebookAddContact()"><br><br>
+
+    <button onclick="phonebookAddContact()" id="phonebookAddBtn">➕ Lägg till kontakt</button>
+    <button onclick="closePhonebookPanel()" id="phonebookCloseBtn">❌ Stäng</button>
+
+    <input id="phonebookSearch" placeholder="🔍 Sök kontakt" oninput="renderPhonebookPanel()" style="margin-top:10px;width:100%;">
+    <ul id="phonebookList"></ul>
 </div>
 
 <div id="saveEditConfirmModal">

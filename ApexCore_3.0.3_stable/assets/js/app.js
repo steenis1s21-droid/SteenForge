@@ -61,6 +61,18 @@ const translations = {
         exportEncrypted: 'Exportera krypterad',
         exportCsv: 'Exportera CSV',
         importBtn: 'Importera',
+        phonebookBtn: 'Telefonbok',
+        phonebookComingSoon: '📞 Telefonbok kommer snart.',
+        phonebookTitle: '📞 Telefonbok',
+        phonebookNameLabel: 'Namn:',
+        phonebookPhoneLabel: 'Telefon:',
+        phonebookNamePlaceholder: 'Namn',
+        phonebookPhonePlaceholder: 'Telefonnummer',
+        phonebookAddBtn: '➕ Lägg till kontakt',
+        phonebookCloseBtn: '❌ Stäng',
+        phonebookSearchPlaceholder: '🔍 Sök kontakt',
+        phonebookEmpty: 'Inga kontakter ännu.',
+        phonebookNameRequired: 'Ange ett namn för kontakten.',
         exportNamePrompt: 'Ange filnamn för exporten:',
         exportNameInvalid: '❌ Filnamnet får inte vara tomt!',
         labelName: 'Namn:',
@@ -201,6 +213,18 @@ const translations = {
         exportEncrypted: 'Export encrypted',
         exportCsv: 'Export CSV',
         importBtn: 'Import',
+        phonebookBtn: 'Phonebook',
+        phonebookComingSoon: '📞 Phonebook is coming soon.',
+        phonebookTitle: '📞 Phonebook',
+        phonebookNameLabel: 'Name:',
+        phonebookPhoneLabel: 'Phone:',
+        phonebookNamePlaceholder: 'Name',
+        phonebookPhonePlaceholder: 'Phone number',
+        phonebookAddBtn: '➕ Add contact',
+        phonebookCloseBtn: '❌ Close',
+        phonebookSearchPlaceholder: '🔍 Search contact',
+        phonebookEmpty: 'No contacts yet.',
+        phonebookNameRequired: 'Enter a name for the contact.',
         exportNamePrompt: 'Enter a file name for the export:',
         exportNameInvalid: '❌ File name cannot be empty!',
         labelName: 'Name:',
@@ -343,6 +367,18 @@ const translations = {
         exportEncrypted: 'Eksporter krypteret',
         exportCsv: 'Eksporter CSV',
         importBtn: 'Importer',
+        phonebookBtn: 'Telefonbog',
+        phonebookComingSoon: '📞 Telefonbog kommer snart.',
+        phonebookTitle: '📞 Telefonbog',
+        phonebookNameLabel: 'Navn:',
+        phonebookPhoneLabel: 'Telefon:',
+        phonebookNamePlaceholder: 'Navn',
+        phonebookPhonePlaceholder: 'Telefonnummer',
+        phonebookAddBtn: '➕ Tilføj kontakt',
+        phonebookCloseBtn: '❌ Luk',
+        phonebookSearchPlaceholder: '🔍 Søg kontakt',
+        phonebookEmpty: 'Ingen kontakter endnu.',
+        phonebookNameRequired: 'Indtast et navn til kontakten.',
         exportNamePrompt: 'Angiv et filnavn til eksporten:',
         exportNameInvalid: '❌ Filnavnet må ikke være tomt!',
         labelName: 'Navn:',
@@ -485,6 +521,18 @@ const translations = {
         exportEncrypted: 'Eksporter kryptert',
         exportCsv: 'Eksporter CSV',
         importBtn: 'Importer',
+        phonebookBtn: 'Telefonbok',
+        phonebookComingSoon: '📞 Telefonbok kommer snart.',
+        phonebookTitle: '📞 Telefonbok',
+        phonebookNameLabel: 'Navn:',
+        phonebookPhoneLabel: 'Telefon:',
+        phonebookNamePlaceholder: 'Navn',
+        phonebookPhonePlaceholder: 'Telefonnummer',
+        phonebookAddBtn: '➕ Legg til kontakt',
+        phonebookCloseBtn: '❌ Lukk',
+        phonebookSearchPlaceholder: '🔍 Søk kontakt',
+        phonebookEmpty: 'Ingen kontakter ennå.',
+        phonebookNameRequired: 'Skriv inn et navn for kontakten.',
         exportNamePrompt: 'Skriv inn et filnavn for eksporten:',
         exportNameInvalid: '❌ Filnavnet kan ikke være tomt!',
         labelName: 'Navn:',
@@ -627,6 +675,18 @@ const translations = {
         exportEncrypted: 'Vie salattu',
         exportCsv: 'Vie CSV',
         importBtn: 'Tuo',
+        phonebookBtn: 'Puhelinluettelo',
+        phonebookComingSoon: '📞 Puhelinluettelo tulossa pian.',
+        phonebookTitle: '📞 Puhelinluettelo',
+        phonebookNameLabel: 'Nimi:',
+        phonebookPhoneLabel: 'Puhelin:',
+        phonebookNamePlaceholder: 'Nimi',
+        phonebookPhonePlaceholder: 'Puhelinnumero',
+        phonebookAddBtn: '➕ Lisää yhteystieto',
+        phonebookCloseBtn: '❌ Sulje',
+        phonebookSearchPlaceholder: '🔍 Etsi yhteystieto',
+        phonebookEmpty: 'Ei yhteystietoja vielä.',
+        phonebookNameRequired: 'Anna yhteystiedolle nimi.',
         exportNamePrompt: 'Anna viennille tiedostonimi:',
         exportNameInvalid: '❌ Tiedostonimi ei voi olla tyhjä!',
         labelName: 'Nimi:',
@@ -810,6 +870,19 @@ function getUIFeedbackModule() {
 
 function getAdminModule() {
     return window.ApexAdminUpdatesModule || {};
+}
+
+function getPhonebookModule() {
+    return window.ApexPhonebookModule || {};
+}
+
+function getPhonebookContext() {
+    return {
+        t: t,
+        showMessage: showMessage,
+        escapeHTML: escapeHTML,
+        closeEdit: closeEdit
+    };
 }
 
 function getReminderContext() {
@@ -2409,6 +2482,7 @@ function getEditorContext() {
         normalizeCategoryValue: normalizeCategoryValue,
         populateReminderFields: populateReminderFields,
         closeReminderEditor: closeReminderEditor,
+        closePhonebookPanel: closePhonebookPanel,
         saveData: saveData,
         render: render
     };
@@ -2543,6 +2617,43 @@ function showArchiveInfo() {
     var moduleApi = getArchiveModule();
     if (typeof moduleApi.showArchiveInfo === 'function') {
         moduleApi.showArchiveInfo(getArchiveContext());
+    }
+}
+
+function openPhonebook() {
+    var moduleApi = getPhonebookModule();
+    if (typeof moduleApi.openPhonebook === 'function') {
+        moduleApi.openPhonebook(getPhonebookContext());
+        return;
+    }
+    showMessage(t('phonebookComingSoon'));
+}
+
+function closePhonebookPanel() {
+    var moduleApi = getPhonebookModule();
+    if (typeof moduleApi.closePhonebookPanel === 'function') {
+        moduleApi.closePhonebookPanel(getPhonebookContext());
+    }
+}
+
+function phonebookAddContact() {
+    var moduleApi = getPhonebookModule();
+    if (typeof moduleApi.addPhonebookContact === 'function') {
+        moduleApi.addPhonebookContact(getPhonebookContext());
+    }
+}
+
+function deletePhonebookContact(id) {
+    var moduleApi = getPhonebookModule();
+    if (typeof moduleApi.deletePhonebookContact === 'function') {
+        moduleApi.deletePhonebookContact(getPhonebookContext(), id);
+    }
+}
+
+function renderPhonebookPanel() {
+    var moduleApi = getPhonebookModule();
+    if (typeof moduleApi.renderContacts === 'function') {
+        moduleApi.renderContacts(getPhonebookContext());
     }
 }
 
@@ -2793,6 +2904,10 @@ updateRecoveryCenterPanel();
 var editorModule = getEditorModule();
 if (typeof editorModule.initEditorAutoClose === 'function') {
     editorModule.initEditorAutoClose(getEditorContext());
+}
+var phonebookModule = getPhonebookModule();
+if (typeof phonebookModule.initPhonebookAutoClose === 'function') {
+    phonebookModule.initPhonebookAutoClose(getPhonebookContext());
 }
 initReminderInputs();
 setupActiveColumnWheelScroll();

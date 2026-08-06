@@ -248,11 +248,23 @@
             return target.closest('#editor');
         }
 
+        function getPhonebookFromTarget(target) {
+            if (!target || !target.closest) return null;
+            return target.closest('#phonebookPanel');
+        }
+
         function getOpenEditor() {
             var editor = document.getElementById('editor');
             if (!editor) return null;
             if (window.getComputedStyle(editor).display === 'none') return null;
             return editor;
+        }
+
+        function getOpenPhonebook() {
+            var phonebook = document.getElementById('phonebookPanel');
+            if (!phonebook) return null;
+            if (window.getComputedStyle(phonebook).display === 'none') return null;
+            return phonebook;
         }
 
         function hasOtherScrollableAncestor(target, activeList) {
@@ -278,11 +290,15 @@
             if (isEditableTarget(event.target)) return;
             if (isArchiveListTarget(event.target)) return;
 
-            var editor = getEditorFromTarget(event.target) || getOpenEditor();
-            if (editor && isScrollableElement(editor)) {
+            var panel = getEditorFromTarget(event.target)
+                || getPhonebookFromTarget(event.target)
+                || getOpenEditor()
+                || getOpenPhonebook();
+
+            if (panel && isScrollableElement(panel)) {
                 event.preventDefault();
-                if (canScrollInDirection(editor, event.deltaY)) {
-                    editor.scrollTop += event.deltaY;
+                if (canScrollInDirection(panel, event.deltaY)) {
+                    panel.scrollTop += event.deltaY;
                 }
                 return;
             }
@@ -320,6 +336,15 @@
                 event.preventDefault();
                 if (canScrollInDirection(openEditor, event.deltaY)) {
                     openEditor.scrollTop += event.deltaY;
+                }
+                return;
+            }
+
+            var openPhonebook = getOpenPhonebook();
+            if (openPhonebook && isScrollableElement(openPhonebook)) {
+                event.preventDefault();
+                if (canScrollInDirection(openPhonebook, event.deltaY)) {
+                    openPhonebook.scrollTop += event.deltaY;
                 }
                 return;
             }

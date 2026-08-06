@@ -6,6 +6,10 @@
     var hasOutsideClickHandler = false;
 
     function editItem(ctx, id) {
+        if (ctx && typeof ctx.closePhonebookPanel === 'function') {
+            ctx.closePhonebookPanel();
+        }
+
         var items = ctx.getItems();
         var p = items.find(function(item) { return item.id === id; });
         if (!p) return;

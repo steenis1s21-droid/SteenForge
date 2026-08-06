@@ -394,6 +394,15 @@
         setText('exportEncryptedBtn', 'exportEncrypted');
         setText('exportCsvBtn', 'exportCsv');
         setText('importBtn', 'importBtn');
+        setText('phonebookBtn', 'phonebookBtn');
+        setText('phonebookTitle', 'phonebookTitle');
+        setText('phonebookNameLabel', 'phonebookNameLabel');
+        setText('phonebookPhoneLabel', 'phonebookPhoneLabel');
+        setText('phonebookAddBtn', 'phonebookAddBtn');
+        setText('phonebookCloseBtn', 'phonebookCloseBtn');
+        setPlaceholder('phonebookName', 'phonebookNamePlaceholder');
+        setPlaceholder('phonebookPhone', 'phonebookPhonePlaceholder');
+        setPlaceholder('phonebookSearch', 'phonebookSearchPlaceholder');
         var settingsBtn = document.getElementById('settingsBtn');
         if (settingsBtn) settingsBtn.textContent = headerMenuText.settings;
         var languageBtn = document.getElementById('languageBtn');
@@ -448,6 +457,7 @@
         if (typeof deps.updateSortLanguageText === 'function') deps.updateSortLanguageText();
         if (typeof global.updateSoundButton === 'function') global.updateSoundButton();
         if (typeof global.updateThemeButton === 'function') global.updateThemeButton();
+        if (typeof global.renderPhonebookPanel === 'function') global.renderPhonebookPanel();
 
         var statusDiv = document.getElementById('loginStatus');
         if (statusDiv) {
