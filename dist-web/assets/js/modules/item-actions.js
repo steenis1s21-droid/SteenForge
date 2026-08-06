@@ -47,51 +47,6 @@
         ctx.showMessage(ctx.t('archiveRestored'), 'info');
     }
 
-    function addItem(ctx) {
-        var nameVal = document.getElementById('nameInput').value.trim();
-        var ageInput = document.getElementById('ageInput').value.trim();
-        var ageVal = ageInput === '' ? '' : parseInt(ageInput);
-        var taskVal = document.getElementById('taskInput').value.trim();
-        var noteVal = document.getElementById('noteInput').value.trim();
-        var categoryVal = ctx.normalizeCategoryValue(document.getElementById('categoryInput').value);
-        var priorityVal = categoryVal === 'high' ? 'high' : 'normal';
-        var notificationVal = document.getElementById('notificationInput').value;
-
-        if (!nameVal) {
-            alert(ctx.t('nameRequired'));
-            return;
-        }
-
-        var items = getItems(ctx);
-        items.push({
-            id: Date.now(),
-            name: nameVal,
-            age: ageVal,
-            task: taskVal || '',
-            note: noteVal || '',
-            category: categoryVal,
-            priority: priorityVal,
-            notification: notificationVal || '',
-            notificationShown: false,
-            updated: Date.now()
-        });
-
-        if (categoryVal !== 'high') {
-            ctx.setStoredAddCategory(categoryVal);
-        }
-
-        document.getElementById('nameInput').value = '';
-        document.getElementById('ageInput').value = '';
-        document.getElementById('taskInput').value = '';
-        document.getElementById('noteInput').value = '';
-        document.getElementById('categoryInput').value = categoryVal === 'high' ? ctx.getStoredAddCategory() : categoryVal;
-        document.getElementById('notificationInput').value = '';
-        ctx.populateReminderFields('notification', '');
-
-        ctx.saveData();
-        ctx.render();
-    }
-
     function deleteItem(ctx, id) {
         var items = getItems(ctx);
         var index = items.findIndex(function(item) { return item.id === id; });
@@ -159,22 +114,6 @@
         ctx.showMessage(ctx.t('msgOrderUpdated'), 'info');
     }
 
-    function setupEnterKey(ctx) {
-        var inputs = ['nameInput', 'ageInput', 'taskInput', 'noteInput'];
-
-        inputs.forEach(function(id) {
-            var input = document.getElementById(id);
-            if (input) {
-                input.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addItem(ctx);
-                    }
-                });
-            }
-        });
-    }
-
     function initItemDropZones(ctx) {
         if (dropZonesInitialized) return;
         var activeDrop = document.getElementById('activeDrop');
@@ -211,14 +150,12 @@
     global.ApexItemActionsModule = {
         moveToDoneById: moveToDoneById,
         moveToActiveById: moveToActiveById,
-        addItem: addItem,
         deleteItem: deleteItem,
         undoDelete: undoDelete,
         startDrag: startDrag,
         moveToDone: moveToDone,
         moveToActive: moveToActive,
         reorderActiveItems: reorderActiveItems,
-        setupEnterKey: setupEnterKey,
         initItemDropZones: initItemDropZones
     };
 })(window);

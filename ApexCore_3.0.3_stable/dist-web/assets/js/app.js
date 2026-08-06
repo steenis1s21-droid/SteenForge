@@ -796,6 +796,10 @@ function getItemActionsModule() {
     return window.ApexItemActionsModule || {};
 }
 
+function getItemFormModule() {
+    return window.ApexItemFormModule || {};
+}
+
 function getLoginSessionModule() {
     return window.ApexLoginSessionModule || {};
 }
@@ -961,6 +965,19 @@ function getItemActionsContext() {
         moveToDone: moveToDone,
         moveToActive: moveToActive,
         reorderActiveItems: reorderActiveItems
+    };
+}
+
+function getItemFormContext() {
+    return {
+        t: t,
+        normalizeCategoryValue: normalizeCategoryValue,
+        getStoredAddCategory: getStoredAddCategory,
+        setStoredAddCategory: setStoredAddCategory,
+        populateReminderFields: populateReminderFields,
+        saveData: saveData,
+        render: render,
+        getItems: function() { return items; }
     };
 }
 
@@ -2344,9 +2361,9 @@ function getPriorityBadgeText(priority) {
 }
 
 function addItem() {
-    var moduleApi = getItemActionsModule();
+    var moduleApi = getItemFormModule();
     if (typeof moduleApi.addItem === 'function') {
-        moduleApi.addItem(getItemActionsContext());
+        moduleApi.addItem(getItemFormContext());
     }
 }
 
@@ -2448,9 +2465,9 @@ function reorderActiveItems(fromId, toId) {
 // ============================================
 
 function setupEnterKey() {
-    var moduleApi = getItemActionsModule();
+    var moduleApi = getItemFormModule();
     if (typeof moduleApi.setupEnterKey === 'function') {
-        moduleApi.setupEnterKey(getItemActionsContext());
+        moduleApi.setupEnterKey(getItemFormContext());
     }
 }
 
@@ -2779,6 +2796,10 @@ if (typeof editorModule.initEditorAutoClose === 'function') {
 }
 initReminderInputs();
 setupActiveColumnWheelScroll();
+var itemFormModule = getItemFormModule();
+if (typeof itemFormModule.initAddForm === 'function') {
+    itemFormModule.initAddForm(getItemFormContext());
+}
 var itemActionsModule = getItemActionsModule();
 if (typeof itemActionsModule.initItemDropZones === 'function') {
     itemActionsModule.initItemDropZones(getItemActionsContext());
