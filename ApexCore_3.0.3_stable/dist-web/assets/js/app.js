@@ -16,13 +16,10 @@ let archivedItems = []
 
 let dragId = null
 let isDragging = false
-let notificationInterval = null;
 let currentLanguage = 'sv';
 let activeGroupsCollapsed = {};
 let renderDebounceTimer = null;
 let renderArchiveDebounceTimer = null;
-let isArchiveCleanupModalOpen = false;
-let isArchivePasswordModalOpen = false;
 let pendingImportAction = 'import';
 
 const BACKUP_FORMAT_VERSION = '3.0';
@@ -774,6 +771,115 @@ function getBackupRecoveryModule() {
 
 function getEditorModule() {
     return window.ApexEditorModule || {};
+}
+
+function getRemindersModule() {
+    return window.ApexRemindersModule || {};
+}
+
+function getArchiveModule() {
+    return window.ApexArchiveModule || {};
+}
+
+function getImportExportCoreModule() {
+    return window.ApexImportExportCoreModule || {};
+}
+
+function getAdminModule() {
+    return window.ApexAdminUpdatesModule || {};
+}
+
+function getReminderContext() {
+    return {
+        t: t,
+        getItems: function() { return items; },
+        saveData: saveData,
+        playNotificationSound: playNotificationSound,
+        getPriorityBadgeText: getPriorityBadgeText
+    };
+}
+
+function getArchiveContext() {
+    return {
+        t: t,
+        getLang: getLang,
+        escapeHTML: escapeHTML,
+        formatTime: formatTime,
+        showMessage: showMessage,
+        showProgress: showProgress,
+        hideProgress: hideProgress,
+        saveData: saveData,
+        render: render,
+        getItems: function() { return items; },
+        setItems: function(nextItems) { items = nextItems; },
+        getDoneItems: function() { return doneItems; },
+        setDoneItems: function(nextItems) { doneItems = nextItems; },
+        getArchivedItems: function() { return archivedItems; },
+        setArchivedItems: function(nextItems) { archivedItems = nextItems; },
+        requestEncryptionPassword: requestEncryptionPassword,
+        getAdminUpdates: getAdminUpdates,
+        createEncryptedExportBlob: createEncryptedExportBlob,
+        requestExportFileName: requestExportFileName,
+        downloadBlob: downloadBlob,
+        saveAutoSafetySnapshot: saveAutoSafetySnapshot,
+        updateAutoSafetyRestoreButtons: updateAutoSafetyRestoreButtons
+    };
+}
+
+function getImportExportContext() {
+    return {
+        CryptoJS: typeof CryptoJS !== 'undefined' ? CryptoJS : null,
+        t: t,
+        getLang: getLang,
+        getBackupUiText: getBackupUiText,
+        getImportExportModule: getImportExportModule,
+        getBackupFormatVersion: function() { return BACKUP_FORMAT_VERSION; },
+        getLegacyBackupVersion: function() { return LEGACY_BACKUP_VERSION; },
+        showMessage: showMessage,
+        showProgress: showProgress,
+        hideProgress: hideProgress,
+        setBackupHealthStatus: setBackupHealthStatus,
+        updateRecoveryCenterPanel: updateRecoveryCenterPanel,
+        getPriorityLabel: getPriorityLabel,
+        normalizeItemData: normalizeItemData,
+        normalizePriorityValue: normalizePriorityValue,
+        normalizeCategoryValue: normalizeCategoryValue,
+        mergeAdminUpdates: mergeAdminUpdates,
+        dedupeAdminUpdates: dedupeAdminUpdates,
+        getAdminUpdates: getAdminUpdates,
+        saveAdminUpdates: saveAdminUpdates,
+        renderInfoContent: renderInfoContent,
+        renderAdminList: renderAdminList,
+        renderArchive: renderArchive,
+        saveData: saveData,
+        render: render,
+        updateAutoSafetyRestoreButtons: updateAutoSafetyRestoreButtons,
+        getImportPasswordTexts: getImportPasswordTexts,
+        showArchivePasswordModal: function(onConfirm, options) {
+            showArchivePasswordModal(onConfirm, options);
+        },
+        getItems: function() { return items; },
+        setItems: function(nextItems) { items = nextItems; },
+        getDoneItems: function() { return doneItems; },
+        setDoneItems: function(nextItems) { doneItems = nextItems; },
+        getArchivedItems: function() { return archivedItems; },
+        setArchivedItems: function(nextItems) { archivedItems = nextItems; },
+        getPendingImportAction: function() { return pendingImportAction; },
+        setPendingImportAction: function(nextAction) { pendingImportAction = nextAction || 'import'; }
+    };
+}
+
+function getAdminContext() {
+    return {
+        t: t,
+        showMessage: showMessage,
+        getAdminUpdates: getAdminUpdates,
+        saveAdminUpdates: saveAdminUpdates,
+        sortUpdatesByType: sortUpdatesByType,
+        getUpdateBadgeClass: getUpdateBadgeClass,
+        getUpdateBadgeText: getUpdateBadgeText,
+        escapeHTML: escapeHTML
+    };
 }
 
 function getLang() {
@@ -1776,59 +1882,24 @@ function importAdminUpdatesFile(event) {
 // ============================================
 
 function checkNotifications() {
-    if (notificationInterval) {
-        clearInterval(notificationInterval);
-        notificationInterval = null;
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.checkNotifications === 'function') {
+        moduleApi.checkNotifications(getReminderContext());
     }
-    
-    notificationInterval = setInterval(function() {
-        const now = new Date().getTime();
-        
-        items.forEach(function(item) {
-            if (item.notification && item.notification !== '') {
-                try {
-                    const notifTime = new Date(item.notification).getTime();
-                    
-                    if (notifTime > 0 && now >= notifTime && now < notifTime + 5000) {
-                        if (!item.notificationShown) {
-                            item.notificationShown = true;
-                            showNotificationPopup(item);
-                            saveData();
-                        }
-                    }
-                } catch(e) {}
-            }
-        });
-    }, 5000);
 }
 
 function showNotificationPopup(item) {
-    const popup = document.getElementById('notificationPopup');
-    const title = document.getElementById('notifTitle');
-    const body = document.getElementById('notifBody');
-    
-    playNotificationSound();
-    
-    const priorityText = getPriorityBadgeText(item.priority);
-    
-    const notifTitle = t('notifTitle').replace('{name}', item.name);
-    const notifBody = t('notifBody')
-        .replace('{task}', item.task || '')
-        .replace('{priority}', priorityText)
-        .replace('{note}', item.note || '');
-    
-    title.textContent = notifTitle;
-    body.textContent = notifBody;
-    
-    popup.style.display = 'block';
-    
-    setTimeout(function() {
-        closeNotificationPopup();
-    }, 15000);
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.showNotificationPopup === 'function') {
+        moduleApi.showNotificationPopup(getReminderContext(), item);
+    }
 }
 
 function closeNotificationPopup() {
-    document.getElementById('notificationPopup').style.display = 'none';
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.closeNotificationPopup === 'function') {
+        moduleApi.closeNotificationPopup();
+    }
 }
 
 // ============================================
@@ -1836,6 +1907,10 @@ function closeNotificationPopup() {
 // ============================================
 
 function getExportData() {
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.getExportData === 'function') {
+        return moduleApi.getExportData(getImportExportContext());
+    }
     return {
         items: items,
         doneItems: doneItems,
@@ -1849,778 +1924,254 @@ function getExportData() {
 }
 
 function getBackupFileType(data) {
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.getBackupFileType === 'function') {
+        return moduleApi.getBackupFileType(data);
+    }
     if (data && data.source === 'archive-vault') return 'vault';
     return 'full-backup';
 }
 
 function getPayloadFormatVersion(data) {
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.getPayloadFormatVersion === 'function') {
+        return moduleApi.getPayloadFormatVersion(data);
+    }
     if (!data || typeof data !== 'object') return '';
     return String(data.formatVersion || data.version || '').trim();
 }
 
 function isSupportedBackupVersion(version) {
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.isSupportedBackupVersion === 'function') {
+        return moduleApi.isSupportedBackupVersion(getImportExportContext(), version);
+    }
     return version === BACKUP_FORMAT_VERSION || version === LEGACY_BACKUP_VERSION;
 }
 
 function migrateImportedPayload(rawData) {
-    if (!rawData || typeof rawData !== 'object') {
-        return { ok: false, code: 'invalid-structure' };
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.migrateImportedPayload === 'function') {
+        return moduleApi.migrateImportedPayload(getImportExportContext(), rawData);
     }
-
-    var migrated = Object.assign({}, rawData);
-    var version = getPayloadFormatVersion(migrated);
-
-    if (!version) {
-        // Legacy backups may miss explicit versioning.
-        version = LEGACY_BACKUP_VERSION;
-    }
-
-    if (!isSupportedBackupVersion(version)) {
-        return { ok: false, code: 'invalid-version', version: version };
-    }
-
-    migrated.formatVersion = version === LEGACY_BACKUP_VERSION ? BACKUP_FORMAT_VERSION : version;
-    migrated.version = version;
-
-    if (migrated.source === 'archive-vault') {
-        if (!Array.isArray(migrated.archivedItems)) {
-            return { ok: false, code: 'invalid-structure' };
-        }
-        if (!Array.isArray(migrated.adminUpdates)) migrated.adminUpdates = [];
-        return { ok: true, data: migrated };
-    }
-
-    if (!Array.isArray(migrated.items) || !Array.isArray(migrated.doneItems) || !Array.isArray(migrated.archivedItems)) {
-        return { ok: false, code: 'invalid-structure' };
-    }
-
-    if (!Array.isArray(migrated.adminUpdates)) migrated.adminUpdates = [];
-    return { ok: true, data: migrated };
+    return { ok: false, code: 'invalid-structure' };
 }
 
 function getImportDiagnosticsMessage(code) {
-    var text = getBackupUiText();
-    if (code === 'invalid-version') return text.importInvalidVersion;
-    if (code === 'invalid-structure') return text.importInvalidStructure;
-    if (code === 'wrong-password') return text.importWrongPassword;
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.getImportDiagnosticsMessage === 'function') {
+        return moduleApi.getImportDiagnosticsMessage(getImportExportContext(), code);
+    }
     return t('msgImportError');
 }
 
 function parseImportJsonContent(content) {
-    var parsed;
-    try {
-        parsed = JSON.parse(content);
-    } catch (parseError) {
-        if (/^<!doctype html/i.test(content) || /^<html/i.test(content)) {
-            return { ok: false, code: 'wrong-file-type', error: parseError };
-        }
-        return { ok: false, code: 'parse-failed', error: parseError };
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.parseImportJsonContent === 'function') {
+        return moduleApi.parseImportJsonContent(content);
     }
-
-    return { ok: true, data: parsed };
+    return { ok: false, code: 'parse-failed' };
 }
 
 function exportJSON() {
-    const data = getExportData();
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const fileName = requestExportFileName('apexcore-backup-' + new Date().toISOString().split('T')[0], '.json');
-    if (!fileName) return;
-    downloadBlob(blob, fileName);
-    setBackupHealthStatus('export', 'ok', 'json');
-    var moduleApi = getImportExportModule();
-    if (moduleApi && typeof moduleApi.markExportSuccess === 'function') {
-        moduleApi.markExportSuccess('json', data.totalItems);
-        updateRecoveryCenterPanel();
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.exportJSON === 'function') {
+        moduleApi.exportJSON(getImportExportContext());
     }
-    showMessage(t('msgExported').replace('{count}', data.totalItems), 'success');
 }
 
 function downloadBlob(blob, fileName) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    // Keep URL alive longer to avoid intermittent truncated downloads on slower systems.
-    setTimeout(function() {
-        URL.revokeObjectURL(url);
-    }, 60000);
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.downloadBlob === 'function') {
+        moduleApi.downloadBlob(blob, fileName);
+    }
 }
 
 function requestExportFileName(defaultBaseName, extension) {
-    const suggestedName = defaultBaseName + extension;
-    const inputName = prompt(t('exportNamePrompt'), suggestedName);
-    if (inputName === null) return null;
-
-    const trimmedName = inputName.trim();
-    if (!trimmedName) {
-        showMessage(t('exportNameInvalid'), 'error');
-        return null;
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.requestExportFileName === 'function') {
+        return moduleApi.requestExportFileName(getImportExportContext(), defaultBaseName, extension);
     }
-
-    return trimmedName.toLowerCase().endsWith(extension.toLowerCase()) ? trimmedName : trimmedName + extension;
+    return null;
 }
 
 function requestEncryptionPassword() {
-    const passwordRaw = prompt(t('msgEncryptedPassword'));
-    const password = (passwordRaw || '').trim();
-    if (!password) return null;
-
-    if (password.length < 4) {
-        showMessage(t('msgEncryptedPasswordShort'), 'error');
-        return null;
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.requestEncryptionPassword === 'function') {
+        return moduleApi.requestEncryptionPassword(getImportExportContext());
     }
-
-    const confirmRaw = prompt('🔐 ' + (getLang() === 'sv' ? 'Bekräfta lösenordet:' : 'Confirm password:'));
-    const confirmPassword = (confirmRaw || '').trim();
-    if (password !== confirmPassword) {
-        showMessage(t('msgPasswordMismatch'), 'error');
-        return null;
-    }
-
-    return password;
+    return null;
 }
 
 function createEncryptedExportBlob(data, password) {
-    const json = JSON.stringify(data);
-    const encrypted = CryptoJS.AES.encrypt(json, password).toString();
-
-    // Verify immediately with the same decrypt path used at import time.
-    try {
-        const roundtripText = decryptEncryptedPayload(encrypted, password);
-        JSON.parse(roundtripText);
-    } catch (error) {
-        throw new Error(getLang() === 'sv'
-            ? 'Krypterad export kunde inte verifieras internt.'
-            : 'Encrypted export could not be verified internally.');
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.createEncryptedExportBlob === 'function') {
+        return moduleApi.createEncryptedExportBlob(getImportExportContext(), data, password);
     }
-
-    const exportData = {
-        encrypted: encrypted,
-        algorithm: 'AES',
-        version: LEGACY_BACKUP_VERSION,
-        formatVersion: BACKUP_FORMAT_VERSION,
-        timestamp: new Date().toISOString()
-    };
-
-    return new Blob([JSON.stringify(exportData)], { type: 'application/json' });
+    return null;
 }
 
 function exportEncrypted() {
-    const password = requestEncryptionPassword();
-    if (!password) return;
-
-    showProgress('🔐 Krypterar data...');
-
-    try {
-        const data = getExportData();
-        const blob = createEncryptedExportBlob(data, password);
-        const fileName = requestExportFileName('apexcore-encrypted-' + new Date().toISOString().split('T')[0], '.enc');
-        if (!fileName) {
-            hideProgress();
-            return;
-        }
-        downloadBlob(blob, fileName);
-        hideProgress();
-        setBackupHealthStatus('export', 'ok', 'encrypted');
-        var moduleApi = getImportExportModule();
-        if (moduleApi && typeof moduleApi.markExportSuccess === 'function') {
-            moduleApi.markExportSuccess('encrypted', data.totalItems);
-            updateRecoveryCenterPanel();
-        }
-        showMessage(t('msgEncrypted').replace('{count}', data.totalItems), 'success');
-    } catch (error) {
-        hideProgress();
-        setBackupHealthStatus('export', 'error', 'encrypted failed');
-        showMessage('❌ ' + (getLang() === 'sv' ? 'Fel vid kryptering: ' : 'Encryption error: ') + error.message, 'error');
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.exportEncrypted === 'function') {
+        moduleApi.exportEncrypted(getImportExportContext());
     }
 }
 
 function exportCSV() {
-    showProgress('📊 ' + (getLang() === 'sv' ? 'Skapar CSV...' : 'Creating CSV...'));
-
-    try {
-        let csv = 'Typ,Prioritet,Namn,Ålder,Uppgift,Anteckningar,Påminnelse,Datum\n';
-        
-        items.forEach(function(p) {
-            const priorityText = getPriorityLabel(p.priority);
-            csv += 'Active,' + priorityText + ',"' + p.name + '",' + p.age + ',"' + (p.task || '').replace(/"/g, '""') + '","' + (p.note || '').replace(/"/g, '""') + '","' + (p.notification || '') + '",' + new Date(p.updated).toLocaleString('sv-SE') + '\n';
-        });
-        
-        doneItems.forEach(function(p) {
-            const priorityText = getPriorityLabel(p.priority);
-            csv += 'Done,' + priorityText + ',"' + p.name + '",' + p.age + ',"' + (p.task || '').replace(/"/g, '""') + '","' + (p.note || '').replace(/"/g, '""') + '","' + (p.notification || '') + '",' + new Date(p.updated).toLocaleString('sv-SE') + '\n';
-        });
-
-        archivedItems.forEach(function(p) {
-            const priorityText = getPriorityLabel(p.priority);
-            csv += 'Archived,' + priorityText + ',"' + p.name + '",' + p.age + ',"' + (p.task || '').replace(/"/g, '""') + '","' + (p.note || '').replace(/"/g, '""') + '","' + (p.notification || '') + '",' + new Date(p.updated).toLocaleString('sv-SE') + '\n';
-        });
-
-        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-        const fileName = requestExportFileName('apexcore-data-' + new Date().toISOString().split('T')[0], '.csv');
-        if (!fileName) {
-            hideProgress();
-            return;
-        }
-        downloadBlob(blob, fileName);
-        hideProgress();
-        setBackupHealthStatus('export', 'ok', 'csv');
-        var moduleApi = getImportExportModule();
-        if (moduleApi && typeof moduleApi.markExportSuccess === 'function') {
-            moduleApi.markExportSuccess('csv', items.length + doneItems.length + archivedItems.length);
-            updateRecoveryCenterPanel();
-        }
-        showMessage(t('msgCsvExported').replace('{count}', items.length + doneItems.length + archivedItems.length), 'success');
-    } catch (error) {
-        hideProgress();
-        setBackupHealthStatus('export', 'error', 'csv failed');
-        showMessage('❌ ' + (getLang() === 'sv' ? 'Fel vid CSV-export: ' : 'CSV export error: ') + error.message, 'error');
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.exportCSV === 'function') {
+        moduleApi.exportCSV(getImportExportContext());
     }
 }
 
 function getPasswordCandidates(password) {
-    const base = String(password || '');
-    const candidates = [base];
-
-    try {
-        candidates.push(base.normalize('NFC'));
-        candidates.push(base.normalize('NFD'));
-    } catch (e) {
-        // String.normalize may be unavailable in very old runtimes.
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.getPasswordCandidates === 'function') {
+        return moduleApi.getPasswordCandidates(password);
     }
-
-    const trimmed = base.trim();
-    if (trimmed && trimmed !== base) {
-        candidates.push(trimmed);
-        try {
-            candidates.push(trimmed.normalize('NFC'));
-            candidates.push(trimmed.normalize('NFD'));
-        } catch (e) {
-            // ignore
-        }
-    }
-
-    return candidates.filter(function(value, index, arr) {
-        return arr.indexOf(value) === index;
-    });
+    return [String(password || '')];
 }
 
 function decryptEncryptedPayload(encryptedValue, password) {
-    if (typeof CryptoJS === 'undefined') {
-        throw new Error('CryptoJS not loaded');
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.decryptEncryptedPayload === 'function') {
+        return moduleApi.decryptEncryptedPayload(getImportExportContext(), encryptedValue, password);
     }
-
-    const encrypted = String(encryptedValue || '').trim();
-    if (!encrypted) {
-        throw new Error('Encrypted payload missing');
-    }
-
-    const encryptedNoWhitespace = encrypted.replace(/\s+/g, '');
-    const candidates = getPasswordCandidates(password);
-
-    for (let i = 0; i < candidates.length; i++) {
-        const candidate = candidates[i];
-        const decrypted = CryptoJS.AES.decrypt(encryptedNoWhitespace, candidate);
-        const decryptedText = decrypted.toString(CryptoJS.enc.Utf8).replace(/^\uFEFF/, '').trim();
-        if (decryptedText) {
-            return decryptedText;
-        }
-    }
-
-    throw new Error('Wrong password or corrupt encrypted payload');
+    throw new Error('Import/export core module not loaded');
 }
 
 function importData(event) {
-    const file = event.target.files[0];
-    if (!file) {
-        pendingImportAction = 'import';
-        return;
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.importData === 'function') {
+        moduleApi.importData(getImportExportContext(), event);
     }
-
-    var action = pendingImportAction || 'import';
-    pendingImportAction = 'import';
-
-    showProgress('📥 ' + (getLang() === 'sv' ? 'Läser fil...' : 'Reading file...'));
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const contentRaw = typeof e.target.result === 'string' ? e.target.result : '';
-            const content = contentRaw.replace(/^\uFEFF/, '').trim();
-
-            if (!content) {
-                hideProgress();
-                setBackupHealthStatus('import', 'error', 'empty file');
-                showMessage('❌ ' + (getLang() === 'sv' ? 'Filen är tom eller oläsbar.' : 'The file is empty or unreadable.'), 'error');
-                return;
-            }
-
-            var parsed = parseImportJsonContent(content);
-            if (!parsed.ok) {
-                hideProgress();
-                setBackupHealthStatus('import', 'error', parsed.code);
-                if (parsed.code === 'wrong-file-type') {
-                    showMessage('❌ ' + (getLang() === 'sv' ? 'Fel filtyp: välj en backupfil (.json eller .enc), inte en HTML-sida.' : 'Wrong file type: select a backup file (.json or .enc), not an HTML page.'), 'error');
-                } else {
-                    showMessage(getImportDiagnosticsMessage('invalid-structure'), 'error');
-                }
-                console.error('Import parse error:', parsed.error);
-                return;
-            }
-
-            handleParsedImportData(parsed.data, action);
-        } catch (error) {
-            hideProgress();
-            setBackupHealthStatus('import', 'error', 'runtime');
-            showMessage(t('msgImportError'), 'error');
-            console.error('Import error:', error);
-        }
-    };
-
-    reader.readAsText(file, 'utf-8');
-    event.target.value = '';
 }
 
 function handleParsedImportData(data, action) {
-    if (data && data.encrypted && data.algorithm === 'AES') {
-        hideProgress();
-        showArchivePasswordModal(function(password) {
-            showProgress('📥 ' + (getLang() === 'sv' ? 'Läser fil...' : 'Reading file...'));
-            decryptAndHandleImport(data, password, action);
-        }, {
-            requireConfirm: false,
-            labels: getImportPasswordTexts(),
-            fallbackPromptText: t('msgEncryptedPassword')
-        });
-        return;
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.handleParsedImportData === 'function') {
+        moduleApi.handleParsedImportData(getImportExportContext(), data, action);
     }
-
-    applyImportAction(data, action);
 }
 
 function decryptAndHandleImport(encryptedWrapper, password, action) {
-    if (!password) {
-        hideProgress();
-        setBackupHealthStatus('import', 'error', 'password missing');
-        showMessage('❌ ' + (getLang() === 'sv' ? 'Lösenord krävs för att importera!' : 'Password required to import!'), 'error');
-        return;
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.decryptAndHandleImport === 'function') {
+        moduleApi.decryptAndHandleImport(getImportExportContext(), encryptedWrapper, password, action);
     }
-
-    var decryptedData;
-    try {
-        const decryptedText = decryptEncryptedPayload(encryptedWrapper.encrypted, password);
-        decryptedData = JSON.parse(decryptedText);
-    } catch (error) {
-        hideProgress();
-        setBackupHealthStatus('import', 'error', 'decrypt failed');
-        showMessage('❌ ' + getImportDiagnosticsMessage('wrong-password'), 'error');
-        return;
-    }
-
-    applyImportAction(decryptedData, action);
 }
 
 function applyImportAction(rawData, action) {
-    var migration = migrateImportedPayload(rawData);
-    if (!migration.ok) {
-        hideProgress();
-        setBackupHealthStatus('import', 'error', migration.code);
-        showMessage('❌ ' + getImportDiagnosticsMessage(migration.code), 'error');
-        return;
-    }
-
-    var data = migration.data;
-
-    if (action === 'dry-run') {
-        runImportDryRun(data);
-        return;
-    }
-
-    if (action === 'validate') {
-        runBackupValidation(data);
-        return;
-    }
-
-    try {
-        importProcess(data);
-        setBackupHealthStatus('import', 'ok', data.version || BACKUP_FORMAT_VERSION);
-    } catch (error) {
-        hideProgress();
-        setBackupHealthStatus('import', 'error', 'process failed');
-        showMessage(t('msgImportError'), 'error');
-        console.error('Import process error:', error);
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.applyImportAction === 'function') {
+        moduleApi.applyImportAction(getImportExportContext(), rawData, action);
     }
 }
 
 function runImportDryRun(data) {
-    var text = getBackupUiText();
-    var fileType = getBackupFileType(data);
-
-    if (fileType === 'vault') {
-        hideProgress();
-        setBackupHealthStatus('import', 'ok', 'dry-run vault');
-        showMessage(text.dryRunVaultSummary.replace('{archived}', data.archivedItems.length), 'info');
-        return;
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.runImportDryRun === 'function') {
+        moduleApi.runImportDryRun(getImportExportContext(), data);
     }
-
-    hideProgress();
-    setBackupHealthStatus('import', 'ok', 'dry-run full');
-    showMessage(text.dryRunSummary
-        .replace('{type}', fileType)
-        .replace('{active}', data.items.length)
-        .replace('{done}', data.doneItems.length)
-        .replace('{archived}', data.archivedItems.length), 'info');
 }
 
 function runBackupValidation(data) {
-    var text = getBackupUiText();
-
-    // Validate that every item can be normalized without runtime exceptions.
-    if (data.source === 'archive-vault') {
-        prepareVaultItemsForArchive(data.archivedItems);
-    } else {
-        data.items.map(normalizeItemData);
-        data.doneItems.map(normalizeItemData);
-        data.archivedItems.map(normalizeItemData);
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.runBackupValidation === 'function') {
+        moduleApi.runBackupValidation(getImportExportContext(), data);
     }
-
-    hideProgress();
-    setBackupHealthStatus('import', 'ok', 'validated');
-    showMessage(text.validateBackupSuccess, 'success');
 }
 
 function openImportFilePicker(action) {
-    pendingImportAction = action || 'import';
-    var fileInput = document.getElementById('fileInput');
-    if (!fileInput) {
-        pendingImportAction = 'import';
-        return;
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.openImportFilePicker === 'function') {
+        moduleApi.openImportFilePicker(getImportExportContext(), action);
     }
-    fileInput.click();
 }
 
 function startDryRunImport() {
-    openImportFilePicker('dry-run');
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.startDryRunImport === 'function') {
+        moduleApi.startDryRunImport(getImportExportContext());
+    }
 }
 
 function startBackupValidation() {
-    openImportFilePicker('validate');
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.startBackupValidation === 'function') {
+        moduleApi.startBackupValidation(getImportExportContext());
+    }
 }
 
 function startStandardImport() {
-    openImportFilePicker('import');
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.startStandardImport === 'function') {
+        moduleApi.startStandardImport(getImportExportContext());
+    }
 }
 
 function generateImportedItemId(usedIds) {
-    var nextId = Date.now();
-    while (usedIds.has(nextId)) {
-        nextId += 1;
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.generateImportedItemId === 'function') {
+        return moduleApi.generateImportedItemId(usedIds);
     }
-    usedIds.add(nextId);
-    return nextId;
+    return Date.now();
 }
 
 function prepareVaultItemsForArchive(vaultItems) {
-    var usedIds = new Set();
-
-    items.forEach(function(item) { usedIds.add(item.id); });
-    doneItems.forEach(function(item) { usedIds.add(item.id); });
-    archivedItems.forEach(function(item) { usedIds.add(item.id); });
-
-    return vaultItems.map(function(item) {
-        return {
-            id: generateImportedItemId(usedIds),
-            name: item.name || '',
-            age: item.age === undefined ? '' : item.age,
-            task: item.task || '',
-            note: item.note || '',
-            priority: normalizePriorityValue(item.priority),
-            category: normalizeCategoryValue(item.category),
-            notification: '',
-            notificationShown: false,
-            updated: item.updated || Date.now()
-        };
-    });
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.prepareVaultItemsForArchive === 'function') {
+        return moduleApi.prepareVaultItemsForArchive(getImportExportContext(), vaultItems);
+    }
+    return [];
 }
 
 function getArchiveItemFingerprint(item) {
-    return [
-        String(item.name || '').trim().toLowerCase(),
-        String(item.age === undefined ? '' : item.age).trim(),
-        String(item.task || '').trim().toLowerCase(),
-        String(item.note || '').trim().toLowerCase(),
-        normalizePriorityValue(item.priority),
-        normalizeCategoryValue(item.category),
-        String(item.updated || '').trim()
-    ].join('|');
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.getArchiveItemFingerprint === 'function') {
+        return moduleApi.getArchiveItemFingerprint(getImportExportContext(), item);
+    }
+    return '';
 }
 
 function splitNewAndDuplicateArchiveItems(importedItems) {
-    var existingFingerprints = new Set(
-        archivedItems.map(getArchiveItemFingerprint)
-    );
-    var seenIncoming = new Set();
-
-    var uniqueItems = [];
-    var duplicateCount = 0;
-
-    importedItems.forEach(function(item) {
-        var fp = getArchiveItemFingerprint(item);
-        if (existingFingerprints.has(fp) || seenIncoming.has(fp)) {
-            duplicateCount += 1;
-            return;
-        }
-        seenIncoming.add(fp);
-        uniqueItems.push(item);
-    });
-
-    return {
-        uniqueItems: uniqueItems,
-        duplicateCount: duplicateCount
-    };
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.splitNewAndDuplicateArchiveItems === 'function') {
+        return moduleApi.splitNewAndDuplicateArchiveItems(getImportExportContext(), importedItems);
+    }
+    return { uniqueItems: [], duplicateCount: 0 };
 }
 
 function buildVaultImportPreviewMessage(deduped, incomingCount) {
-    var moduleApi = getImportExportModule();
-    if (moduleApi && typeof moduleApi.buildVaultPreviewMessage === 'function') {
-        return moduleApi.buildVaultPreviewMessage({
-            lang: getLang(),
-            title: getBackupUiText().importPreviewTitle,
-            continueText: getBackupUiText().importPreviewContinue,
-            beforeArchive: archivedItems.length,
-            incomingCount: incomingCount,
-            uniqueCount: deduped.uniqueItems.length,
-            duplicateCount: deduped.duplicateCount,
-            afterArchive: archivedItems.length + deduped.uniqueItems.length
-        });
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.buildVaultImportPreviewMessage === 'function') {
+        return moduleApi.buildVaultImportPreviewMessage(getImportExportContext(), deduped, incomingCount);
     }
-
-    var lang = getLang();
-    var beforeArchive = archivedItems.length;
-    var afterArchive = beforeArchive + deduped.uniqueItems.length;
-
-    if (lang === 'en') {
-        return '🔎 ' + getBackupUiText().importPreviewTitle + '\n\n'
-            + 'Vault import:\n'
-            + '📦 Current archive: ' + beforeArchive + '\n'
-            + '📥 Incoming archived: ' + incomingCount + '\n'
-            + '➕ Unique to add: ' + deduped.uniqueItems.length + '\n'
-            + '⚠️ Duplicates skipped: ' + deduped.duplicateCount + '\n'
-            + '📊 Archive after import: ' + afterArchive + '\n\n'
-            + getBackupUiText().importPreviewContinue;
-    }
-
-    return '🔎 ' + getBackupUiText().importPreviewTitle + '\n\n'
-        + 'Vault-import:\n'
-        + '📦 Nuvarande arkiv: ' + beforeArchive + '\n'
-        + '📥 Inkommande arkivposter: ' + incomingCount + '\n'
-        + '➕ Unika att lägga till: ' + deduped.uniqueItems.length + '\n'
-        + '⚠️ Dubbletter som hoppas över: ' + deduped.duplicateCount + '\n'
-        + '📊 Arkiv efter import: ' + afterArchive + '\n\n'
-        + getBackupUiText().importPreviewContinue;
+    return '';
 }
 
 function buildFullImportPreviewMessage(data) {
-    var moduleApi = getImportExportModule();
-    if (moduleApi && typeof moduleApi.buildFullPreviewMessage === 'function') {
-        return moduleApi.buildFullPreviewMessage({
-            lang: getLang(),
-            title: getBackupUiText().importPreviewTitle,
-            continueText: getBackupUiText().importPreviewContinue,
-            currentActive: items.length,
-            currentDone: doneItems.length,
-            currentArchived: archivedItems.length,
-            incomingActive: data.items.length,
-            incomingDone: data.doneItems.length,
-            incomingArchived: data.archivedItems.length,
-            addActive: items.length + data.items.length,
-            addDone: doneItems.length + data.doneItems.length,
-            addArchived: archivedItems.length + data.archivedItems.length
-        });
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.buildFullImportPreviewMessage === 'function') {
+        return moduleApi.buildFullImportPreviewMessage(getImportExportContext(), data);
     }
-
-    var lang = getLang();
-    var currentActive = items.length;
-    var currentDone = doneItems.length;
-    var currentArchived = archivedItems.length;
-    var incomingActive = data.items.length;
-    var incomingDone = data.doneItems.length;
-    var incomingArchived = data.archivedItems.length;
-
-    var addActive = currentActive + incomingActive;
-    var addDone = currentDone + incomingDone;
-    var addArchived = currentArchived + incomingArchived;
-
-    if (lang === 'en') {
-        return '🔎 ' + getBackupUiText().importPreviewTitle + '\n\n'
-            + 'Current data:\n'
-            + '📋 Active: ' + currentActive + '\n'
-            + '✅ Done: ' + currentDone + '\n'
-            + '📦 Archive: ' + currentArchived + '\n\n'
-            + 'Incoming backup:\n'
-            + '📋 Active: ' + incomingActive + '\n'
-            + '✅ Done: ' + incomingDone + '\n'
-            + '📦 Archive: ' + incomingArchived + '\n\n'
-            + 'If you later choose REPLACE in next step:\n'
-            + '📊 Result: ' + incomingActive + ' / ' + incomingDone + ' / ' + incomingArchived + '\n\n'
-            + 'If you later choose ADD in next step:\n'
-            + '📊 Result: ' + addActive + ' / ' + addDone + ' / ' + addArchived + '\n\n'
-            + getBackupUiText().importPreviewContinue;
-    }
-
-    return '🔎 ' + getBackupUiText().importPreviewTitle + '\n\n'
-        + 'Nuvarande data:\n'
-        + '📋 Aktiv: ' + currentActive + '\n'
-        + '✅ Färdig: ' + currentDone + '\n'
-        + '📦 Arkiv: ' + currentArchived + '\n\n'
-        + 'Inkommande backup:\n'
-        + '📋 Aktiv: ' + incomingActive + '\n'
-        + '✅ Färdig: ' + incomingDone + '\n'
-        + '📦 Arkiv: ' + incomingArchived + '\n\n'
-        + 'Om du väljer ERSÄTT i nästa steg:\n'
-        + '📊 Resultat: ' + incomingActive + ' / ' + incomingDone + ' / ' + incomingArchived + '\n\n'
-        + 'Om du väljer LÄGG TILL i nästa steg:\n'
-        + '📊 Resultat: ' + addActive + ' / ' + addDone + ' / ' + addArchived + '\n\n'
-        + getBackupUiText().importPreviewContinue;
+    return '';
 }
 
 function requestReplaceConfirmationPhrase() {
-    var moduleApi = getImportExportModule();
-    var token = moduleApi && typeof moduleApi.getReplaceToken === 'function'
-        ? moduleApi.getReplaceToken(getLang())
-        : (getLang() === 'sv' ? 'ERSÄTT' : 'REPLACE');
-    var typed = prompt(getBackupUiText().replacePrompt + ' [' + token + ']');
-    if (typed === null) return false;
-    return typed.trim().toUpperCase() === token;
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.requestReplaceConfirmationPhrase === 'function') {
+        return moduleApi.requestReplaceConfirmationPhrase(getImportExportContext());
+    }
+    return false;
 }
 
 function importProcess(data) {
-    if (data.source === 'archive-vault' && Array.isArray(data.archivedItems)) {
-        const importedItems = prepareVaultItemsForArchive(data.archivedItems);
-        const deduped = splitNewAndDuplicateArchiveItems(importedItems);
-
-        if (!confirm(buildVaultImportPreviewMessage(deduped, data.archivedItems.length))) {
-            hideProgress();
-            showMessage(getBackupUiText().importCancelled, 'info');
-            return;
-        }
-
-        if (Array.isArray(data.adminUpdates)) {
-            const mergedUpdates = mergeAdminUpdates(data.adminUpdates, getAdminUpdates());
-            saveAdminUpdates(mergedUpdates);
-            if (typeof renderInfoContent === 'function') {
-                renderInfoContent();
-            }
-            if (typeof renderAdminList === 'function') {
-                renderAdminList();
-            }
-        }
-        archivedItems = archivedItems.concat(deduped.uniqueItems);
-        saveData();
-        render();
-        renderArchive();
-        updateAutoSafetyRestoreButtons();
-        var moduleApi = getImportExportModule();
-        if (moduleApi && typeof moduleApi.markImportSuccess === 'function') {
-            moduleApi.markImportSuccess('vault', {
-                active: items.length,
-                done: doneItems.length,
-                archived: archivedItems.length
-            });
-            updateRecoveryCenterPanel();
-        }
-        hideProgress();
-        showMessage(getLang() === 'sv'
-            ? '✅ ' + deduped.uniqueItems.length + ' arkivposter importerades till arkivet.'
-            : '✅ ' + deduped.uniqueItems.length + ' archived items were imported to Archive.', 'success');
-        if (deduped.duplicateCount > 0) {
-            showMessage(getBackupUiText().duplicateSkipped.replace('{count}', deduped.duplicateCount), 'info');
-        }
-        return;
+    var moduleApi = getImportExportCoreModule();
+    if (typeof moduleApi.importProcess === 'function') {
+        moduleApi.importProcess(getImportExportContext(), data);
     }
-
-    if (!data.items || !data.doneItems || !data.archivedItems) {
-        hideProgress();
-        showMessage('❌ ' + (getLang() === 'sv' ? 'Ogiltig datafil!' : 'Invalid data file!'), 'error');
-        return;
-    }
-
-    if (!confirm(buildFullImportPreviewMessage(data))) {
-        hideProgress();
-        showMessage(getBackupUiText().importCancelled, 'info');
-        return;
-    }
-
-    const activeCount = data.items.length;
-    const doneCount = data.doneItems.length;
-    const archivedCount = data.archivedItems.length;
-    const dateStr = data.exportedAt ? new Date(data.exportedAt).toLocaleString() : 'Okänt';
-
-    const confirmMsg = t('confirmImport')
-        .replace('{active}', activeCount)
-        .replace('{done}', doneCount)
-        .replace('{archived}', archivedCount)
-        .replace('{date}', dateStr);
-
-    const choice = confirm(confirmMsg);
-
-    if (choice) {
-        if (!requestReplaceConfirmationPhrase()) {
-            hideProgress();
-            showMessage(getBackupUiText().replacePromptFailed, 'error');
-            return;
-        }
-
-        items = data.items.map(normalizeItemData);
-        doneItems = data.doneItems.map(normalizeItemData);
-        archivedItems = (data.archivedItems || []).map(normalizeItemData);
-        if (data.adminUpdates) {
-            saveAdminUpdates(dedupeAdminUpdates(data.adminUpdates));
-        }
-        showMessage(t('confirmReplace')
-            .replace('{active}', items.length)
-            .replace('{done}', doneItems.length)
-            .replace('{archived}', archivedItems.length), 'success');
-        var replaceModuleApi = getImportExportModule();
-        if (replaceModuleApi && typeof replaceModuleApi.markImportSuccess === 'function') {
-            replaceModuleApi.markImportSuccess('replace', {
-                active: items.length,
-                done: doneItems.length,
-                archived: archivedItems.length
-            });
-            updateRecoveryCenterPanel();
-        }
-    } else {
-        const beforeCount = items.length + doneItems.length + archivedItems.length;
-        items = items.concat(data.items.map(normalizeItemData));
-        doneItems = doneItems.concat(data.doneItems.map(normalizeItemData));
-        archivedItems = archivedItems.concat((data.archivedItems || []).map(normalizeItemData));
-        if (data.adminUpdates) {
-            const merged = mergeAdminUpdates(data.adminUpdates, getAdminUpdates());
-            saveAdminUpdates(merged);
-        }
-        const addedCount = (items.length + doneItems.length + archivedItems.length) - beforeCount;
-        showMessage(t('confirmAdded').replace('{count}', addedCount), 'success');
-        var addModuleApi = getImportExportModule();
-        if (addModuleApi && typeof addModuleApi.markImportSuccess === 'function') {
-            addModuleApi.markImportSuccess('add', {
-                active: items.length,
-                done: doneItems.length,
-                archived: archivedItems.length
-            });
-            updateRecoveryCenterPanel();
-        }
-    }
-
-    saveData();
-    render();
-    updateAutoSafetyRestoreButtons();
-    hideProgress();
 }
 
 // ============================================
@@ -2654,187 +2205,105 @@ function moveToActiveById(id) {
 // ============================================
 
 function fillReminderSelect(selectId, start, end) {
-    var select = document.getElementById(selectId);
-    if (!select) return;
-
-    select.innerHTML = '';
-    for (var i = start; i <= end; i++) {
-        var value = String(i).padStart(2, '0');
-        var option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        select.appendChild(option);
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.fillReminderSelect === 'function') {
+        moduleApi.fillReminderSelect(selectId, start, end);
     }
 }
 
 function formatReminderValue(value) {
-    if (!value) return t('reminderSelect');
-
-    var match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
-    if (match) {
-        return match[3] + '/' + match[2] + '/' + match[1] + ' ' + match[4] + ':' + match[5];
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.formatReminderValue === 'function') {
+        return moduleApi.formatReminderValue(getReminderContext(), value);
     }
-
-    return value;
+    return value || '';
 }
 
 function getTodayReminderDate() {
-    var now = new Date();
-    var year = now.getFullYear();
-    var month = String(now.getMonth() + 1).padStart(2, '0');
-    var day = String(now.getDate()).padStart(2, '0');
-    return year + '-' + month + '-' + day;
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.getTodayReminderDate === 'function') {
+        return moduleApi.getTodayReminderDate();
+    }
+    return '';
 }
 
 function getCurrentReminderTime() {
-    var now = new Date();
-    return {
-        hour: String(now.getHours()).padStart(2, '0'),
-        minute: String(now.getMinutes()).padStart(2, '0')
-    };
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.getCurrentReminderTime === 'function') {
+        return moduleApi.getCurrentReminderTime();
+    }
+    return { hour: '00', minute: '00' };
 }
 
 function getReminderElements(prefix) {
-    var hidden = document.getElementById(prefix + 'Input') || document.getElementById(prefix);
-    var dateInput = document.getElementById(prefix + 'Date');
-    var hourSelect = document.getElementById(prefix + 'Hour');
-    var minuteSelect = document.getElementById(prefix + 'Minute');
-    var display = document.getElementById(prefix + 'DisplayText');
-    return { hidden: hidden, dateInput: dateInput, hourSelect: hourSelect, minuteSelect: minuteSelect, display: display };
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.getReminderElements === 'function') {
+        return moduleApi.getReminderElements(prefix);
+    }
+    return { hidden: null, dateInput: null, hourSelect: null, minuteSelect: null, display: null };
 }
 
 function populateReminderFields(prefix, value) {
-    var elements = getReminderElements(prefix);
-    var hidden = elements.hidden;
-    var dateInput = elements.dateInput;
-    var hourSelect = elements.hourSelect;
-    var minuteSelect = elements.minuteSelect;
-    var display = elements.display;
-
-    if (!hidden || !dateInput || !hourSelect || !minuteSelect || !display) return;
-
-    if (!value) {
-        var today = getTodayReminderDate();
-        var currentTime = getCurrentReminderTime();
-        dateInput.value = today;
-        hourSelect.value = currentTime.hour;
-        minuteSelect.value = currentTime.minute;
-        hidden.value = '';
-        display.textContent = t('reminderSelect');
-        return;
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.populateReminderFields === 'function') {
+        moduleApi.populateReminderFields(getReminderContext(), prefix, value);
     }
-
-    var match = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
-    if (match) {
-        dateInput.value = match[1] + '-' + match[2] + '-' + match[3];
-        hourSelect.value = match[4];
-        minuteSelect.value = match[5];
-        hidden.value = value;
-        display.textContent = formatReminderValue(value);
-        return;
-    }
-
-    hidden.value = value;
-    display.textContent = formatReminderValue(value);
 }
 
 function syncReminderValue(prefix) {
-    var elements = getReminderElements(prefix);
-    var hidden = elements.hidden;
-    var dateInput = elements.dateInput;
-    var hourSelect = elements.hourSelect;
-    var minuteSelect = elements.minuteSelect;
-    var display = elements.display;
-
-    if (!hidden || !dateInput || !hourSelect || !minuteSelect || !display) return;
-
-    if (!dateInput.value) {
-        dateInput.value = getTodayReminderDate();
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.syncReminderValue === 'function') {
+        moduleApi.syncReminderValue(getReminderContext(), prefix);
     }
-
-    if (!hourSelect.value || !minuteSelect.value) {
-        var currentTime = getCurrentReminderTime();
-        hourSelect.value = hourSelect.value || currentTime.hour;
-        minuteSelect.value = minuteSelect.value || currentTime.minute;
-    }
-
-    hidden.value = dateInput.value + 'T' + hourSelect.value + ':' + minuteSelect.value;
-    display.textContent = formatReminderValue(hidden.value);
 }
 
 function prepareReminderPicker(prefix) {
-    var elements = getReminderElements(prefix);
-    if (!elements.hidden) return;
-
-    if (elements.hidden.value) {
-        populateReminderFields(prefix, elements.hidden.value);
-    } else {
-        populateReminderFields(prefix, '');
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.prepareReminderPicker === 'function') {
+        moduleApi.prepareReminderPicker(getReminderContext(), prefix);
     }
 }
 
 function openReminderEditor(prefix) {
-    var panel = document.getElementById(prefix + 'PickerPanel');
-    if (!panel) return;
-
-    document.querySelectorAll('.reminder-picker-panel').forEach(function(item) {
-        item.classList.remove('open');
-    });
-
-    prepareReminderPicker(prefix);
-    panel.classList.add('open');
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.openReminderEditor === 'function') {
+        moduleApi.openReminderEditor(getReminderContext(), prefix);
+    }
 }
 
 function toggleReminderEditor(prefix) {
-    var panel = document.getElementById(prefix + 'PickerPanel');
-    if (!panel) return;
-
-    if (panel.classList.contains('open')) {
-        panel.classList.remove('open');
-        return;
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.toggleReminderEditor === 'function') {
+        moduleApi.toggleReminderEditor(getReminderContext(), prefix);
     }
-
-    document.querySelectorAll('.reminder-picker-panel').forEach(function(item) {
-        item.classList.remove('open');
-    });
-
-    prepareReminderPicker(prefix);
-    panel.classList.add('open');
 }
 
 function closeReminderEditor(prefix) {
-    var panel = document.getElementById(prefix + 'PickerPanel');
-    if (panel) {
-        panel.classList.remove('open');
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.closeReminderEditor === 'function') {
+        moduleApi.closeReminderEditor(prefix);
     }
 }
 
 function applyReminderValue(prefix) {
-    syncReminderValue(prefix);
-    closeReminderEditor(prefix);
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.applyReminderValue === 'function') {
+        moduleApi.applyReminderValue(getReminderContext(), prefix);
+    }
 }
 
 function updateReminderLanguageText() {
-    populateReminderFields('notification', document.getElementById('notificationInput').value);
-    populateReminderFields('editNotification', document.getElementById('editNotification').value);
-
-    const okBtn = document.getElementById('notificationOkBtn');
-    if (okBtn) okBtn.textContent = t('reminderOk');
-    const closeBtn = document.getElementById('notificationCloseBtn');
-    if (closeBtn) closeBtn.textContent = t('reminderClose');
-    const editOkBtn = document.getElementById('editNotificationOkBtn');
-    if (editOkBtn) editOkBtn.textContent = t('reminderOk');
-    const editCloseBtn = document.getElementById('editNotificationCloseBtn');
-    if (editCloseBtn) editCloseBtn.textContent = t('reminderClose');
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.updateReminderLanguageText === 'function') {
+        moduleApi.updateReminderLanguageText(getReminderContext());
+    }
 }
 
 function initReminderInputs() {
-    fillReminderSelect('notificationHour', 0, 23);
-    fillReminderSelect('notificationMinute', 0, 59);
-    fillReminderSelect('editNotificationHour', 0, 23);
-    fillReminderSelect('editNotificationMinute', 0, 59);
-    populateReminderFields('notification', '');
-    populateReminderFields('editNotification', '');
+    var moduleApi = getRemindersModule();
+    if (typeof moduleApi.initReminderInputs === 'function') {
+        moduleApi.initReminderInputs(getReminderContext());
+    }
 }
 
 function getNeutralPriorityLabel() {
@@ -3413,429 +2882,105 @@ function setupActiveColumnWheelScroll() {
 // ============================================
 
 function archiveItem(id) {
-    var i = doneItems.findIndex(function(p) { return p.id === id; });
-    if (i === -1) return;
-    archivedItems.push(doneItems[i]);
-    doneItems.splice(i, 1);
-    saveData();
-    render();
-    showMessage(t('archiveArchived'), 'success');
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.archiveItem === 'function') {
+        moduleApi.archiveItem(getArchiveContext(), id);
+    }
 }
 
 function archiveAll() {
-    if (doneItems.length === 0) return;
-    var count = doneItems.length;
-    doneItems.forEach(function(item) { archivedItems.push(item); });
-    doneItems = [];
-    saveData();
-    render();
-    showMessage(t('archiveAllSuccess').replace('{count}', count), 'success');
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.archiveAll === 'function') {
+        moduleApi.archiveAll(getArchiveContext());
+    }
 }
 
 function showArchiveInfo() {
-    document.getElementById('archiveOverlay').style.display = 'block';
-    renderArchive();
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.showArchiveInfo === 'function') {
+        moduleApi.showArchiveInfo(getArchiveContext());
+    }
 }
 
 function closeArchiveModal() {
-    document.getElementById('archiveOverlay').style.display = 'none';
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.closeArchiveModal === 'function') {
+        moduleApi.closeArchiveModal(getArchiveContext());
+    }
 }
 
 function updateArchiveVaultButton() {
-    var vaultBtn = document.getElementById('archiveVaultBtn');
-    if (!vaultBtn) return;
-    vaultBtn.disabled = archivedItems.length === 0;
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.updateArchiveVaultButton === 'function') {
+        moduleApi.updateArchiveVaultButton(getArchiveContext());
+    }
 }
 
 function renderArchive() {
-    var title = document.getElementById('archiveTitle');
-    if (title) title.textContent = t('archiveModalTitle') + ' (' + archivedItems.length + ')';
-    updateArchiveVaultButton();
-    
-    var search = (document.getElementById('archiveSearch')?.value || '').toLowerCase();
-    var container = document.getElementById('archiveContent');
-    if (!container) return;
-    
-    var html = '';
-    var filtered = archivedItems.filter(function(p) {
-        return p.name.toLowerCase().includes(search) || 
-               (p.task || '').toLowerCase().includes(search) || 
-               (p.note || '').toLowerCase().includes(search);
-    });
-    var archiveAgeText = function(p) {
-        return p.age === '' || p.age === null || p.age === undefined ? '' : ` (${escapeHTML(p.age)})`;
-    };
-    
-    if (filtered.length === 0) {
-        html = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">' + t('archiveEmpty') + '</p>';
-    } else {
-        filtered.forEach(function(p) {
-            html += `
-                <div class="archive-item">
-                    <b>${escapeHTML(p.name)}</b>${archiveAgeText(p)}<br>
-                    ${escapeHTML(p.task || '')}
-                    <div style="margin-top: 4px; font-size: 12px; color: var(--text-muted);">${formatTime(p.updated)}</div>
-                    <div style="margin-top: 4px;">
-                        <button onclick="restoreArchive(${p.id})">${t('archiveRestore')}</button>
-                    </div>
-                </div>
-            `;
-        });
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.renderArchive === 'function') {
+        moduleApi.renderArchive(getArchiveContext());
     }
-    
-    container.innerHTML = html;
 }
 
 function vaultArchive(options) {
-    options = options || {};
-    if (archivedItems.length === 0) {
-        showMessage(t('archiveEmpty'), 'info');
-        updateArchiveVaultButton();
-        return;
-    }
-
-    var archiveCount = archivedItems.length;
-    var skipConfirm = options.skipConfirm === true;
-    var clearAfterExport = options.clearAfterExport !== false;
-    if (!skipConfirm && !confirm(t('archiveVaultConfirm').replace('{count}', archiveCount))) return;
-
-    var password = options.password || requestEncryptionPassword();
-    if (!password) return;
-
-    showProgress(t('archiveVaultProgress'));
-
-    try {
-        var vaultData = {
-            archivedItems: archivedItems,
-            adminUpdates: getAdminUpdates(),
-            exportedAt: new Date().toISOString(),
-            version: '2.2',
-            totalItems: archiveCount,
-            source: 'archive-vault'
-        };
-
-        var blob = createEncryptedExportBlob(vaultData, password);
-        var fileName = options.fileName || requestExportFileName('apexcore-archive-vault-' + new Date().toISOString().split('T')[0], '.enc');
-        if (!fileName) {
-            hideProgress();
-            return;
-        }
-        downloadBlob(blob, fileName);
-
-        if (clearAfterExport) {
-            archivedItems = [];
-            saveData();
-            render();
-            renderArchive();
-        }
-        hideProgress();
-        if (clearAfterExport) {
-            showMessage(t('archiveVaultSuccess').replace('{count}', archiveCount), 'success');
-        } else {
-            showMessage(t('msgEncrypted').replace('{count}', archiveCount), 'success');
-        }
-    } catch (error) {
-        hideProgress();
-        showMessage('❌ ' + (getLang() === 'sv' ? 'Fel vid kryptering: ' : 'Encryption error: ') + error.message, 'error');
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.vaultArchive === 'function') {
+        moduleApi.vaultArchive(getArchiveContext(), options);
     }
 }
 
 function getArchiveSaveBeforeClearPrompt() {
-    var lang = getLang();
-    if (lang === 'en') {
-        return 'Do you want to save an encrypted backup file before clearing the archive?\n\nOK = Save encrypted file, then clear archive\nCancel = Continue without backup';
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.getArchiveSaveBeforeClearPrompt === 'function') {
+        return moduleApi.getArchiveSaveBeforeClearPrompt(getArchiveContext());
     }
-    if (lang === 'da') {
-        return 'Vil du gemme en krypteret backupfil, før arkivet ryddes?\n\nOK = Gem krypteret fil og ryd arkivet\nAnnuller = Fortsæt uden backup';
-    }
-    if (lang === 'no') {
-        return 'Vil du lagre en kryptert backupfil før arkivet tømmes?\n\nOK = Lagre kryptert fil og tøm arkivet\nAvbryt = Fortsett uten backup';
-    }
-    if (lang === 'fi') {
-        return 'Haluatko tallentaa salatun varmuuskopiotiedoston ennen arkiston tyhjennystä?\n\nOK = Tallenna salattu tiedosto ja tyhjennä arkisto\nPeruuta = Jatka ilman varmuuskopiota';
-    }
-    return 'Vill du spara en krypterad backup-fil innan arkivet rensas?\n\nOK = Spara krypterad fil och rensa arkivet\nAvbryt = Fortsätt utan backup';
+    return '';
 }
 
 function getArchiveCleanupTexts() {
-    var lang = getLang();
-    if (lang === 'en') {
-        return {
-            title: '🧹 Clear archive',
-            text: 'Do you want to save an encrypted backup file before clearing the archive?',
-            cancel: '❌ Cancel',
-            clear: '🗑️ Clear without backup',
-            save: '🗄️ Save encrypted file'
-        };
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.getArchiveCleanupTexts === 'function') {
+        return moduleApi.getArchiveCleanupTexts(getArchiveContext());
     }
-    if (lang === 'da') {
-        return {
-            title: '🧹 Ryd arkiv',
-            text: 'Vil du gemme en krypteret backupfil, før arkivet ryddes?',
-            cancel: '❌ Annuller',
-            clear: '🗑️ Ryd uden backup',
-            save: '🗄️ Gem krypteret fil'
-        };
-    }
-    if (lang === 'no') {
-        return {
-            title: '🧹 Tøm arkiv',
-            text: 'Vil du lagre en kryptert backupfil før arkivet tømmes?',
-            cancel: '❌ Avbryt',
-            clear: '🗑️ Tøm uten backup',
-            save: '🗄️ Lagre kryptert fil'
-        };
-    }
-    if (lang === 'fi') {
-        return {
-            title: '🧹 Tyhjennä arkisto',
-            text: 'Haluatko tallentaa salatun varmuuskopiotiedoston ennen arkiston tyhjennystä?',
-            cancel: '❌ Peruuta',
-            clear: '🗑️ Tyhjennä ilman varmuuskopiota',
-            save: '🗄️ Tallenna salattu tiedosto'
-        };
-    }
-    return {
-        title: '🧹 Rensa arkiv',
-        text: 'Vill du spara en krypterad backup-fil innan arkivet rensas?',
-        cancel: '❌ Avbryt',
-        clear: '🗑️ Rensa utan backup',
-        save: '🗄️ Spara krypterad fil'
-    };
+    return {};
 }
 
 function getArchivePasswordTexts() {
-    var lang = getLang();
-    if (lang === 'en') {
-        return {
-            title: '🔐 Encrypted backup',
-            text: 'Enter a password for the backup file.',
-            placeholder: 'Password',
-            placeholderConfirm: 'Confirm password',
-            cancel: '❌ Cancel',
-            save: '💾 Save backup'
-        };
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.getArchivePasswordTexts === 'function') {
+        return moduleApi.getArchivePasswordTexts(getArchiveContext());
     }
-    if (lang === 'da') {
-        return {
-            title: '🔐 Krypteret backup',
-            text: 'Angiv et kodeord til backupfilen.',
-            placeholder: 'Kodeord',
-            placeholderConfirm: 'Bekræft kodeord',
-            cancel: '❌ Annuller',
-            save: '💾 Gem backup'
-        };
-    }
-    if (lang === 'no') {
-        return {
-            title: '🔐 Kryptert backup',
-            text: 'Angi passord for backupfilen.',
-            placeholder: 'Passord',
-            placeholderConfirm: 'Bekreft passord',
-            cancel: '❌ Avbryt',
-            save: '💾 Lagre backup'
-        };
-    }
-    if (lang === 'fi') {
-        return {
-            title: '🔐 Salattu varmuuskopio',
-            text: 'Anna salasana varmuuskopiotiedostolle.',
-            placeholder: 'Salasana',
-            placeholderConfirm: 'Vahvista salasana',
-            cancel: '❌ Peruuta',
-            save: '💾 Tallenna varmuuskopio'
-        };
-    }
-    return {
-        title: '🔐 Krypterad backup',
-        text: 'Ange lösenord för backup-filen.',
-        placeholder: 'Lösenord',
-        placeholderConfirm: 'Bekräfta lösenord',
-        cancel: '❌ Avbryt',
-        save: '💾 Spara backup'
-    };
+    return {};
 }
 
 function getImportPasswordTexts() {
-    var lang = getLang();
-    if (lang === 'en') {
-        return {
-            title: '🔓 Import encrypted file',
-            text: 'Enter the password for the encrypted import file.',
-            placeholder: 'Password',
-            placeholderConfirm: '',
-            cancel: '❌ Cancel',
-            save: '📥 Import'
-        };
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.getImportPasswordTexts === 'function') {
+        return moduleApi.getImportPasswordTexts(getArchiveContext());
     }
-    if (lang === 'da') {
-        return {
-            title: '🔓 Importér krypteret fil',
-            text: 'Indtast kodeordet til den krypterede importfil.',
-            placeholder: 'Kodeord',
-            placeholderConfirm: '',
-            cancel: '❌ Annuller',
-            save: '📥 Importér'
-        };
-    }
-    if (lang === 'no') {
-        return {
-            title: '🔓 Importer kryptert fil',
-            text: 'Skriv inn passordet for den krypterte importfilen.',
-            placeholder: 'Passord',
-            placeholderConfirm: '',
-            cancel: '❌ Avbryt',
-            save: '📥 Importer'
-        };
-    }
-    if (lang === 'fi') {
-        return {
-            title: '🔓 Tuo salattu tiedosto',
-            text: 'Anna salatun tuontitiedoston salasana.',
-            placeholder: 'Salasana',
-            placeholderConfirm: '',
-            cancel: '❌ Peruuta',
-            save: '📥 Tuo'
-        };
-    }
-    return {
-        title: '🔓 Importera krypterad fil',
-        text: 'Ange lösenordet för den krypterade importfilen.',
-        placeholder: 'Lösenord',
-        placeholderConfirm: '',
-        cancel: '❌ Avbryt',
-        save: '📥 Importera'
-    };
+    return {};
 }
 
 function closeArchiveCleanupModal() {
-    var modal = document.getElementById('archiveCleanupModal');
-    if (!modal) return;
-    modal.style.display = 'none';
-    isArchiveCleanupModalOpen = false;
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.closeArchiveCleanupModal === 'function') {
+        moduleApi.closeArchiveCleanupModal(getArchiveContext());
+    }
 }
 
 function closeArchivePasswordModal() {
-    var modal = document.getElementById('archivePasswordModal');
-    if (!modal) return;
-    modal.style.display = 'none';
-    isArchivePasswordModalOpen = false;
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.closeArchivePasswordModal === 'function') {
+        moduleApi.closeArchivePasswordModal(getArchiveContext());
+    }
 }
 
 function showArchivePasswordModal(onConfirm, options) {
-    options = options || {};
-    var modal = document.getElementById('archivePasswordModal');
-    var title = document.getElementById('archivePasswordTitle');
-    var text = document.getElementById('archivePasswordText');
-    var passwordInput = document.getElementById('archivePasswordInput');
-    var confirmInput = document.getElementById('archivePasswordConfirmInput');
-    var cancelBtn = document.getElementById('archivePasswordCancelBtn');
-    var okBtn = document.getElementById('archivePasswordOkBtn');
-    var requireConfirm = options.requireConfirm !== false;
-    var labels = options.labels || getArchivePasswordTexts();
-
-    if (!modal || !title || !text || !passwordInput || !confirmInput || !cancelBtn || !okBtn) {
-        var fallbackPassword = null;
-        if (requireConfirm) {
-            fallbackPassword = requestEncryptionPassword();
-        } else {
-            var fallbackPromptText = options.fallbackPromptText || t('msgEncryptedPassword');
-            try {
-                fallbackPassword = prompt(fallbackPromptText);
-            } catch (fallbackPromptError) {
-                fallbackPassword = null;
-            }
-        }
-        if (!fallbackPassword) return;
-        onConfirm(fallbackPassword);
-        return;
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.showArchivePasswordModal === 'function') {
+        moduleApi.showArchivePasswordModal(getArchiveContext(), onConfirm, options);
     }
-
-    title.textContent = labels.title;
-    text.textContent = labels.text;
-    passwordInput.placeholder = labels.placeholder;
-    confirmInput.placeholder = labels.placeholderConfirm || '';
-    confirmInput.style.display = requireConfirm ? '' : 'none';
-    cancelBtn.textContent = labels.cancel;
-    okBtn.textContent = labels.save;
-    passwordInput.value = '';
-    confirmInput.value = '';
-
-    isArchivePasswordModalOpen = true;
-    modal.style.display = 'flex';
-
-    function cleanup() {
-        closeArchivePasswordModal();
-        modal.onclick = null;
-        cancelBtn.onclick = null;
-        okBtn.onclick = null;
-    }
-
-    function cancel() {
-        cleanup();
-    }
-
-    function submit() {
-        var password = (passwordInput.value || '').trim();
-        var confirmPassword = (confirmInput.value || '').trim();
-
-        if (!password || password.length < 4) {
-            showMessage(t('msgEncryptedPasswordShort'), 'error');
-            return;
-        }
-        if (requireConfirm && password !== confirmPassword) {
-            showMessage(t('msgPasswordMismatch'), 'error');
-            return;
-        }
-
-        cleanup();
-        onConfirm(password);
-    }
-
-    modal.onclick = function(event) {
-        if (event.target === modal) cancel();
-    };
-
-    cancelBtn.onclick = function(event) {
-        event.preventDefault();
-        cancel();
-    };
-
-    okBtn.onclick = function(event) {
-        event.preventDefault();
-        submit();
-    };
-
-    passwordInput.onkeydown = function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            if (requireConfirm) {
-                confirmInput.focus();
-            } else {
-                submit();
-            }
-        }
-        if (event.key === 'Escape') {
-            event.preventDefault();
-            cancel();
-        }
-    };
-
-    confirmInput.onkeydown = function(event) {
-        if (!requireConfirm) return;
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            submit();
-        }
-        if (event.key === 'Escape') {
-            event.preventDefault();
-            cancel();
-        }
-    };
-
-    setTimeout(function() {
-        passwordInput.focus();
-    }, 0);
 }
 
 function saveAutoSafetySnapshot() {
@@ -3853,305 +2998,134 @@ function restoreAutoSafetySnapshot() {
 }
 
 function showArchiveCleanupModal() {
-    var modal = document.getElementById('archiveCleanupModal');
-    var title = document.getElementById('archiveCleanupTitle');
-    var text = document.getElementById('archiveCleanupText');
-    var cancelBtn = document.getElementById('archiveCleanupCancelBtn');
-    var clearBtn = document.getElementById('archiveCleanupClearBtn');
-    var backupBtn = document.getElementById('archiveCleanupBackupBtn');
-
-    if (!modal || !title || !text || !cancelBtn || !clearBtn || !backupBtn) {
-        var wantsBackupFallback = confirm(getArchiveSaveBeforeClearPrompt());
-        if (wantsBackupFallback) {
-            vaultArchive({ skipConfirm: true, clearAfterExport: true });
-            return;
-        }
-        if (!confirm(t('archiveConfirmClear'))) return;
-        saveAutoSafetySnapshot();
-        archivedItems = [];
-        saveData();
-        render();
-        renderArchive();
-        updateAutoSafetyRestoreButtons();
-        showMessage(t('archiveCleared'), 'info');
-        return;
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.showArchiveCleanupModal === 'function') {
+        moduleApi.showArchiveCleanupModal(getArchiveContext());
     }
-
-    var labels = getArchiveCleanupTexts();
-    title.textContent = labels.title;
-    text.textContent = labels.text;
-    cancelBtn.textContent = labels.cancel;
-    clearBtn.textContent = labels.clear;
-    backupBtn.textContent = labels.save;
-
-    isArchiveCleanupModalOpen = true;
-    modal.style.display = 'flex';
-
-    function cleanup() {
-        closeArchiveCleanupModal();
-        modal.onclick = null;
-        cancelBtn.onclick = null;
-        clearBtn.onclick = null;
-        backupBtn.onclick = null;
-    }
-
-    function cancel() {
-        cleanup();
-    }
-
-    function clearWithoutBackup() {
-        cleanup();
-        saveAutoSafetySnapshot();
-        archivedItems = [];
-        saveData();
-        render();
-        renderArchive();
-        updateAutoSafetyRestoreButtons();
-        showMessage(t('archiveCleared'), 'info');
-    }
-
-    function saveBackupThenClear() {
-        cleanup();
-        showArchivePasswordModal(function(password) {
-            var fileName = 'apexcore-archive-vault-' + new Date().toISOString().split('T')[0] + '.enc';
-            vaultArchive({
-                skipConfirm: true,
-                clearAfterExport: true,
-                password: password,
-                fileName: fileName
-            });
-        });
-    }
-
-    modal.onclick = function(event) {
-        if (event.target === modal) cancel();
-    };
-
-    cancelBtn.onclick = function(event) {
-        event.preventDefault();
-        cancel();
-    };
-
-    clearBtn.onclick = function(event) {
-        event.preventDefault();
-        clearWithoutBackup();
-    };
-
-    backupBtn.onclick = function(event) {
-        event.preventDefault();
-        saveBackupThenClear();
-    };
 }
 
 function clearArchiveWithBackupPrompt() {
-    if (archivedItems.length === 0) {
-        showMessage(t('archiveEmpty'), 'info');
-        return;
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.clearArchiveWithBackupPrompt === 'function') {
+        moduleApi.clearArchiveWithBackupPrompt(getArchiveContext());
     }
-    showArchiveCleanupModal();
 }
 
 function restoreArchive(id) {
-    var i = archivedItems.findIndex(function(p) { return p.id === id; });
-    if (i === -1) return;
-    items.push(archivedItems[i]);
-    archivedItems.splice(i, 1);
-    saveData();
-    render();
-    renderArchive();
-    showMessage(t('archiveRestored'), 'info');
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.restoreArchive === 'function') {
+        moduleApi.restoreArchive(getArchiveContext(), id);
+    }
 }
 
 function deleteArchiveItem(id) {
-    if (!confirm(t('archiveConfirmDelete'))) return;
-    archivedItems = archivedItems.filter(function(p) { return p.id !== id; });
-    saveData();
-    renderArchive();
-    showMessage(t('archiveDeleted'), 'info');
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.deleteArchiveItem === 'function') {
+        moduleApi.deleteArchiveItem(getArchiveContext(), id);
+    }
 }
 
 function clearArchive() {
-    clearArchiveWithBackupPrompt();
+    var moduleApi = getArchiveModule();
+    if (typeof moduleApi.clearArchive === 'function') {
+        moduleApi.clearArchive(getArchiveContext());
+    }
 }
 
 // ============================================
 // 🆕 ADMIN FUNKTIONER
 // ============================================
 
-let isAdminLoggedIn = false;
-let editAdminIndex = -1;
-
 function getAdminPasswordHash() {
-    const stored = localStorage.getItem('adminPasswordHash');
-    if (stored && isPasswordHashed(stored)) return stored;
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.getAdminPasswordHash === 'function') {
+        return moduleApi.getAdminPasswordHash(getAdminContext());
+    }
     return hashPassword('admin123');
 }
 
 function showAdminLogin() {
-    if (isAdminLoggedIn) {
-        openAdminPanel();
-        return;
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.showAdminLogin === 'function') {
+        moduleApi.showAdminLogin(getAdminContext());
     }
-
-    document.getElementById('adminLoginOverlay').style.display = 'flex';
-    document.getElementById('adminPasswordInput').value = '';
-    document.getElementById('adminLoginError').textContent = '';
-    document.getElementById('adminPasswordInput').focus();
 }
 
 function closeAdminLogin() {
-    document.getElementById('adminLoginOverlay').style.display = 'none';
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.closeAdminLogin === 'function') {
+        moduleApi.closeAdminLogin(getAdminContext());
+    }
 }
 
 function adminLogin() {
-    const input = document.getElementById('adminPasswordInput').value;
-    const errorDiv = document.getElementById('adminLoginError');
-    
-    if (hashPassword(input) === getAdminPasswordHash()) {
-        isAdminLoggedIn = true;
-        errorDiv.textContent = '';
-        closeAdminLogin();
-        openAdminPanel();
-    } else {
-        errorDiv.textContent = t('adminLoginError');
-        document.getElementById('adminPasswordInput').value = '';
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.adminLogin === 'function') {
+        moduleApi.adminLogin(getAdminContext());
     }
 }
 
 function openAdminPanel() {
-    document.getElementById('adminPanel').style.display = 'flex';
-    document.getElementById('adminDate').value = new Date().toISOString().split('T')[0];
-    renderAdminList();
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.openAdminPanel === 'function') {
+        moduleApi.openAdminPanel(getAdminContext());
+    }
 }
 
 function closeAdminPanel() {
-    document.getElementById('adminPanel').style.display = 'none';
-    editAdminIndex = -1;
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.closeAdminPanel === 'function') {
+        moduleApi.closeAdminPanel(getAdminContext());
+    }
 }
 
 function addAdminItem() {
-    const title = document.getElementById('adminTitle').value.trim();
-    const desc = document.getElementById('adminDesc').value.trim();
-    const type = document.getElementById('adminType').value;
-    const date = document.getElementById('adminDate').value || 'Planerat';
-    
-    if (!title || !desc) {
-        alert(t('adminMissingFields'));
-        return;
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.addAdminItem === 'function') {
+        moduleApi.addAdminItem(getAdminContext());
     }
-    
-    const updates = getAdminUpdates();
-    const newItem = { type, date, title, description: desc };
-    
-    if (editAdminIndex >= 0) {
-        updates[editAdminIndex] = newItem;
-        editAdminIndex = -1;
-    } else {
-        updates.unshift(newItem);
-    }
-    
-    saveAdminUpdates(updates);
-    clearAdminForm();
-    renderAdminList();
-    renderInfoContent();
-    showMessage(t('adminSavedMessage'), 'success');
 }
 
 function deleteAdminItem(index) {
-    if (!confirm(t('adminDeleteConfirm'))) return;
-    const updates = getAdminUpdates();
-    updates.splice(index, 1);
-    saveAdminUpdates(updates);
-    renderAdminList();
-    renderInfoContent();
-    showMessage(t('adminDeletedMessage'), 'info');
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.deleteAdminItem === 'function') {
+        moduleApi.deleteAdminItem(getAdminContext(), index);
+    }
 }
 
 function editAdminItem(index) {
-    const updates = getAdminUpdates();
-    const item = updates[index];
-    
-    document.getElementById('adminTitle').value = item.title;
-    document.getElementById('adminDesc').value = item.description;
-    document.getElementById('adminType').value = item.type;
-    document.getElementById('adminDate').value = item.date !== 'Planerat' ? item.date : '';
-    
-    editAdminIndex = index;
-    document.querySelector('#adminPanel .admin-content').scrollTop = 0;
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.editAdminItem === 'function') {
+        moduleApi.editAdminItem(getAdminContext(), index);
+    }
 }
 
 function clearAdminForm() {
-    document.getElementById('adminTitle').value = '';
-    document.getElementById('adminDesc').value = '';
-    document.getElementById('adminType').value = 'new';
-    document.getElementById('adminDate').value = new Date().toISOString().split('T')[0];
-    editAdminIndex = -1;
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.clearAdminForm === 'function') {
+        moduleApi.clearAdminForm(getAdminContext());
+    }
 }
 
 function renderAdminList() {
-    const container = document.getElementById('adminList');
-    const updates = sortUpdatesByType(getAdminUpdates().map(function(item, index) {
-        return Object.assign({ originalIndex: index }, item);
-    }));
-    
-    if (updates.length === 0) {
-        container.innerHTML = '<p id="adminEmptyText" style="color: var(--text-muted);">' + t('adminEmptyText') + '</p>';
-        return;
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.renderAdminList === 'function') {
+        moduleApi.renderAdminList(getAdminContext());
     }
-    
-    let html = '';
-    updates.forEach(function(item) {
-        const badgeClass = getUpdateBadgeClass(item.type);
-        const badgeText = getUpdateBadgeText(item.type);
-        
-        html += `
-            <div class="admin-item">
-                <div class="item-info">
-                    <div class="title">${escapeHTML(item.title)}</div>
-                    <div class="desc">
-                        <span class="badge ${badgeClass}" style="font-size: 10px;">${badgeText}</span>
-                        ${escapeHTML(item.date)} - ${escapeHTML(item.description)}
-                    </div>
-                </div>
-                <div class="item-actions">
-                    <button class="edit-btn" onclick="editAdminItem(${item.originalIndex})">✏️</button>
-                    <button class="delete-btn" onclick="deleteAdminItem(${item.originalIndex})">✕</button>
-                </div>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
 }
 
 function renderInfoContent() {
-    var container = document.getElementById('infoContent');
-    if (!container) return;
-
-    var updates = sortUpdatesByType(getAdminUpdates());
-    if (!updates.length) {
-        container.innerHTML = '<p style="color: var(--text-muted);">' + t('adminEmptyText') + '</p>';
-        return;
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.renderInfoContent === 'function') {
+        moduleApi.renderInfoContent(getAdminContext());
     }
-
-    var html = '';
-    updates.forEach(function(item) {
-        html += '<div class="info-update-item">'
-            + '<div class="title">' + escapeHTML(item.title || '') + '</div>'
-            + '<div class="desc">'
-            + '<span class="badge ' + escapeHTML(getUpdateBadgeClass(item.type)) + '">' + escapeHTML(getUpdateBadgeText(item.type)) + '</span> '
-            + escapeHTML(item.date || '') + ' - ' + escapeHTML(item.description || '')
-            + '</div>'
-            + '</div>';
-    });
-
-    container.innerHTML = html;
 }
 
 function saveAdminChanges() {
-    renderAdminList();
-    renderInfoContent();
-    showMessage(t('adminChangesSavedMessage'), 'success');
+    var moduleApi = getAdminModule();
+    if (typeof moduleApi.saveAdminChanges === 'function') {
+        moduleApi.saveAdminChanges(getAdminContext());
+    }
 }
 
 // ============================================
