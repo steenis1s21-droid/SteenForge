@@ -373,7 +373,7 @@ body {
     position: absolute;
     top: 53px;
     right: auto;
-    left: 136px;
+    left: 135px;
     background: var(--bg-white);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -391,12 +391,14 @@ body {
     width: 100%;
     text-align: left;
     margin: 0;
+    margin: 0;
     display: block;
 }
 
 .settings-divider {
     border-top: 1px solid var(--border-color);
-    margin:  0;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .settings-language-wrapper {
@@ -409,8 +411,8 @@ body {
 }
 
 .settings-language-wrapper .language-dropdown {
-    top: 0;
-    right: calc(100% + 6px);
+    top: 45px;
+    right: calc(100% - 135px);
 }
 
 /* INFO-KNAPP */
