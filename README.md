@@ -33,6 +33,21 @@ A simple starter site for hosting your app downloads and release notes.
 3. Run `npm run build:web` inside `ApexCore_3.0.3_stable/`.
 4. Verify that `dist-web/index.html` opens and that ApexCore on the main site shows the expected version.
 
+## ApexCore Module Map
+
+- `assets/js/app.js` now acts mainly as orchestration and wrapper glue.
+- `assets/js/modules/state-helpers.js` owns save/load and state normalization.
+- `assets/js/modules/active-rendering.js` owns the Active list and group rendering.
+- `assets/js/modules/archive-ui.js` owns archive actions and archive dialogs.
+- `assets/js/modules/import-export-core.js` owns backup import/export logic.
+- `assets/js/modules/admin-updates.js` owns the info/admin panel.
+- `assets/js/modules/item-actions.js` owns move, delete, undo, and drag/drop.
+- `assets/js/modules/item-form.js` owns the add-item form and category entry flow.
+- `assets/js/modules/login-session.js` owns login, logout, and password changes.
+- `assets/js/modules/ui-feedback.js` owns messages and progress overlays.
+
+Keep new behavior in the narrowest matching module first. If a change affects the HTML onclick handlers or startup order, preserve the wrapper function names in `app.js`.
+
 ## Sleep Journal Web Workflow
 
 - `Sleep journal wip/` is the current Sleep Journal source folder.
