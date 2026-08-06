@@ -248,6 +248,13 @@
             return target.closest('#editor');
         }
 
+        function getOpenEditor() {
+            var editor = document.getElementById('editor');
+            if (!editor) return null;
+            if (window.getComputedStyle(editor).display === 'none') return null;
+            return editor;
+        }
+
         function hasOtherScrollableAncestor(target, activeList) {
             var current = target;
             while (current && current !== document.body) {
@@ -271,7 +278,7 @@
             if (isEditableTarget(event.target)) return;
             if (isArchiveListTarget(event.target)) return;
 
-            var editor = getEditorFromTarget(event.target);
+            var editor = getEditorFromTarget(event.target) || getOpenEditor();
             if (editor && isScrollableElement(editor)) {
                 event.preventDefault();
                 if (canScrollInDirection(editor, event.deltaY)) {
@@ -307,6 +314,15 @@
             if (isEditableTarget(event.target)) return;
             if (isArchiveListTarget(event.target)) return;
             if (hasOtherScrollableAncestor(event.target, activeList)) return;
+
+            var openEditor = getOpenEditor();
+            if (openEditor && isScrollableElement(openEditor)) {
+                event.preventDefault();
+                if (canScrollInDirection(openEditor, event.deltaY)) {
+                    openEditor.scrollTop += event.deltaY;
+                }
+                return;
+            }
 
             event.preventDefault();
             activeList.scrollTop += event.deltaY;
