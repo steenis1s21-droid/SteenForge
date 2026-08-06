@@ -340,6 +340,14 @@
     <label id="phonebookPhoneLabel">Telefon:</label><br>
     <input id="phonebookPhone" placeholder="Telefonnummer" onkeypress="if(event.key==='Enter') phonebookAddContact()"><br><br>
 
+    <label id="phonebookCategoryLabel">Kategori:</label><br>
+    <select id="phonebookCategory">
+        <option id="phonebookCategoryOptionPatients" value="patients">🏥 Patienter</option>
+        <option id="phonebookCategoryOptionAuthorities" value="authorities">🏛️ Myndigheter</option>
+        <option id="phonebookCategoryOptionPrivate" value="private">🏠 Privat</option>
+        <option id="phonebookCategoryOptionOther" value="other">📌 Övrigt</option>
+    </select><br><br>
+
     <button onclick="phonebookAddContact()" id="phonebookAddBtn">➕ Lägg till kontakt</button>
     <button onclick="closePhonebookPanel()" id="phonebookCloseBtn">❌ Stäng</button>
 

@@ -65,6 +65,11 @@ const translations = {
         phonebookComingSoon: '📞 Telefonbok kommer snart.',
         phonebookTitle: '📞 Telefonbok',
         phonebookNameLabel: 'Namn:',
+        phonebookCategoryLabel: 'Kategori:',
+        phonebookCategoryPatients: 'Patienter',
+        phonebookCategoryAuthorities: 'Myndigheter',
+        phonebookCategoryPrivate: 'Privat',
+        phonebookCategoryOther: 'Övrigt',
         phonebookPhoneLabel: 'Telefon:',
         phonebookNamePlaceholder: 'Namn',
         phonebookPhonePlaceholder: 'Telefonnummer',
@@ -217,6 +222,11 @@ const translations = {
         phonebookComingSoon: '📞 Phonebook is coming soon.',
         phonebookTitle: '📞 Phonebook',
         phonebookNameLabel: 'Name:',
+        phonebookCategoryLabel: 'Category:',
+        phonebookCategoryPatients: 'Patients',
+        phonebookCategoryAuthorities: 'Authorities',
+        phonebookCategoryPrivate: 'Private',
+        phonebookCategoryOther: 'Other',
         phonebookPhoneLabel: 'Phone:',
         phonebookNamePlaceholder: 'Name',
         phonebookPhonePlaceholder: 'Phone number',
@@ -371,6 +381,11 @@ const translations = {
         phonebookComingSoon: '📞 Telefonbog kommer snart.',
         phonebookTitle: '📞 Telefonbog',
         phonebookNameLabel: 'Navn:',
+        phonebookCategoryLabel: 'Kategori:',
+        phonebookCategoryPatients: 'Patienter',
+        phonebookCategoryAuthorities: 'Myndigheder',
+        phonebookCategoryPrivate: 'Privat',
+        phonebookCategoryOther: 'Andet',
         phonebookPhoneLabel: 'Telefon:',
         phonebookNamePlaceholder: 'Navn',
         phonebookPhonePlaceholder: 'Telefonnummer',
@@ -525,6 +540,11 @@ const translations = {
         phonebookComingSoon: '📞 Telefonbok kommer snart.',
         phonebookTitle: '📞 Telefonbok',
         phonebookNameLabel: 'Navn:',
+        phonebookCategoryLabel: 'Kategori:',
+        phonebookCategoryPatients: 'Pasienter',
+        phonebookCategoryAuthorities: 'Myndigheter',
+        phonebookCategoryPrivate: 'Privat',
+        phonebookCategoryOther: 'Annet',
         phonebookPhoneLabel: 'Telefon:',
         phonebookNamePlaceholder: 'Navn',
         phonebookPhonePlaceholder: 'Telefonnummer',
@@ -679,6 +699,11 @@ const translations = {
         phonebookComingSoon: '📞 Puhelinluettelo tulossa pian.',
         phonebookTitle: '📞 Puhelinluettelo',
         phonebookNameLabel: 'Nimi:',
+        phonebookCategoryLabel: 'Kategoria:',
+        phonebookCategoryPatients: 'Potilaat',
+        phonebookCategoryAuthorities: 'Viranomaiset',
+        phonebookCategoryPrivate: 'Yksityinen',
+        phonebookCategoryOther: 'Muu',
         phonebookPhoneLabel: 'Puhelin:',
         phonebookNamePlaceholder: 'Nimi',
         phonebookPhonePlaceholder: 'Puhelinnumero',
@@ -881,7 +906,8 @@ function getPhonebookContext() {
         t: t,
         showMessage: showMessage,
         escapeHTML: escapeHTML,
-        closeEdit: closeEdit
+        closeEdit: closeEdit,
+        normalizeCategoryValue: normalizeCategoryValue
     };
 }
 
@@ -2654,6 +2680,13 @@ function renderPhonebookPanel() {
     var moduleApi = getPhonebookModule();
     if (typeof moduleApi.renderContacts === 'function') {
         moduleApi.renderContacts(getPhonebookContext());
+    }
+}
+
+function togglePhonebookCategory(categoryKey) {
+    var moduleApi = getPhonebookModule();
+    if (typeof moduleApi.togglePhonebookCategory === 'function') {
+        moduleApi.togglePhonebookCategory(getPhonebookContext(), categoryKey);
     }
 }
 

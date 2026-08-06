@@ -1349,6 +1349,55 @@ button:hover {
     gap: 8px;
 }
 
+.phonebook-group {
+    list-style: none;
+}
+
+.phonebook-group-toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.phonebook-group-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.phonebook-group-arrow {
+    width: 12px;
+    display: inline-block;
+}
+
+.phonebook-group-count {
+    background: var(--bg-hover);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    font-size: 11px;
+    min-width: 22px;
+    text-align: center;
+    padding: 1px 6px;
+}
+
+.phonebook-group-items {
+    list-style: none;
+    padding: 6px 0 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.phonebook-group-items.collapsed {
+    display: none;
+}
+
 .phonebook-item {
     display: flex;
     justify-content: space-between;

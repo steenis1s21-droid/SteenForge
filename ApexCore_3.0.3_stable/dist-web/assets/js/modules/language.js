@@ -397,6 +397,11 @@
         setText('phonebookBtn', 'phonebookBtn');
         setText('phonebookTitle', 'phonebookTitle');
         setText('phonebookNameLabel', 'phonebookNameLabel');
+        setText('phonebookCategoryLabel', 'phonebookCategoryLabel');
+        setText('phonebookCategoryOptionPatients', 'phonebookCategoryPatients');
+        setText('phonebookCategoryOptionAuthorities', 'phonebookCategoryAuthorities');
+        setText('phonebookCategoryOptionPrivate', 'phonebookCategoryPrivate');
+        setText('phonebookCategoryOptionOther', 'phonebookCategoryOther');
         setText('phonebookPhoneLabel', 'phonebookPhoneLabel');
         setText('phonebookAddBtn', 'phonebookAddBtn');
         setText('phonebookCloseBtn', 'phonebookCloseBtn');
