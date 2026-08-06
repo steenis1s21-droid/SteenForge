@@ -2811,12 +2811,3 @@ setTimeout(function() {
     checkNotifications();
 }, 500);
 
-console.log('⭕ ApexCore redo!');
-console.log('📊 ' + items.length + ' aktiva, ' + doneItems.length + ' färdiga, ' + archivedItems.length + ' arkiverade poster');
-console.log('🌍 Språk: ' + getLang());
-console.log('🌓 Tema: ' + getTheme());
-console.log('⚙️ Admin-lösenord: admin123');
-console.log('⌨️ Enter-tangent aktiverad!');
-console.log('🔔 Notiser aktiverade! (kontrolleras var 5:e sekund)');
-console.log("RECOVERY CHECK", {items: items.length, personer: localStorage.getItem("personer")?.length || 0});
-
