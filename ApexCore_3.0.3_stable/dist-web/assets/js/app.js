@@ -788,6 +788,10 @@ function getActiveRenderingModule() {
     return window.ApexActiveRenderingModule || {};
 }
 
+function getStateHelpersModule() {
+    return window.ApexStateHelpersModule || {};
+}
+
 function getAdminModule() {
     return window.ApexAdminUpdatesModule || {};
 }
@@ -900,6 +904,21 @@ function getActiveRenderingContext() {
         saveData: saveData,
         updateArchiveVaultButton: updateArchiveVaultButton,
         renderSelf: function() { render(); }
+    };
+}
+
+function getStateHelpersContext() {
+    return {
+        getLang: getLang,
+        getItems: function() { return items; },
+        setItems: function(nextItems) { items = nextItems || []; },
+        getDoneItems: function() { return doneItems; },
+        setDoneItems: function(nextItems) { doneItems = nextItems || []; },
+        getArchivedItems: function() { return archivedItems; },
+        setArchivedItems: function(nextItems) { archivedItems = nextItems || []; },
+        getActiveGroupsCollapsed: function() { return activeGroupsCollapsed; },
+        setActiveGroupsCollapsed: function(nextGroups) { activeGroupsCollapsed = nextGroups || {}; },
+        setCurrentLanguage: function(nextLanguage) { currentLanguage = nextLanguage || 'sv'; }
     };
 }
 
@@ -1377,136 +1396,85 @@ function changePassword() {
 // ============================================
 
 function saveData() {
-    try {
-        localStorage.setItem("items", JSON.stringify(items || []));
-        localStorage.setItem("doneItems", JSON.stringify(doneItems || []));
-        localStorage.setItem("archivedItems", JSON.stringify(archivedItems || []));
-        localStorage.setItem('activeGroupsCollapsed', JSON.stringify(activeGroupsCollapsed || {}));
-    } catch (e) {
-        console.warn('Kunde inte spara appdata:', e);
+    var moduleApi = getStateHelpersModule();
+    if (typeof moduleApi.saveData === 'function') {
+        moduleApi.saveData(getStateHelpersContext());
     }
 }
 
 function normalizePriorityValue(value) {
+    var moduleApi = getStateHelpersModule();
+    if (typeof moduleApi.normalizePriorityValue === 'function') {
+        return moduleApi.normalizePriorityValue(value);
+    }
     return value === 'high' ? 'high' : 'normal';
 }
 
 function normalizeCategoryValue(value) {
-    var normalized = String(value || '').toLowerCase();
-    if (normalized === 'high' || normalized === 'patients' || normalized === 'authorities' || normalized === 'administration' || normalized === 'private' || normalized === 'games' || normalized === 'other') {
-        return normalized;
+    var moduleApi = getStateHelpersModule();
+    if (typeof moduleApi.normalizeCategoryValue === 'function') {
+        return moduleApi.normalizeCategoryValue(value);
     }
     return 'other';
 }
 
 function getStoredAddCategory() {
-    var stored = normalizeCategoryValue(localStorage.getItem('lastAddCategory'));
-    return stored === 'high' ? 'patients' : stored;
+    var moduleApi = getStateHelpersModule();
+    if (typeof moduleApi.getStoredAddCategory === 'function') {
+        return moduleApi.getStoredAddCategory();
+    }
+    return 'patients';
 }
 
 function setStoredAddCategory(category) {
-    var normalized = normalizeCategoryValue(category);
-    if (normalized === 'high') return;
-    localStorage.setItem('lastAddCategory', normalized);
+    var moduleApi = getStateHelpersModule();
+    if (typeof moduleApi.setStoredAddCategory === 'function') {
+        moduleApi.setStoredAddCategory(category);
+    }
 }
 
 function applyStoredAddCategorySelection() {
-    var categoryInput = document.getElementById('categoryInput');
-    if (!categoryInput) return;
-    categoryInput.value = getStoredAddCategory();
+    var moduleApi = getStateHelpersModule();
+    if (typeof moduleApi.applyStoredAddCategorySelection === 'function') {
+        moduleApi.applyStoredAddCategorySelection();
+    }
 }
 
 function getStoredActiveSortMode() {
-    var mode = localStorage.getItem('activeSortMode') || 'date-desc';
-    var validModes = ['date-desc', 'date-asc', 'name-asc', 'name-desc'];
-    return validModes.indexOf(mode) !== -1 ? mode : 'date-desc';
+    var moduleApi = getStateHelpersModule();
+    if (typeof moduleApi.getStoredActiveSortMode === 'function') {
+        return moduleApi.getStoredActiveSortMode();
+    }
+    return 'date-desc';
 }
 
 function setActiveSortMode(mode) {
-    var validModes = ['date-desc', 'date-asc', 'name-asc', 'name-desc'];
-    var normalized = validModes.indexOf(mode) !== -1 ? mode : 'date-desc';
-    localStorage.setItem('activeSortMode', normalized);
-
-    var sortSelect = document.getElementById('activeSortSelect');
-    if (sortSelect) {
-        sortSelect.value = normalized;
+    var moduleApi = getStateHelpersModule();
+    if (typeof moduleApi.setActiveSortMode === 'function') {
+        moduleApi.setActiveSortMode(mode);
     }
 }
 
 function sortActiveItems(list) {
-    var mode = getStoredActiveSortMode();
-    var lang = getLang();
-    var sorted = (list || []).slice();
-
-    sorted.sort(function(a, b) {
-        if (mode === 'name-asc' || mode === 'name-desc') {
-            var nameA = String(a.name || '');
-            var nameB = String(b.name || '');
-            var cmp = nameA.localeCompare(nameB, lang, { sensitivity: 'base' });
-            if (cmp !== 0) return mode === 'name-asc' ? cmp : -cmp;
-            return (b.updated || 0) - (a.updated || 0);
-        }
-
-        var dateA = Number(a.updated || 0);
-        var dateB = Number(b.updated || 0);
-        if (dateA !== dateB) {
-            return mode === 'date-asc' ? dateA - dateB : dateB - dateA;
-        }
-
-        return String(a.name || '').localeCompare(String(b.name || ''), lang, { sensitivity: 'base' });
-    });
-
-    return sorted;
+    var moduleApi = getStateHelpersModule();
+    if (typeof moduleApi.sortActiveItems === 'function') {
+        return moduleApi.sortActiveItems(getStateHelpersContext(), list);
+    }
+    return (list || []).slice();
 }
 
 function normalizeItemData(item) {
-    if (!item || typeof item !== 'object') return item;
-
-    item.priority = normalizePriorityValue(item.priority);
-    item.category = normalizeCategoryValue(item.category);
+    var moduleApi = getStateHelpersModule();
+    if (typeof moduleApi.normalizeItemData === 'function') {
+        return moduleApi.normalizeItemData(item);
+    }
     return item;
 }
 
 function loadData() {
-    try {
-        const i = localStorage.getItem("items");
-        const d = localStorage.getItem("doneItems");
-        const a = localStorage.getItem("archivedItems");
-        const g = localStorage.getItem('activeGroupsCollapsed');
-
-        items = i ? JSON.parse(i) : [];
-        doneItems = d ? JSON.parse(d) : [];
-        archivedItems = a ? JSON.parse(a) : [];
-
-        try {
-            activeGroupsCollapsed = g ? JSON.parse(g) : {};
-        } catch (e) {
-            activeGroupsCollapsed = {};
-        }
-    } catch (e) {
-        items = [];
-        doneItems = [];
-        archivedItems = [];
-        activeGroupsCollapsed = {};
-        console.warn('Kunde inte läsa appdata, använder tomt state:', e);
-    }
-
-    items = (items || []).map(normalizeItemData);
-    doneItems = (doneItems || []).map(normalizeItemData);
-    archivedItems = (archivedItems || []).map(normalizeItemData);
-
-    // Migrate historical Done entries into Archive so one completed flow is used.
-    if (doneItems.length > 0) {
-        archivedItems = doneItems.concat(archivedItems);
-        doneItems = [];
-        saveData();
-    }
-
-    const lang = localStorage.getItem('appLanguage') || 'sv';
-    currentLanguage = lang;
-
-    if (!localStorage.getItem('lastAddCategory')) {
-        localStorage.setItem('lastAddCategory', 'patients');
+    var moduleApi = getStateHelpersModule();
+    if (typeof moduleApi.loadData === 'function') {
+        moduleApi.loadData(getStateHelpersContext());
     }
 }
 
