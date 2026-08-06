@@ -371,8 +371,9 @@ body {
 .settings-dropdown {
     display: none;
     position: absolute;
-    top: 38px;
-    right: 0;
+    top: 53px;
+    right: auto;
+    left: 136px;
     background: var(--bg-white);
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -395,7 +396,7 @@ body {
 
 .settings-divider {
     border-top: 1px solid var(--border-color);
-    margin: 6px 0;
+    margin:  0;
 }
 
 .settings-language-wrapper {
@@ -564,7 +565,7 @@ body {
 }
 
 .export-import .settings-wrapper {
-    margin-left: 2px;
+    margin-left: auto;
 }
 
 .export-import button:hover {
