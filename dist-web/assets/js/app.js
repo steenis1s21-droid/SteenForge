@@ -1,40 +1,8 @@
 
 // ============================================
-// 🔔 LJUDNOTIS
+// MODULERAT BASLAGER
 // ============================================
-
-function playNotificationSound() {
-    if (!getSoundEnabled()) {
-        return;
-    }
-
-    try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        
-        oscillator.frequency.value = 880;
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-        
-        oscillator.start(audioCtx.currentTime);
-        oscillator.stop(audioCtx.currentTime + 0.3);
-    } catch(e) {
-        console.log('Ljudnotis ej tillgänglig');
-    }
-}
-
-function closeNotificationPopup() {
-    document.getElementById('notificationPopup').style.display = 'none';
-}
-
-
-
+// Ljud, tema och hash-hjälpare laddas från assets/js/modules/*.js
 
 
 // ============================================
@@ -46,10 +14,8 @@ let doneItems = []
 let deletedItem = null
 let archivedItems = []
 
-let activeEditId = null
 let dragId = null
 let isDragging = false
-let isSaveEditConfirmOpen = false
 let notificationInterval = null;
 let currentLanguage = 'sv';
 let activeGroupsCollapsed = {};
@@ -58,10 +24,6 @@ let renderArchiveDebounceTimer = null;
 let isArchiveCleanupModalOpen = false;
 let isArchivePasswordModalOpen = false;
 let pendingImportAction = 'import';
-let editorOriginalParent = null;
-let editorOriginalNextSibling = null;
-let isRecoveryCenterOpen = false;
-let isBackupHealthOpen = false;
 
 const BACKUP_FORMAT_VERSION = '3.0';
 const LEGACY_BACKUP_VERSION = '2.2';
@@ -79,85 +41,6 @@ function escapeHTML(str) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
-}
-
-function hashPassword(password) {
-    return CryptoJS.SHA256(password).toString();
-}
-
-function isPasswordHashed(str) {
-    return /^[a-f0-9]{64}$/.test(str);
-}
-
-// ============================================
-// �🔊 LJUDNOTISER
-// ============================================
-
-function getSoundEnabled() {
-    const saved = localStorage.getItem('soundEnabled');
-    return saved === null ? true : saved === 'true';
-}
-
-function setSoundEnabled(enabled) {
-    localStorage.setItem('soundEnabled', String(enabled));
-    updateSoundButton();
-}
-
-function toggleSound() {
-    const newState = !getSoundEnabled();
-    setSoundEnabled(newState);
-}
-
-function updateSoundButton() {
-    const btn = document.getElementById('soundBtn');
-    if (btn) {
-        const enabled = getSoundEnabled();
-        btn.textContent = enabled ? '🔊 Ljud' : '🔈 Ljud';
-        btn.title = enabled ? 'Stäng av ljudnotiser' : 'Aktivera ljudnotiser';
-    }
-}
-
-// ============================================
-// 🌓 MÖRKT TEMA
-// ============================================
-
-function getTheme() {
-    try {
-        return localStorage.getItem('theme') || 'light';
-    } catch (e) {
-        return 'light';
-    }
-}
-
-function setTheme(theme) {
-    try {
-        localStorage.setItem('theme', theme);
-    } catch (e) {
-        console.warn('Kunde inte spara tema:', e);
-    }
-    document.documentElement.setAttribute('data-theme', theme);
-    updateThemeButton();
-}
-
-function toggleTheme() {
-    const current = getTheme();
-    const newTheme = current === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-}
-
-function updateThemeButton() {
-    const btn = document.getElementById('themeBtn');
-    if (btn) {
-        const theme = getTheme();
-        btn.textContent = theme === 'dark' ? '☀️ Tema' : '🌓 Tema';
-        btn.title = theme === 'dark' ? 'Byt till ljust tema' : 'Byt till mörkt tema';
-    }
-}
-
-function loadTheme() {
-    const theme = getTheme();
-    document.documentElement.setAttribute('data-theme', theme);
-    updateThemeButton();
 }
 
 // ============================================
@@ -879,118 +762,53 @@ const translations = {
 // SPRÅKFUNKTIONER
 // ============================================
 
+window.ApexTranslations = translations;
+
+function getLanguageModule() {
+    return window.ApexLanguageModule || {};
+}
+
+function getBackupRecoveryModule() {
+    return window.ApexBackupRecoveryModule || {};
+}
+
+function getEditorModule() {
+    return window.ApexEditorModule || {};
+}
+
 function getLang() {
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.getLang === 'function') {
+        return moduleApi.getLang();
+    }
     return localStorage.getItem('appLanguage') || 'sv';
 }
 
 function setLang(lang) {
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.setLang === 'function') {
+        moduleApi.setLang(lang, function(nextLang) {
+            currentLanguage = nextLang;
+        });
+        return;
+    }
     localStorage.setItem('appLanguage', lang);
     currentLanguage = lang;
 }
 
 function getCategoryTexts() {
-    const lang = getLang();
-    if (lang === 'en') {
-        return {
-            label: 'Category:',
-            high: 'High Priority',
-            patients: 'Patients',
-            authorities: 'Authorities',
-            administration: 'Administration',
-            private: 'Private',
-            games: 'Games',
-            other: 'Other',
-            highPriority: 'High Priority'
-        };
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.getCategoryTexts === 'function') {
+        return moduleApi.getCategoryTexts(getLang());
     }
-    if (lang === 'da') {
-        return {
-            label: 'Kategori:',
-            high: 'Høj prioritet',
-            patients: 'Patienter',
-            authorities: 'Myndigheder',
-            administration: 'Administration',
-            private: 'Privat',
-            games: 'Spil',
-            other: 'Andet',
-            highPriority: 'Hoj prioritet'
-        };
-    }
-    if (lang === 'no') {
-        return {
-            label: 'Kategori:',
-            high: 'Høy prioritet',
-            patients: 'Pasienter',
-            authorities: 'Myndigheter',
-            administration: 'Administrasjon',
-            private: 'Privat',
-            games: 'Spill',
-            other: 'Annet',
-            highPriority: 'Hoy prioritet'
-        };
-    }
-    if (lang === 'fi') {
-        return {
-            label: 'Kategoria:',
-            high: 'Korkea prioriteetti',
-            patients: 'Potilaat',
-            authorities: 'Viranomaiset',
-            administration: 'Hallinto',
-            private: 'Yksityinen',
-            games: 'Pelit',
-            other: 'Muu',
-            highPriority: 'Korkea prioriteetti'
-        };
-    }
-
-    return {
-        label: 'Kategori:',
-        high: 'Hög prioritet',
-        patients: 'Patienter',
-        authorities: 'Myndigheter',
-        administration: 'Administration',
-        private: 'Privat',
-        games: 'Spel',
-        other: 'Övrigt',
-        highPriority: 'Hog prioritet'
-    };
+    return { label: 'Kategori:' };
 }
 
 function getSortTexts() {
-    var lang = getLang();
-    if (lang === 'en') {
-        return {
-            dateDesc: 'Newest first',
-            dateAsc: 'Oldest first',
-            nameAsc: 'Name A-Z',
-            nameDesc: 'Name Z-A'
-        };
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.getSortTexts === 'function') {
+        return moduleApi.getSortTexts(getLang());
     }
-    if (lang === 'da') {
-        return {
-            dateDesc: 'Nyeste først',
-            dateAsc: 'Ældste først',
-            nameAsc: 'Navn A-Å',
-            nameDesc: 'Navn Å-A'
-        };
-    }
-    if (lang === 'no') {
-        return {
-            dateDesc: 'Nyeste først',
-            dateAsc: 'Eldste først',
-            nameAsc: 'Navn A-Å',
-            nameDesc: 'Navn Å-A'
-        };
-    }
-    if (lang === 'fi') {
-        return {
-            dateDesc: 'Uusimmat ensin',
-            dateAsc: 'Vanhimmat ensin',
-            nameAsc: 'Nimi A-Ö',
-            nameDesc: 'Nimi Ö-A'
-        };
-    }
-
     return {
         dateDesc: 'Nyast först',
         dateAsc: 'Äldst först',
@@ -1000,162 +818,45 @@ function getSortTexts() {
 }
 
 function updateSortLanguageText() {
-    var text = getSortTexts();
-    var dateDesc = document.getElementById('sortOptionDateDesc');
-    var dateAsc = document.getElementById('sortOptionDateAsc');
-    var nameAsc = document.getElementById('sortOptionNameAsc');
-    var nameDesc = document.getElementById('sortOptionNameDesc');
-
-    if (dateDesc) dateDesc.textContent = text.dateDesc;
-    if (dateAsc) dateAsc.textContent = text.dateAsc;
-    if (nameAsc) nameAsc.textContent = text.nameAsc;
-    if (nameDesc) nameDesc.textContent = text.nameDesc;
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.updateSortLanguageText === 'function') {
+        moduleApi.updateSortLanguageText(getLang());
+    }
 }
 
 function getCategoryIcon(categoryKey) {
-    var normalized = normalizeCategoryValue(categoryKey);
-    if (normalized === 'high') return '🔴';
-    if (normalized === 'patients') return '🏥';
-    if (normalized === 'authorities') return '🏛️';
-    if (normalized === 'administration') return '🗂️';
-    if (normalized === 'private') return '🏠';
-    if (normalized === 'games') return '🎮';
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.getCategoryIcon === 'function') {
+        return moduleApi.getCategoryIcon(categoryKey, normalizeCategoryValue);
+    }
     return '📌';
 }
 
 function updateCategoryLanguageText() {
-    const text = getCategoryTexts();
-
-    const categoryLabel = document.getElementById('categoryLabel');
-    if (categoryLabel) categoryLabel.textContent = text.label;
-
-    const editCategoryLabel = document.getElementById('editCategoryLabel');
-    if (editCategoryLabel) editCategoryLabel.textContent = text.label;
-
-    const categoryOptionHigh = document.getElementById('categoryOptionHigh');
-    if (categoryOptionHigh) categoryOptionHigh.textContent = getCategoryIcon('high') + ' ' + text.high;
-    const categoryOptionPatients = document.getElementById('categoryOptionPatients');
-    if (categoryOptionPatients) categoryOptionPatients.textContent = getCategoryIcon('patients') + ' ' + text.patients;
-    const categoryOptionAuthorities = document.getElementById('categoryOptionAuthorities');
-    if (categoryOptionAuthorities) categoryOptionAuthorities.textContent = getCategoryIcon('authorities') + ' ' + text.authorities;
-    const categoryOptionAdministration = document.getElementById('categoryOptionAdministration');
-    if (categoryOptionAdministration) categoryOptionAdministration.textContent = getCategoryIcon('administration') + ' ' + text.administration;
-    const categoryOptionPrivate = document.getElementById('categoryOptionPrivate');
-    if (categoryOptionPrivate) categoryOptionPrivate.textContent = getCategoryIcon('private') + ' ' + text.private;
-    const categoryOptionGames = document.getElementById('categoryOptionGames');
-    if (categoryOptionGames) categoryOptionGames.textContent = getCategoryIcon('games') + ' ' + text.games;
-    const categoryOptionOther = document.getElementById('categoryOptionOther');
-    if (categoryOptionOther) categoryOptionOther.textContent = getCategoryIcon('other') + ' ' + text.other;
-
-    const editCategoryOptionHigh = document.getElementById('editCategoryOptionHigh');
-    if (editCategoryOptionHigh) editCategoryOptionHigh.textContent = getCategoryIcon('high') + ' ' + text.high;
-    const editCategoryOptionPatients = document.getElementById('editCategoryOptionPatients');
-    if (editCategoryOptionPatients) editCategoryOptionPatients.textContent = getCategoryIcon('patients') + ' ' + text.patients;
-    const editCategoryOptionAuthorities = document.getElementById('editCategoryOptionAuthorities');
-    if (editCategoryOptionAuthorities) editCategoryOptionAuthorities.textContent = getCategoryIcon('authorities') + ' ' + text.authorities;
-    const editCategoryOptionAdministration = document.getElementById('editCategoryOptionAdministration');
-    if (editCategoryOptionAdministration) editCategoryOptionAdministration.textContent = getCategoryIcon('administration') + ' ' + text.administration;
-    const editCategoryOptionPrivate = document.getElementById('editCategoryOptionPrivate');
-    if (editCategoryOptionPrivate) editCategoryOptionPrivate.textContent = getCategoryIcon('private') + ' ' + text.private;
-    const editCategoryOptionGames = document.getElementById('editCategoryOptionGames');
-    if (editCategoryOptionGames) editCategoryOptionGames.textContent = getCategoryIcon('games') + ' ' + text.games;
-    const editCategoryOptionOther = document.getElementById('editCategoryOptionOther');
-    if (editCategoryOptionOther) editCategoryOptionOther.textContent = getCategoryIcon('other') + ' ' + text.other;
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.updateCategoryLanguageText === 'function') {
+        moduleApi.updateCategoryLanguageText({ normalizeCategoryValue: normalizeCategoryValue });
+    }
 }
 
 function t(key) {
-    const lang = getLang();
-    const parts = key.split('.');
-    let value = translations[lang];
-    for (let part of parts) {
-        if (value && value[part] !== undefined) {
-            value = value[part];
-        } else {
-            return key;
-        }
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.t === 'function') {
+        return moduleApi.t(key);
     }
-    return value || key;
+    return key;
 }
 
 function getBackupUiText() {
-    var lang = getLang();
-    if (lang === 'en') {
-        return {
-            importDryRun: 'Dry-run import',
-            validateBackup: 'Validate backup',
-            restoreSafety: 'Restore safety',
-            backupToggleShow: 'Show backup status',
-            backupToggleHide: 'Hide backup status',
-            recoveryCenterTitle: 'Recovery Center',
-            recoveryToggleShow: 'Show Recovery Center',
-            recoveryToggleHide: 'Hide Recovery Center',
-            recoveryLastExport: 'Last export',
-            recoveryLastImport: 'Last import',
-            recoverySafetySnapshot: 'Safety snapshot',
-            recoveryNoData: 'No data',
-            healthTitle: 'Backup health',
-            crypto: 'Crypto',
-            storage: 'Storage',
-            exportStatus: 'Export',
-            importStatus: 'Import',
-            ok: 'OK',
-            warn: 'Warning',
-            error: 'Error',
-            unknown: 'Unknown',
-            dryRunSummary: 'Dry-run: {type} with {active} active, {done} done, {archived} archived.',
-            dryRunVaultSummary: 'Dry-run: archive vault with {archived} archived items.',
-            validateBackupSuccess: '✅ Backup validation passed.',
-            importInvalidVersion: 'Unsupported backup version.',
-            importInvalidStructure: 'Backup file is missing required fields.',
-            importWrongPassword: 'Wrong password or corrupt file.',
-            autoSafetySaved: 'Automatic safety snapshot saved before clearing archive.',
-            autoSafetyMissing: 'No safety snapshot available.',
-            autoSafetyRestored: '✅ Safety snapshot restored ({count} archived items).',
-            importPreviewTitle: 'Import preview',
-            importPreviewContinue: 'Continue import?',
-            importCancelled: 'Import cancelled before writing data.',
-            replacePrompt: 'Type REPLACE to confirm full replacement:',
-            replacePromptFailed: 'Replacement cancelled because confirmation phrase did not match.',
-            duplicateSkipped: 'Skipped {count} duplicate archive items during import.'
-        };
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.getBackupUiText === 'function') {
+        return moduleApi.getBackupUiText(getLang());
     }
     return {
-        importDryRun: 'Torrkör import',
-        validateBackup: 'Validera backup',
-        restoreSafety: 'Återställ safety',
         backupToggleShow: 'Visa backupstatus',
         backupToggleHide: 'Dölj backupstatus',
-        recoveryCenterTitle: 'Recovery Center',
         recoveryToggleShow: 'Visa Recovery Center',
-        recoveryToggleHide: 'Dölj Recovery Center',
-        recoveryLastExport: 'Senaste export',
-        recoveryLastImport: 'Senaste import',
-        recoverySafetySnapshot: 'Safety snapshot',
-        recoveryNoData: 'Ingen data',
-        healthTitle: 'Backupstatus',
-        crypto: 'Crypto',
-        storage: 'Lagring',
-        exportStatus: 'Export',
-        importStatus: 'Import',
-        ok: 'OK',
-        warn: 'Varning',
-        error: 'Fel',
-        unknown: 'Okänd',
-        dryRunSummary: 'Torrkörning: {type} med {active} aktiva, {done} färdiga, {archived} arkiverade.',
-        dryRunVaultSummary: 'Torrkörning: arkiv-vault med {archived} arkiverade poster.',
-        validateBackupSuccess: '✅ Backupvalidering lyckades.',
-        importInvalidVersion: 'Backupfilens version stöds inte.',
-        importInvalidStructure: 'Backupfilen saknar nödvändiga fält.',
-        importWrongPassword: 'Fel lösenord eller korrupt fil.',
-        autoSafetySaved: 'Automatisk säkerhetskopia sparades före arkivrensning.',
-        autoSafetyMissing: 'Ingen safety-snapshot tillgänglig.',
-        autoSafetyRestored: '✅ Safety-snapshot återställd ({count} arkiverade poster).',
-        importPreviewTitle: 'Importförhandsgranskning',
-        importPreviewContinue: 'Fortsätt importen?',
-        importCancelled: 'Importen avbröts innan data skrevs.',
-        replacePrompt: 'Skriv ERSÄTT för att bekräfta total ersättning:',
-        replacePromptFailed: 'Ersättning avbröts eftersom bekräftelsetexten inte stämde.',
-        duplicateSkipped: 'Hoppade över {count} dubbletter vid arkivimport.'
+        recoveryToggleHide: 'Dölj Recovery Center'
     };
 }
 
@@ -1166,43 +867,63 @@ function getImportExportModule() {
     return null;
 }
 
+function getBackupRecoveryContext() {
+    return {
+        backupHealthStorageKey: BACKUP_HEALTH_STORAGE_KEY,
+        backupFormatVersion: BACKUP_FORMAT_VERSION,
+        legacyBackupVersion: LEGACY_BACKUP_VERSION,
+        getLang: getLang,
+        getBackupUiText: getBackupUiText,
+        getImportExportModule: getImportExportModule,
+        showMessage: showMessage,
+        getItems: function() { return items; },
+        getDoneItems: function() { return doneItems; },
+        getArchivedItems: function() { return archivedItems; },
+        setArchivedItems: function(nextItems) { archivedItems = nextItems; },
+        normalizeItemData: normalizeItemData,
+        getAdminUpdates: getAdminUpdates,
+        saveAdminUpdates: saveAdminUpdates,
+        dedupeAdminUpdates: dedupeAdminUpdates,
+        renderInfoContent: renderInfoContent,
+        renderAdminList: renderAdminList,
+        saveData: saveData,
+        render: render,
+        renderArchive: renderArchive
+    };
+}
+
 function readBackupHealthState() {
-    try {
-        var raw = localStorage.getItem(BACKUP_HEALTH_STORAGE_KEY);
-        return raw ? JSON.parse(raw) : {};
-    } catch (error) {
-        return {};
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.readBackupHealthState === 'function') {
+        return moduleApi.readBackupHealthState(BACKUP_HEALTH_STORAGE_KEY);
     }
+    return {};
 }
 
 function writeBackupHealthState(state) {
-    try {
-        localStorage.setItem(BACKUP_HEALTH_STORAGE_KEY, JSON.stringify(state || {}));
-    } catch (error) {
-        // ignore localStorage write failures
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.writeBackupHealthState === 'function') {
+        moduleApi.writeBackupHealthState(state, BACKUP_HEALTH_STORAGE_KEY);
     }
 }
 
 function setBackupHealthStatus(key, status, detail) {
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.setBackupHealthStatus === 'function') {
+        moduleApi.setBackupHealthStatus(getBackupRecoveryContext(), key, status, detail);
+        return;
+    }
     var current = readBackupHealthState();
-    current[key] = {
-        status: status,
-        detail: detail || '',
-        at: new Date().toISOString()
-    };
+    current[key] = { status: status, detail: detail || '', at: new Date().toISOString() };
     writeBackupHealthState(current);
-    updateBackupHealthPanel();
 }
 
 function testStorageAvailability() {
-    try {
-        var probeKey = '__apexcore_backup_probe__';
-        localStorage.setItem(probeKey, '1');
-        localStorage.removeItem(probeKey);
-        return true;
-    } catch (error) {
-        return false;
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.testStorageAvailability === 'function') {
+        return moduleApi.testStorageAvailability();
     }
+    return false;
 }
 
 function updateHealthChip(id, label, statusEntry) {
@@ -1223,53 +944,38 @@ function updateHealthChip(id, label, statusEntry) {
 }
 
 function updateBackupHealthPanel() {
-    var panel = document.getElementById('backupHealthPanel');
-    if (!panel) return;
-
-    var text = getBackupUiText();
-    var title = panel.querySelector('.backup-health-title');
-    if (title) title.textContent = text.healthTitle;
-
-    var state = readBackupHealthState();
-
-    updateHealthChip('healthCrypto', text.crypto, state.crypto);
-    updateHealthChip('healthStorage', text.storage, state.storage);
-    updateHealthChip('healthExport', text.exportStatus, state.export);
-    updateHealthChip('healthImport', text.importStatus, state.import);
-
-    updateBackupHealthToggleButton();
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.updateBackupHealthPanel === 'function') {
+        moduleApi.updateBackupHealthPanel(getBackupRecoveryContext());
+    }
 }
 
 function initBackupHealthPanel() {
-    var storageOk = testStorageAvailability();
-    setBackupHealthStatus('crypto', typeof CryptoJS !== 'undefined' ? 'ok' : 'error', typeof CryptoJS !== 'undefined' ? '' : 'CryptoJS');
-    setBackupHealthStatus('storage', storageOk ? 'ok' : 'error', storageOk ? '' : 'localStorage');
-    updateBackupHealthPanel();
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.initBackupHealthPanel === 'function') {
+        moduleApi.initBackupHealthPanel(getBackupRecoveryContext());
+    }
 }
 
 function updateBackupHealthToggleButton() {
-    var button = document.getElementById('backupHealthToggleBtn');
-    if (!button) return;
-
-    var text = getBackupUiText();
-    button.textContent = isBackupHealthOpen
-        ? text.backupToggleHide
-        : text.backupToggleShow;
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.updateBackupHealthToggleButton === 'function') {
+        moduleApi.updateBackupHealthToggleButton(getBackupRecoveryContext());
+    }
 }
 
 function setBackupHealthOpenState(nextOpen) {
-    isBackupHealthOpen = !!nextOpen;
-
-    var panel = document.getElementById('backupHealthPanel');
-    if (panel) {
-        panel.classList.toggle('hidden', !isBackupHealthOpen);
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.setBackupHealthOpenState === 'function') {
+        moduleApi.setBackupHealthOpenState(getBackupRecoveryContext(), nextOpen);
     }
-
-    updateBackupHealthToggleButton();
 }
 
 function toggleBackupHealthPanel() {
-    setBackupHealthOpenState(!isBackupHealthOpen);
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.toggleBackupHealthPanel === 'function') {
+        moduleApi.toggleBackupHealthPanel(getBackupRecoveryContext());
+    }
 }
 
 function formatRecoveryEntry(entry, fallback) {
@@ -1291,278 +997,110 @@ function formatRecoveryEntry(entry, fallback) {
 }
 
 function updateRecoveryCenterPanel() {
-    var panel = document.getElementById('recoveryCenterPanel');
-    if (!panel) return;
-
-    var text = getBackupUiText();
-    var moduleApi = getImportExportModule();
-    var state = moduleApi && typeof moduleApi.readRecoveryState === 'function'
-        ? moduleApi.readRecoveryState()
-        : {};
-
-    var title = document.getElementById('recoveryCenterTitle');
-    if (title) title.textContent = text.recoveryCenterTitle;
-
-    var exportLine = document.getElementById('recoveryLastExport');
-    if (exportLine) {
-        exportLine.textContent = text.recoveryLastExport + ': ' + formatRecoveryEntry(state.lastExport, text.recoveryNoData);
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.updateRecoveryCenterPanel === 'function') {
+        moduleApi.updateRecoveryCenterPanel(getBackupRecoveryContext());
     }
-
-    var importLine = document.getElementById('recoveryLastImport');
-    if (importLine) {
-        importLine.textContent = text.recoveryLastImport + ': ' + formatRecoveryEntry(state.lastImport, text.recoveryNoData);
-    }
-
-    var safetyLine = document.getElementById('recoverySafetySnapshot');
-    if (safetyLine) {
-        safetyLine.textContent = text.recoverySafetySnapshot + ': ' + formatRecoveryEntry(state.safetySnapshot, text.recoveryNoData);
-    }
-
-    updateRecoveryCenterToggleButton();
 }
 
 function updateRecoveryCenterToggleButton() {
-    var button = document.getElementById('recoveryToggleBtn');
-    if (!button) return;
-
-    var text = getBackupUiText();
-    button.textContent = isRecoveryCenterOpen
-        ? text.recoveryToggleHide
-        : text.recoveryToggleShow;
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.updateRecoveryCenterToggleButton === 'function') {
+        moduleApi.updateRecoveryCenterToggleButton(getBackupRecoveryContext());
+    }
 }
 
 function setRecoveryCenterOpenState(nextOpen) {
-    isRecoveryCenterOpen = !!nextOpen;
-
-    var panel = document.getElementById('recoveryCenterPanel');
-    if (panel) {
-        panel.classList.toggle('hidden', !isRecoveryCenterOpen);
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.setRecoveryCenterOpenState === 'function') {
+        moduleApi.setRecoveryCenterOpenState(getBackupRecoveryContext(), nextOpen);
     }
-
-    updateRecoveryCenterToggleButton();
 }
 
 function toggleRecoveryCenterPanel() {
-    setRecoveryCenterOpenState(!isRecoveryCenterOpen);
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.toggleRecoveryCenterPanel === 'function') {
+        moduleApi.toggleRecoveryCenterPanel(getBackupRecoveryContext());
+    }
 }
 
 function hasAutoSafetySnapshot() {
-    try {
-        var raw = localStorage.getItem('archiveAutoSafetyBackup');
-        if (!raw) return false;
-        var parsed = JSON.parse(raw);
-        return parsed && Array.isArray(parsed.archivedItems);
-    } catch (error) {
-        return false;
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.hasAutoSafetySnapshot === 'function') {
+        return moduleApi.hasAutoSafetySnapshot();
     }
+    return false;
 }
 
 function updateAutoSafetyRestoreButtons() {
-    var hasSnapshot = hasAutoSafetySnapshot();
-    ['archiveRestoreSafetyBtn', 'sideArchiveRestoreSafetyBtn'].forEach(function(id) {
-        var btn = document.getElementById(id);
-        if (!btn) return;
-        btn.disabled = false;
-        btn.style.opacity = hasSnapshot ? '1' : '0.65';
-        btn.title = hasSnapshot
-            ? (getLang() === 'en' ? 'Restore saved safety snapshot' : 'Återställ sparad safety-snapshot')
-            : (getLang() === 'en' ? 'No snapshot available yet. Clear archive once to create one.' : 'Ingen snapshot finns ännu. Rensa arkivet en gång för att skapa en.');
-    });
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.updateAutoSafetyRestoreButtons === 'function') {
+        moduleApi.updateAutoSafetyRestoreButtons(getBackupRecoveryContext());
+    }
 }
 
 function toggleLanguageMenu() {
-    document.getElementById('languageDropdown').classList.toggle('show');
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.toggleLanguageMenu === 'function') {
+        moduleApi.toggleLanguageMenu();
+    }
 }
 
-document.addEventListener('click', function(e) {
-    const wrapper = document.querySelector('.language-wrapper');
-    if (wrapper && !wrapper.contains(e.target)) {
-        document.getElementById('languageDropdown').classList.remove('show');
-    }
-});
-
 function updateLanguageMenu() {
-    const lang = getLang();
-    document.querySelectorAll('.language-dropdown button').forEach(function(btn) {
-        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
-    });
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.updateLanguageMenu === 'function') {
+        moduleApi.updateLanguageMenu(getLang());
+    }
 }
 
 function changeLanguage(lang) {
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.changeLanguage === 'function') {
+        moduleApi.changeLanguage(lang, {
+            setLang: setLang,
+            updateLanguageMenu: updateLanguageMenu,
+            applyLanguage: applyLanguage
+        });
+        return;
+    }
     setLang(lang);
     updateLanguageMenu();
-    document.getElementById('languageDropdown').classList.remove('show');
     applyLanguage();
 }
 
 function applyLanguage() {
-    document.querySelectorAll('[data-i18n]').forEach(function(el) {
-        const key = el.getAttribute('data-i18n');
-        const text = t(key);
-        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
-            el.placeholder = text;
-        } else {
-            el.textContent = text;
-        }
-    });
-
-    const setText = function(id, key) {
-        const el = document.getElementById(id);
-        if (el) {
-            el.textContent = t(key);
-        }
-    };
-
-    const setPlaceholder = function(id, key) {
-        const el = document.getElementById(id);
-        if (el) {
-            el.placeholder = t(key);
-        }
-    };
-
-    setText('loginTitle', 'loginTitle');
-    setText('loginBtn', 'loginBtn');
-    setPlaceholder('passwordInput', 'loginPlaceholder');
-
-    setText('changePwTitle', 'changePwTitle');
-    setPlaceholder('oldPassword', 'oldPwPlaceholder');
-    setPlaceholder('newPassword1', 'newPwPlaceholder');
-    setPlaceholder('newPassword2', 'confirmPwPlaceholder');
-    setText('savePwBtn', 'savePwBtn');
-    setText('cancelPwBtn', 'cancelPwBtn');
-
-    setText('subtitleSlogan', 'slogan');
-    setText('changePwBtn', 'changePwBtn');
-    setText('archiveBtn', 'archiveBtn');
-    setText('logoutBtn', 'logoutBtn');
-
-    setText('exportJsonBtn', 'exportJson');
-    setText('exportEncryptedBtn', 'exportEncrypted');
-    setText('exportCsvBtn', 'exportCsv');
-    setText('importBtn', 'importBtn');
-
-    var backupText = getBackupUiText();
-    var importDryRunBtn = document.getElementById('importDryRunBtn');
-    if (importDryRunBtn) importDryRunBtn.textContent = backupText.importDryRun;
-    var validateBackupBtn = document.getElementById('validateBackupBtn');
-    if (validateBackupBtn) validateBackupBtn.textContent = backupText.validateBackup;
-    updateBackupHealthPanel();
-    updateBackupHealthToggleButton();
-    updateRecoveryCenterPanel();
-
-    setPlaceholder('searchInput', 'searchActive');
-    setPlaceholder('doneSearchInput', 'archiveSearch');
-    setText('archiveAllBtn', 'archiveAllBtn');
-
-    setText('undoText', 'undoText');
-    setText('undoBtn', 'undoBtn');
-
-    setText('footerText', 'footerText');
-    setText('infoTitle', 'infoTitle');
-    updateAdminPanelLanguage();
-    if (typeof renderInfoContent === 'function') {
-        renderInfoContent();
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.applyLanguage === 'function') {
+        moduleApi.applyLanguage({
+            t: t,
+            getBackupUiText: getBackupUiText,
+            updateBackupHealthPanel: updateBackupHealthPanel,
+            updateBackupHealthToggleButton: updateBackupHealthToggleButton,
+            updateRecoveryCenterPanel: updateRecoveryCenterPanel,
+            updateAdminPanelLanguage: updateAdminPanelLanguage,
+            renderInfoContent: renderInfoContent,
+            getArchivedItemsCount: function() { return archivedItems.length; },
+            updateAutoSafetyRestoreButtons: updateAutoSafetyRestoreButtons,
+            updateReminderLanguageText: updateReminderLanguageText,
+            updateCategoryLanguageText: updateCategoryLanguageText,
+            updateSortLanguageText: updateSortLanguageText,
+            isFirstTimeUser: isFirstTimeUser,
+            isAppHidden: function() {
+                var app = document.getElementById('app');
+                return app ? app.classList.contains('hidden') : true;
+            },
+            render: render
+        });
     }
-
-    const archiveTitle = document.getElementById('archiveTitle');
-    if (archiveTitle) {
-        archiveTitle.textContent = t('archiveModalTitle') + ' (' + archivedItems.length + ')';
-    }
-    setPlaceholder('archiveSearch', 'archiveSearch');
-    setText('archiveVaultBtn', 'archiveVaultBtn');
-    var backupLabels = getBackupUiText();
-    var archiveRestoreSafetyBtn = document.getElementById('archiveRestoreSafetyBtn');
-    if (archiveRestoreSafetyBtn) archiveRestoreSafetyBtn.textContent = backupLabels.restoreSafety;
-    var sideArchiveRestoreSafetyBtn = document.getElementById('sideArchiveRestoreSafetyBtn');
-    if (sideArchiveRestoreSafetyBtn) sideArchiveRestoreSafetyBtn.textContent = backupLabels.restoreSafety;
-    setText('archiveClearBtn', 'archiveClear');
-    setText('sideArchiveClearBtn', 'archiveClear');
-    setText('archiveCloseBtn', 'archiveClose');
-    updateAutoSafetyRestoreButtons();
-    updateRecoveryCenterPanel();
-    if (typeof updateReminderLanguageText === 'function') updateReminderLanguageText();
-    if (typeof updateCategoryLanguageText === 'function') updateCategoryLanguageText();
-    if (typeof updateSortLanguageText === 'function') updateSortLanguageText();
-
-    const statusDiv = document.getElementById('loginStatus');
-    if (statusDiv) {
-        if (isFirstTimeUser()) {
-            statusDiv.textContent = t('loginStatusWelcome');
-        } else if (!document.getElementById('app').classList.contains('hidden')) {
-        } else {
-            statusDiv.textContent = t('loginStatusLogin');
-        }
-    }
-
-    render();
 }
 
 function updateAdminPanelLanguage() {
-    const adminLoginTitle = document.getElementById('adminLoginTitle');
-    if (adminLoginTitle) adminLoginTitle.textContent = t('adminLoginTitle');
-
-    const adminLoginDesc = document.getElementById('adminLoginDesc');
-    if (adminLoginDesc) adminLoginDesc.textContent = t('adminLoginDesc');
-
-    const adminPasswordInput = document.getElementById('adminPasswordInput');
-    if (adminPasswordInput) adminPasswordInput.placeholder = t('adminLoginPasswordPlaceholder');
-
-    const adminLoginButton = document.getElementById('adminLoginButton');
-    if (adminLoginButton) adminLoginButton.textContent = t('adminLoginButton');
-
-    const adminLoginCancel = document.getElementById('adminLoginCancel');
-    if (adminLoginCancel) adminLoginCancel.textContent = t('adminLoginCancel');
-
-    const adminPanelTitle = document.getElementById('adminPanelTitle');
-    if (adminPanelTitle) adminPanelTitle.textContent = t('adminPanelTitle');
-
-    const adminPanelIntro = document.getElementById('adminPanelIntro');
-    if (adminPanelIntro) adminPanelIntro.textContent = t('adminPanelIntro');
-
-    const adminTitleLabel = document.getElementById('adminTitleLabel');
-    if (adminTitleLabel) adminTitleLabel.textContent = t('adminTitleLabel');
-
-    const adminTitle = document.getElementById('adminTitle');
-    if (adminTitle) adminTitle.placeholder = t('adminTitlePlaceholder');
-
-    const adminDescLabel = document.getElementById('adminDescLabel');
-    if (adminDescLabel) adminDescLabel.textContent = t('adminDescLabel');
-
-    const adminDesc = document.getElementById('adminDesc');
-    if (adminDesc) adminDesc.placeholder = t('adminDescPlaceholder');
-
-    const adminTypeLabel = document.getElementById('adminTypeLabel');
-    if (adminTypeLabel) adminTypeLabel.textContent = t('adminTypeLabel');
-
-    const adminTypeNewOption = document.getElementById('adminTypeNewOption');
-    if (adminTypeNewOption) adminTypeNewOption.textContent = t('adminTypeNew');
-
-    const adminTypeUpdateOption = document.getElementById('adminTypeUpdateOption');
-    if (adminTypeUpdateOption) adminTypeUpdateOption.textContent = t('adminTypeUpdate');
-
-    const adminTypeBugFixOption = document.getElementById('adminTypeBugFixOption');
-    if (adminTypeBugFixOption) adminTypeBugFixOption.textContent = t('adminTypeBugFix');
-
-    const adminTypePlanOption = document.getElementById('adminTypePlanOption');
-    if (adminTypePlanOption) adminTypePlanOption.textContent = t('adminTypePlan');
-
-    const adminDateLabel = document.getElementById('adminDateLabel');
-    if (adminDateLabel) adminDateLabel.textContent = t('adminDateLabel');
-
-    const adminAddButton = document.getElementById('adminAddButton');
-    if (adminAddButton) adminAddButton.textContent = t('adminAddButton');
-
-    const adminSaveButton = document.getElementById('adminSaveButton');
-    if (adminSaveButton) adminSaveButton.textContent = t('adminSaveButton');
-
-    const adminCloseButton = document.getElementById('adminCloseButton');
-    if (adminCloseButton) adminCloseButton.textContent = t('adminCloseButton');
-
-    const adminCurrentTitle = document.getElementById('adminCurrentTitle');
-    if (adminCurrentTitle) adminCurrentTitle.textContent = t('adminCurrentTitle');
-
-    if (document.getElementById('adminPanel').style.display === 'flex') {
-        renderAdminList();
+    var moduleApi = getLanguageModule();
+    if (typeof moduleApi.updateAdminPanelLanguage === 'function') {
+        moduleApi.updateAdminPanelLanguage({
+            t: t,
+            renderAdminList: renderAdminList
+        });
     }
 }
 
@@ -3378,172 +2916,51 @@ function addItem() {
 }
 
 function editItem(id) {
-    var p = items.find(function(item) { return item.id === id; });
-    if (!p) return;
-
-    activeEditId = id;
-
-    document.getElementById('editName').value = p.name;
-    document.getElementById('editAge').value = p.age;
-    document.getElementById('editTask').value = p.task || '';
-    document.getElementById('editNote').value = p.note || '';
-    document.getElementById('editCategory').value = normalizeCategoryValue(p.category);
-    document.getElementById('editNotification').value = p.notification || '';
-    populateReminderFields('editNotification', p.notification || '');
-
-    setEditorInlineMode(true);
-    document.getElementById('editor').style.display = 'block';
+    var moduleApi = getEditorModule();
+    if (typeof moduleApi.editItem === 'function') {
+        moduleApi.editItem(getEditorContext(), id);
+    }
 }
 
 function setEditorInlineMode(isInline) {
-    var editor = document.getElementById('editor');
-    var activeColumn = document.getElementById('activeDrop');
-    if (!editor || !activeColumn) return;
-
-    if (isInline) {
-        if (!editorOriginalParent) {
-            editorOriginalParent = editor.parentNode;
-        }
-        editorOriginalNextSibling = editor.nextSibling;
-
-        activeColumn.classList.add('is-editing');
-        editor.classList.add('inline-editor');
-        activeColumn.appendChild(editor);
-        return;
+    var moduleApi = getEditorModule();
+    if (typeof moduleApi.setEditorInlineMode === 'function') {
+        moduleApi.setEditorInlineMode(isInline);
     }
-
-    activeColumn.classList.remove('is-editing');
-    editor.classList.remove('inline-editor');
-
-    if (!editorOriginalParent) return;
-
-    if (editorOriginalNextSibling && editorOriginalNextSibling.parentNode === editorOriginalParent) {
-        editorOriginalParent.insertBefore(editor, editorOriginalNextSibling);
-        return;
-    }
-
-    editorOriginalParent.appendChild(editor);
 }
 
 function showSaveEditConfirm(onConfirm) {
-    var modal = document.getElementById('saveEditConfirmModal');
-    var title = document.getElementById('saveEditConfirmTitle');
-    var text = document.getElementById('saveEditConfirmText');
-    var confirmBtn = document.getElementById('saveEditConfirmOkBtn');
-    var cancelBtn = document.getElementById('saveEditConfirmCancelBtn');
-
-    if (!modal || !title || !text || !confirmBtn || !cancelBtn) {
-        if (confirm(t('confirmSaveEdit'))) {
-            onConfirm();
-        }
-        return;
+    var moduleApi = getEditorModule();
+    if (typeof moduleApi.showSaveEditConfirm === 'function') {
+        moduleApi.showSaveEditConfirm(getEditorContext(), onConfirm);
     }
-
-    title.textContent = t('confirmDialogTitle');
-    text.textContent = t('confirmSaveEdit');
-    cancelBtn.textContent = t('editCancel');
-    confirmBtn.textContent = t('editSave');
-
-    isSaveEditConfirmOpen = true;
-    modal.style.display = 'flex';
-
-    function cleanup() {
-        modal.style.display = 'none';
-        isSaveEditConfirmOpen = false;
-        modal.onclick = null;
-        confirmBtn.onclick = null;
-        cancelBtn.onclick = null;
-        document.removeEventListener('keydown', onKeyDown);
-    }
-
-    function cancelConfirm() {
-        cleanup();
-    }
-
-    function approveConfirm() {
-        cleanup();
-        onConfirm();
-    }
-
-    function onKeyDown(event) {
-        if (event.key === 'Escape') {
-            event.preventDefault();
-            cancelConfirm();
-            return;
-        }
-
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            approveConfirm();
-        }
-    }
-
-    modal.onclick = function(event) {
-        if (event.target === modal) {
-            cancelConfirm();
-        }
-    };
-
-    cancelBtn.onclick = function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        cancelConfirm();
-    };
-
-    confirmBtn.onclick = function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        approveConfirm();
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-    setTimeout(function() {
-        confirmBtn.focus();
-    }, 0);
 }
 
 function saveEdit() {
-    var p = items.find(function(item) { return item.id === activeEditId; });
-    if (!p) return;
-
-    showSaveEditConfirm(function() {
-        var editAgeInput = document.getElementById('editAge').value.trim();
-        var editAgeVal = editAgeInput === '' ? '' : parseInt(editAgeInput);
-
-        p.name = document.getElementById('editName').value;
-        p.age = editAgeVal;
-        p.task = document.getElementById('editTask').value;
-        p.note = document.getElementById('editNote').value;
-        p.category = normalizeCategoryValue(document.getElementById('editCategory').value);
-        p.priority = p.category === 'high' ? 'high' : 'normal';
-        p.notification = document.getElementById('editNotification').value || '';
-        populateReminderFields('editNotification', p.notification || '');
-        p.notificationShown = false;
-        p.updated = Date.now();
-
-        closeEdit();
-        saveData();
-        render();
-    });
+    var moduleApi = getEditorModule();
+    if (typeof moduleApi.saveEdit === 'function') {
+        moduleApi.saveEdit(getEditorContext());
+    }
 }
 
 function closeEdit() {
-    closeReminderEditor('editNotification');
-    document.getElementById('editor').style.display = 'none';
-    setEditorInlineMode(false);
-    activeEditId = null;
+    var moduleApi = getEditorModule();
+    if (typeof moduleApi.closeEdit === 'function') {
+        moduleApi.closeEdit(getEditorContext());
+    }
 }
 
-document.addEventListener('mousedown', function(e) {
-    var editor = document.getElementById('editor');
-    if (!editor || editor.style.display !== 'block') return;
-
-    if (isSaveEditConfirmOpen) return;
-
-    if (!editor.contains(e.target)) {
-        closeEdit();
-    }
-});
+function getEditorContext() {
+    return {
+        t: t,
+        getItems: function() { return items; },
+        normalizeCategoryValue: normalizeCategoryValue,
+        populateReminderFields: populateReminderFields,
+        closeReminderEditor: closeReminderEditor,
+        saveData: saveData,
+        render: render
+    };
+}
 
 function deleteItem(id) {
     var i = items.findIndex(function(p) { return p.id === id; });
@@ -4422,92 +3839,17 @@ function showArchivePasswordModal(onConfirm, options) {
 }
 
 function saveAutoSafetySnapshot() {
-    var snapshot = {
-        archivedItems: archivedItems,
-        adminUpdates: getAdminUpdates(),
-        exportedAt: new Date().toISOString(),
-        version: LEGACY_BACKUP_VERSION,
-        formatVersion: BACKUP_FORMAT_VERSION,
-        source: 'auto-safety-archive-clear'
-    };
-
-    try {
-        localStorage.setItem('archiveAutoSafetyBackup', JSON.stringify(snapshot));
-        setBackupHealthStatus('export', 'warn', 'auto safety backup');
-        updateAutoSafetyRestoreButtons();
-        var moduleApi = getImportExportModule();
-        if (moduleApi && typeof moduleApi.markSafetySnapshot === 'function') {
-            moduleApi.markSafetySnapshot('created', archivedItems.length);
-            updateRecoveryCenterPanel();
-        }
-        showMessage(getBackupUiText().autoSafetySaved, 'info');
-    } catch (error) {
-        setBackupHealthStatus('export', 'error', 'auto safety backup failed');
-        console.warn('Auto safety snapshot failed:', error);
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.saveAutoSafetySnapshot === 'function') {
+        moduleApi.saveAutoSafetySnapshot(getBackupRecoveryContext());
     }
 }
 
 function restoreAutoSafetySnapshot() {
-    var raw = localStorage.getItem('archiveAutoSafetyBackup');
-    if (!raw) {
-        showMessage(getBackupUiText().autoSafetyMissing, 'info');
-        updateAutoSafetyRestoreButtons();
-        return;
+    var moduleApi = getBackupRecoveryModule();
+    if (typeof moduleApi.restoreAutoSafetySnapshot === 'function') {
+        moduleApi.restoreAutoSafetySnapshot(getBackupRecoveryContext());
     }
-
-    var parsed;
-    try {
-        parsed = JSON.parse(raw);
-    } catch (error) {
-        showMessage(getBackupUiText().autoSafetyMissing, 'error');
-        updateAutoSafetyRestoreButtons();
-        return;
-    }
-
-    if (!parsed || !Array.isArray(parsed.archivedItems)) {
-        showMessage(getBackupUiText().autoSafetyMissing, 'error');
-        updateAutoSafetyRestoreButtons();
-        return;
-    }
-
-    var exportedAtText = parsed.exportedAt ? new Date(parsed.exportedAt).toLocaleString() : '-';
-    var confirmText = (getLang() === 'en'
-        ? 'Restore safety snapshot from ' + exportedAtText + '?\n\nArchived items: ' + parsed.archivedItems.length
-        : 'Återställ safety-snapshot från ' + exportedAtText + '?\n\nArkiverade poster: ' + parsed.archivedItems.length);
-
-    if (!confirm(confirmText)) {
-        return;
-    }
-
-    archivedItems = parsed.archivedItems.map(normalizeItemData);
-    if (Array.isArray(parsed.adminUpdates)) {
-        saveAdminUpdates(dedupeAdminUpdates(parsed.adminUpdates));
-        if (typeof renderInfoContent === 'function') {
-            renderInfoContent();
-        }
-        if (typeof renderAdminList === 'function') {
-            renderAdminList();
-        }
-    }
-
-    saveData();
-    render();
-    renderArchive();
-    setBackupHealthStatus('import', 'ok', 'safety restored');
-    updateAutoSafetyRestoreButtons();
-    var moduleApi = getImportExportModule();
-    if (moduleApi && typeof moduleApi.markSafetySnapshot === 'function') {
-        moduleApi.markSafetySnapshot('restored', archivedItems.length);
-    }
-    if (moduleApi && typeof moduleApi.markImportSuccess === 'function') {
-        moduleApi.markImportSuccess('safety-restore', {
-            active: items.length,
-            done: doneItems.length,
-            archived: archivedItems.length
-        });
-    }
-    updateRecoveryCenterPanel();
-    showMessage(getBackupUiText().autoSafetyRestored.replace('{count}', archivedItems.length), 'success');
 }
 
 function showArchiveCleanupModal() {
@@ -4782,6 +4124,30 @@ function renderAdminList() {
     container.innerHTML = html;
 }
 
+function renderInfoContent() {
+    var container = document.getElementById('infoContent');
+    if (!container) return;
+
+    var updates = sortUpdatesByType(getAdminUpdates());
+    if (!updates.length) {
+        container.innerHTML = '<p style="color: var(--text-muted);">' + t('adminEmptyText') + '</p>';
+        return;
+    }
+
+    var html = '';
+    updates.forEach(function(item) {
+        html += '<div class="info-update-item">'
+            + '<div class="title">' + escapeHTML(item.title || '') + '</div>'
+            + '<div class="desc">'
+            + '<span class="badge ' + escapeHTML(getUpdateBadgeClass(item.type)) + '">' + escapeHTML(getUpdateBadgeText(item.type)) + '</span> '
+            + escapeHTML(item.date || '') + ' - ' + escapeHTML(item.description || '')
+            + '</div>'
+            + '</div>';
+    });
+
+    container.innerHTML = html;
+}
+
 function saveAdminChanges() {
     renderAdminList();
     renderInfoContent();
@@ -4806,6 +4172,10 @@ initBackupHealthPanel();
 setBackupHealthOpenState(false);
 setRecoveryCenterOpenState(false);
 updateRecoveryCenterPanel();
+var editorModule = getEditorModule();
+if (typeof editorModule.initEditorAutoClose === 'function') {
+    editorModule.initEditorAutoClose(getEditorContext());
+}
 initReminderInputs();
 setupActiveColumnWheelScroll();
 setActiveSortMode(getStoredActiveSortMode());
