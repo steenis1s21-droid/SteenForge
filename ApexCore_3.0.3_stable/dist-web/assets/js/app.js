@@ -792,6 +792,10 @@ function getStateHelpersModule() {
     return window.ApexStateHelpersModule || {};
 }
 
+function getItemActionsModule() {
+    return window.ApexItemActionsModule || {};
+}
+
 function getAdminModule() {
     return window.ApexAdminUpdatesModule || {};
 }
@@ -899,6 +903,7 @@ function getActiveRenderingContext() {
         getDragId: function() { return dragId; },
         setDragId: function(nextId) { dragId = nextId; },
         getIsDragging: function() { return isDragging; },
+        setIsDragging: function(nextValue) { isDragging = !!nextValue; },
         getActiveGroupsCollapsed: function() { return activeGroupsCollapsed; },
         setActiveGroupsCollapsed: function(nextGroups) { activeGroupsCollapsed = nextGroups || {}; },
         saveData: saveData,
@@ -919,6 +924,35 @@ function getStateHelpersContext() {
         getActiveGroupsCollapsed: function() { return activeGroupsCollapsed; },
         setActiveGroupsCollapsed: function(nextGroups) { activeGroupsCollapsed = nextGroups || {}; },
         setCurrentLanguage: function(nextLanguage) { currentLanguage = nextLanguage || 'sv'; }
+    };
+}
+
+function getItemActionsContext() {
+    return {
+        t: t,
+        normalizeCategoryValue: normalizeCategoryValue,
+        getStoredAddCategory: getStoredAddCategory,
+        setStoredAddCategory: setStoredAddCategory,
+        populateReminderFields: populateReminderFields,
+        saveData: saveData,
+        render: render,
+        showMessage: showMessage,
+        getItems: function() { return items; },
+        setItems: function(nextItems) { items = nextItems || []; },
+        getArchivedItems: function() { return archivedItems; },
+        setArchivedItems: function(nextItems) { archivedItems = nextItems || []; },
+        getDeletedItem: function() { return deletedItem; },
+        setDeletedItem: function(nextValue) { deletedItem = nextValue; },
+        getDragId: function() { return dragId; },
+        setDragId: function(nextId) { dragId = nextId; },
+        getIsDragging: function() { return isDragging; },
+        setIsDragging: function(nextValue) { isDragging = !!nextValue; },
+        moveToDoneById: moveToDoneById,
+        moveToActiveById: moveToActiveById,
+        startDrag: startDrag,
+        moveToDone: moveToDone,
+        moveToActive: moveToActive,
+        reorderActiveItems: reorderActiveItems
     };
 }
 
@@ -2181,24 +2215,16 @@ function importProcess(data) {
 // ============================================
 
 function moveToDoneById(id) {
-    var i = items.findIndex(function(p) { return p.id === id; });
-    if (i !== -1) {
-        archivedItems.push(items[i]);
-        items.splice(i, 1);
-        saveData();
-        render();
-        showMessage(t('archiveArchived'), 'success');
+    var moduleApi = getItemActionsModule();
+    if (typeof moduleApi.moveToDoneById === 'function') {
+        moduleApi.moveToDoneById(getItemActionsContext(), id);
     }
 }
 
 function moveToActiveById(id) {
-    var i = archivedItems.findIndex(function(p) { return p.id === id; });
-    if (i !== -1) {
-        items.push(archivedItems[i]);
-        archivedItems.splice(i, 1);
-        saveData();
-        render();
-        showMessage(t('archiveRestored'), 'info');
+    var moduleApi = getItemActionsModule();
+    if (typeof moduleApi.moveToActiveById === 'function') {
+        moduleApi.moveToActiveById(getItemActionsContext(), id);
     }
 }
 
@@ -2339,51 +2365,10 @@ function getPriorityBadgeText(priority) {
 }
 
 function addItem() {
-    var nameVal = document.getElementById('nameInput').value.trim();
-    var ageInput = document.getElementById('ageInput').value.trim();
-    var ageVal = ageInput === '' ? '' : parseInt(ageInput);
-    var taskVal = document.getElementById('taskInput').value.trim();
-    var noteVal = document.getElementById('noteInput').value.trim();
-    var categoryVal = normalizeCategoryValue(document.getElementById('categoryInput').value);
-    var priorityVal = categoryVal === 'high' ? 'high' : 'normal';
-    var notificationVal = document.getElementById('notificationInput').value;
-
-    if (!nameVal) {
-        alert(t('nameRequired'));
-        return;
+    var moduleApi = getItemActionsModule();
+    if (typeof moduleApi.addItem === 'function') {
+        moduleApi.addItem(getItemActionsContext());
     }
-
-    var newItem = {
-        id: Date.now(),
-        name: nameVal,
-        age: ageVal,
-        task: taskVal || '',
-        note: noteVal || '',
-        category: categoryVal,
-        priority: priorityVal,
-        notification: notificationVal || '',
-        notificationShown: false,
-        updated: Date.now()
-    };
-
-    items.push(newItem);
-
-    if (categoryVal !== 'high') {
-        setStoredAddCategory(categoryVal);
-    }
-
-    document.getElementById('nameInput').value = '';
-    document.getElementById('ageInput').value = '';
-    document.getElementById('taskInput').value = '';
-    document.getElementById('noteInput').value = '';
-    document.getElementById('categoryInput').value = categoryVal === 'high'
-        ? getStoredAddCategory()
-        : categoryVal;
-    document.getElementById('notificationInput').value = '';
-    populateReminderFields('notification', '');
-
-    saveData();
-    render();
 }
 
 function editItem(id) {
@@ -2434,30 +2419,16 @@ function getEditorContext() {
 }
 
 function deleteItem(id) {
-    var i = items.findIndex(function(p) { return p.id === id; });
-    if (i === -1) return;
-
-    deletedItem = items[i];
-    items.splice(i, 1);
-
-    document.getElementById('undoBar').style.display = 'block';
-
-    setTimeout(function() {
-        document.getElementById('undoBar').style.display = 'none';
-        deletedItem = null;
-    }, 5000);
-
-    saveData();
-    render();
+    var moduleApi = getItemActionsModule();
+    if (typeof moduleApi.deleteItem === 'function') {
+        moduleApi.deleteItem(getItemActionsContext(), id);
+    }
 }
 
 function undoDelete() {
-    if (deletedItem) {
-        items.push(deletedItem);
-        deletedItem = null;
-        document.getElementById('undoBar').style.display = 'none';
-        saveData();
-        render();
+    var moduleApi = getItemActionsModule();
+    if (typeof moduleApi.undoDelete === 'function') {
+        moduleApi.undoDelete(getItemActionsContext());
     }
 }
 
@@ -2466,74 +2437,31 @@ function undoDelete() {
 // ============================================
 
 function startDrag(id) {
-    dragId = id;
-    isDragging = true;
-    setTimeout(function() { 
-        isDragging = false; 
-    }, 100);
+    var moduleApi = getItemActionsModule();
+    if (typeof moduleApi.startDrag === 'function') {
+        moduleApi.startDrag(getItemActionsContext(), id);
+    }
 }
 
-var activeDrop = document.getElementById('activeDrop');
-var doneDrop = document.getElementById('doneDrop');
-
-activeDrop.ondragover = function(e) { 
-    e.preventDefault(); 
-};
-
-doneDrop.ondragover = function(e) { 
-    e.preventDefault(); 
-};
-
-doneDrop.ondrop = function() { 
-    if (dragId !== null) {
-        moveToDone(dragId);
-        dragId = null;
-    }
-};
-
-activeDrop.ondrop = function() { 
-    if (dragId !== null) {
-        moveToActive(dragId);
-        dragId = null;
-    }
-};
-
 function moveToDone(id) {
-    var i = items.findIndex(function(p) { return p.id === id; });
-    if (i !== -1) {
-        archivedItems.push(items[i]);
-        items.splice(i, 1);
-        saveData();
-        render();
-        showMessage(t('archiveArchived'), 'success');
+    var moduleApi = getItemActionsModule();
+    if (typeof moduleApi.moveToDone === 'function') {
+        moduleApi.moveToDone(getItemActionsContext(), id);
     }
 }
 
 function moveToActive(id) {
-    var i = archivedItems.findIndex(function(p) { return p.id === id; });
-    if (i !== -1) {
-        items.push(archivedItems[i]);
-        archivedItems.splice(i, 1);
-        saveData();
-        render();
-        showMessage(t('archiveRestored'), 'info');
+    var moduleApi = getItemActionsModule();
+    if (typeof moduleApi.moveToActive === 'function') {
+        moduleApi.moveToActive(getItemActionsContext(), id);
     }
 }
 
 function reorderActiveItems(fromId, toId) {
-    if (fromId === null || toId === null || fromId === toId) return;
-
-    var fromIndex = items.findIndex(function(p) { return p.id === fromId; });
-    var toIndex = items.findIndex(function(p) { return p.id === toId; });
-    if (fromIndex === -1 || toIndex === -1) return;
-
-    var movedItem = items.splice(fromIndex, 1)[0];
-    var insertIndex = toIndex > fromIndex ? toIndex - 1 : toIndex;
-    items.splice(insertIndex, 0, movedItem);
-
-    saveData();
-    render();
-    showMessage(t('msgOrderUpdated'), 'info');
+    var moduleApi = getItemActionsModule();
+    if (typeof moduleApi.reorderActiveItems === 'function') {
+        moduleApi.reorderActiveItems(getItemActionsContext(), fromId, toId);
+    }
 }
 
 // ============================================
@@ -2541,19 +2469,10 @@ function reorderActiveItems(fromId, toId) {
 // ============================================
 
 function setupEnterKey() {
-    var inputs = ['nameInput', 'ageInput', 'taskInput', 'noteInput'];
-    
-    inputs.forEach(function(id) {
-        var input = document.getElementById(id);
-        if (input) {
-            input.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addItem();
-                }
-            });
-        }
-    });
+    var moduleApi = getItemActionsModule();
+    if (typeof moduleApi.setupEnterKey === 'function') {
+        moduleApi.setupEnterKey(getItemActionsContext());
+    }
 }
 
 // ============================================
@@ -2881,6 +2800,10 @@ if (typeof editorModule.initEditorAutoClose === 'function') {
 }
 initReminderInputs();
 setupActiveColumnWheelScroll();
+var itemActionsModule = getItemActionsModule();
+if (typeof itemActionsModule.initItemDropZones === 'function') {
+    itemActionsModule.initItemDropZones(getItemActionsContext());
+}
 setActiveSortMode(getStoredActiveSortMode());
 saveData();
 
