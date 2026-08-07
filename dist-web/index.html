@@ -165,16 +165,17 @@
         <button onclick="exportCSV()" id="exportCsvBtn">Exportera CSV</button>
         <button onclick="startStandardImport()" id="importBtn">Importera</button>
         <button onclick="openPhonebook()" id="phonebookBtn">Telefonbok</button>
+        <button class="settings-btn support-btn" onclick="openSupportModal()" id="supportBtn">🛟 Support</button>
         <div class="settings-wrapper" id="settingsWrapper">
             <button class="settings-btn" onclick="toggleSettingsMenu()" id="settingsBtn">⚙️ Inställningar</button>
             <div class="settings-dropdown" id="settingsDropdown">
-                <button onclick="startDryRunImport(); closeSettingsMenu()" id="importDryRunBtn">Torrkör import</button>
-                <button onclick="startBackupValidation(); closeSettingsMenu()" id="validateBackupBtn">Validera backup</button>
-                <button onclick="toggleBackupHealthPanel(); closeSettingsMenu()" id="backupHealthToggleBtn">Visa backupstatus</button>
-                <button onclick="toggleRecoveryCenterPanel(); closeSettingsMenu()" id="recoveryToggleBtn">Visa Recovery Center</button>
+                <button onclick="startDryRunImport(); " id="importDryRunBtn">Torrkör import</button>
+                <button onclick="startBackupValidation(); " id="validateBackupBtn">Validera backup</button>
+                <button onclick="toggleBackupHealthPanel(); " id="backupHealthToggleBtn">Visa backupstatus</button>
+                <button onclick="toggleRecoveryCenterPanel(); " id="recoveryToggleBtn">Visa Recovery Center</button>
                 <div class="settings-divider"></div>
-                <button class="theme-btn" onclick="toggleSound(); closeSettingsMenu()" id="soundBtn" title="Stäng av ljudnotiser">🔊 Ljud</button>
-                <button class="theme-btn" onclick="toggleTheme(); closeSettingsMenu()" id="themeBtn" title="Växla tema">🌓 Tema</button>
+                <button class="theme-btn" onclick="toggleSound(); " id="soundBtn" title="Stäng av ljudnotiser">🔊 Ljud</button>
+                <button class="theme-btn" onclick="toggleTheme(); " id="themeBtn" title="Växla tema">🌓 Tema</button>
                 <div class="language-wrapper settings-language-wrapper">
                     <button class="language-btn" onclick="toggleLanguageMenu()" id="languageBtn" title="Språk">🌍 Språk</button>
                     <div class="language-dropdown" id="languageDropdown">
@@ -407,6 +408,22 @@
             <button id="archiveRestoreSafetyBtn" type="button" onclick="restoreAutoSafetySnapshot()">Återställ safety</button>
             <button onclick="clearArchive()" id="archiveClearBtn">🗑️ Rensa arkiv</button>
             <button onclick="closeArchiveModal()" id="archiveCloseBtn">❌ Stäng</button>
+        </div>
+    </div>
+</div>
+
+<div id="supportModal" onclick="closeSupportModal()">
+    <div class="modal-content" onclick="event.stopPropagation();">
+        <div class="support-modal-header">
+            <h2 id="supportModalTitle">🛟 Support</h2>
+            <button class="close-btn" onclick="closeSupportModal()" aria-label="Close support modal">✕</button>
+        </div>
+        <div class="support-copy">
+            <p id="supportModalIntro">Behöver du hjälp med ApexCore?</p>
+            <p id="supportModalBody">Kontrollera först inställningar, backup och språk i appen. Om problemet kvarstår, dela vad som hände, vilka steg du tog och gärna en skärmbild med den som ger dig support.</p>
+        </div>
+        <div class="support-actions">
+            <button onclick="closeSupportModal()" id="supportCloseBtn">❌ Stäng</button>
         </div>
     </div>
 </div>

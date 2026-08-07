@@ -126,32 +126,79 @@
     function getHeaderMenuTexts(lang) {
         if (lang === 'en') {
             return {
+                support: '🛟 Support',
                 settings: '⚙️ Settings',
                 language: '🌍 Language'
             };
         }
         if (lang === 'da') {
             return {
+                support: '🛟 Hjaelp',
                 settings: '⚙️ Indstillinger',
                 language: '🌍 Sprog'
             };
         }
         if (lang === 'no') {
             return {
+                support: '🛟 Hjelp',
                 settings: '⚙️ Innstillinger',
                 language: '🌍 Språk'
             };
         }
         if (lang === 'fi') {
             return {
+                support: '🛟 Tuki',
                 settings: '⚙️ Asetukset',
                 language: '🌍 Kieli'
             };
         }
 
         return {
+            support: '🛟 Support',
             settings: '⚙️ Inställningar',
             language: '🌍 Språk'
+        };
+    }
+
+    function getSupportModalTexts(lang) {
+        if (lang === 'en') {
+            return {
+                title: '🛟 Support',
+                intro: 'Need help with ApexCore?',
+                body: 'Start by checking settings, backup, and language in the app. If the problem remains, share what happened, the steps you took, and preferably a screenshot with the person supporting you.',
+                close: '❌ Close'
+            };
+        }
+        if (lang === 'da') {
+            return {
+                title: '🛟 Hjaelp',
+                intro: 'Har du brug for hjælp med ApexCore?',
+                body: 'Start med at kontrollere indstillinger, backup og sprog i appen. Hvis problemet fortsætter, så del hvad der skete, hvilke trin du tog, og gerne et skærmbillede med den person, der hjælper dig.',
+                close: '❌ Luk'
+            };
+        }
+        if (lang === 'no') {
+            return {
+                title: '🛟 Hjelp',
+                intro: 'Trenger du hjelp med ApexCore?',
+                body: 'Start med å sjekke innstillinger, backup og språk i appen. Hvis problemet fortsetter, del hva som skjedde, hvilke steg du tok og gjerne et skjermbilde med personen som hjelper deg.',
+                close: '❌ Lukk'
+            };
+        }
+        if (lang === 'fi') {
+            return {
+                title: '🛟 Tuki',
+                intro: 'Tarvitsetko apua ApexCoren kanssa?',
+                body: 'Tarkista ensin sovelluksen asetukset, varmuuskopio ja kieli. Jos ongelma jatkuu, kerro mitä tapahtui, mitä vaiheita teit ja mielellaan myös kuvakaappaus henkilolle, joka tukee sinua.',
+                close: '❌ Sulje'
+            };
+        }
+
+        return {
+            title: '🛟 Support',
+            intro: 'Behöver du hjälp med ApexCore?',
+            body: 'Kontrollera först inställningar, backup och språk i appen. Om problemet kvarstår, dela vad som hände, vilka steg du tog och gärna en skärmbild med den som ger dig support.',
+            close: '❌ Stäng'
         };
     }
 
@@ -395,6 +442,8 @@
         setText('exportCsvBtn', 'exportCsv');
         setText('importBtn', 'importBtn');
         setText('phonebookBtn', 'phonebookBtn');
+        var supportBtn = document.getElementById('supportBtn');
+        if (supportBtn) supportBtn.textContent = headerMenuText.support;
         setText('phonebookTitle', 'phonebookTitle');
         setText('phonebookNameLabel', 'phonebookNameLabel');
         setText('phonebookCategoryLabel', 'phonebookCategoryLabel');
@@ -412,6 +461,15 @@
         if (settingsBtn) settingsBtn.textContent = headerMenuText.settings;
         var languageBtn = document.getElementById('languageBtn');
         if (languageBtn) languageBtn.textContent = headerMenuText.language;
+        var supportText = getSupportModalTexts(getLang());
+        var supportModalTitle = document.getElementById('supportModalTitle');
+        if (supportModalTitle) supportModalTitle.textContent = supportText.title;
+        var supportModalIntro = document.getElementById('supportModalIntro');
+        if (supportModalIntro) supportModalIntro.textContent = supportText.intro;
+        var supportModalBody = document.getElementById('supportModalBody');
+        if (supportModalBody) supportModalBody.textContent = supportText.body;
+        var supportCloseBtn = document.getElementById('supportCloseBtn');
+        if (supportCloseBtn) supportCloseBtn.textContent = supportText.close;
 
         var backupText = typeof deps.getBackupUiText === 'function' ? deps.getBackupUiText() : getBackupUiText(getLang());
         var importDryRunBtn = document.getElementById('importDryRunBtn');

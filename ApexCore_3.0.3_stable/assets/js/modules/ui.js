@@ -111,6 +111,19 @@ function toggleSettingsMenu() {
     dropdown.classList.toggle('show');
 }
 
+function openSupportModal() {
+    const modal = document.getElementById('supportModal');
+    if (!modal) return;
+    closeSettingsMenu();
+    modal.style.display = 'flex';
+}
+
+function closeSupportModal() {
+    const modal = document.getElementById('supportModal');
+    if (!modal) return;
+    modal.style.display = 'none';
+}
+
 function registerSettingsOutsideClickClose() {
     if (settingsMenuOutsideClickRegistered) return;
     settingsMenuOutsideClickRegistered = true;
