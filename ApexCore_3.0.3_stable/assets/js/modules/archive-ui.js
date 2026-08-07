@@ -159,6 +159,9 @@
             ctx.downloadBlob(blob, fileName);
 
             if (clearAfterExport) {
+                if (typeof ctx.saveAutoSafetySnapshot === 'function') {
+                    ctx.saveAutoSafetySnapshot();
+                }
                 setArchivedItems(ctx, []);
                 ctx.saveData();
                 ctx.render();
@@ -597,6 +600,7 @@
         var archivedItems = getArchivedItems(ctx).filter(function(p) { return p.id !== id; });
         setArchivedItems(ctx, archivedItems);
         ctx.saveData();
+        ctx.render();
         renderArchive(ctx);
         ctx.showMessage(ctx.t('archiveDeleted'), 'info');
     }
