@@ -395,6 +395,7 @@
         setText('exportCsvBtn', 'exportCsv');
         setText('importBtn', 'importBtn');
         setText('phonebookBtn', 'phonebookBtn');
+        setText('supportBtn', 'supportBtn');
         setText('phonebookTitle', 'phonebookTitle');
         setText('phonebookNameLabel', 'phonebookNameLabel');
         setText('phonebookCategoryLabel', 'phonebookCategoryLabel');

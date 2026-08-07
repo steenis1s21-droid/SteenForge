@@ -26,6 +26,7 @@
 <script defer src="assets/js/modules/login-session.js"></script>
 <script defer src="assets/js/modules/ui-feedback.js"></script>
 <script defer src="assets/js/modules/item-form.js"></script>
+<script defer src="assets/js/modules/support.js"></script>
 <script defer src="assets/js/app.js"></script>
 </head>
 
@@ -166,6 +167,7 @@
         <button onclick="startStandardImport()" id="importBtn">Importera</button>
         <button onclick="openPhonebook()" id="phonebookBtn">Telefonbok</button>
         <div class="settings-wrapper" id="settingsWrapper">
+            <button class="support-btn" onclick="openSupportCenter()" id="supportBtn">🆘 Support</button>
             <button class="settings-btn" onclick="toggleSettingsMenu()" id="settingsBtn">⚙️ Inställningar</button>
             <div class="settings-dropdown" id="settingsDropdown">
                 <button onclick="startDryRunImport(); " id="importDryRunBtn">Torrkör import</button>

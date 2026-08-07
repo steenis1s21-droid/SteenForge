@@ -8,25 +8,26 @@
 <!-- CryptoJS för AES-kryptering -->
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
-<link rel="stylesheet" href="assets/css/app.css">
-<script defer src="assets/js/modules/storage.js"></script>
-<script defer src="assets/js/modules/ui.js"></script>
-<script defer src="assets/js/modules/state-helpers.js"></script>
-<script defer src="assets/js/modules/import-export.js"></script>
-<script defer src="assets/js/modules/import-export-core.js"></script>
-<script defer src="assets/js/modules/language.js"></script>
-<script defer src="assets/js/modules/backup-recovery.js"></script>
-<script defer src="assets/js/modules/editor.js"></script>
-<script defer src="assets/js/modules/reminders.js"></script>
-<script defer src="assets/js/modules/archive-ui.js"></script>
-<script defer src="assets/js/modules/admin-updates.js"></script>
-<script defer src="assets/js/modules/phonebook.js"></script>
-<script defer src="assets/js/modules/active-rendering.js"></script>
-<script defer src="assets/js/modules/item-actions.js"></script>
-<script defer src="assets/js/modules/login-session.js"></script>
-<script defer src="assets/js/modules/ui-feedback.js"></script>
-<script defer src="assets/js/modules/item-form.js"></script>
-<script defer src="assets/js/app.js"></script>
+<link rel="stylesheet" href="assets/css/app.css?v=20260807200000">
+<script defer src="assets/js/modules/storage.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/ui.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/state-helpers.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/import-export.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/import-export-core.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/language.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/backup-recovery.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/editor.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/reminders.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/archive-ui.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/admin-updates.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/phonebook.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/active-rendering.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/item-actions.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/login-session.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/ui-feedback.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/item-form.js?v=20260807200000"></script>
+<script defer src="assets/js/modules/support.js?v=20260807200000"></script>
+<script defer src="assets/js/app.js?v=20260807200000"></script>
 </head>
 
 <body>
@@ -166,15 +167,16 @@
         <button onclick="startStandardImport()" id="importBtn">Importera</button>
         <button onclick="openPhonebook()" id="phonebookBtn">Telefonbok</button>
         <div class="settings-wrapper" id="settingsWrapper">
+            <button class="support-btn" onclick="openSupportCenter()" id="supportBtn">🆘 Support</button>
             <button class="settings-btn" onclick="toggleSettingsMenu()" id="settingsBtn">⚙️ Inställningar</button>
             <div class="settings-dropdown" id="settingsDropdown">
-                <button onclick="startDryRunImport(); closeSettingsMenu()" id="importDryRunBtn">Torrkör import</button>
-                <button onclick="startBackupValidation(); closeSettingsMenu()" id="validateBackupBtn">Validera backup</button>
-                <button onclick="toggleBackupHealthPanel(); closeSettingsMenu()" id="backupHealthToggleBtn">Visa backupstatus</button>
-                <button onclick="toggleRecoveryCenterPanel(); closeSettingsMenu()" id="recoveryToggleBtn">Visa Recovery Center</button>
+                <button onclick="startDryRunImport(); " id="importDryRunBtn">Torrkör import</button>
+                <button onclick="startBackupValidation(); " id="validateBackupBtn">Validera backup</button>
+                <button onclick="toggleBackupHealthPanel(); " id="backupHealthToggleBtn">Visa backupstatus</button>
+                <button onclick="toggleRecoveryCenterPanel(); " id="recoveryToggleBtn">Visa Recovery Center</button>
                 <div class="settings-divider"></div>
-                <button class="theme-btn" onclick="toggleSound(); closeSettingsMenu()" id="soundBtn" title="Stäng av ljudnotiser">🔊 Ljud</button>
-                <button class="theme-btn" onclick="toggleTheme(); closeSettingsMenu()" id="themeBtn" title="Växla tema">🌓 Tema</button>
+                <button class="theme-btn" onclick="toggleSound(); " id="soundBtn" title="Stäng av ljudnotiser">🔊 Ljud</button>
+                <button class="theme-btn" onclick="toggleTheme(); " id="themeBtn" title="Växla tema">🌓 Tema</button>
                 <div class="language-wrapper settings-language-wrapper">
                     <button class="language-btn" onclick="toggleLanguageMenu()" id="languageBtn" title="Språk">🌍 Språk</button>
                     <div class="language-dropdown" id="languageDropdown">

@@ -901,6 +901,10 @@ function getPhonebookModule() {
     return window.ApexPhonebookModule || {};
 }
 
+function getSupportModule() {
+    return window.ApexSupportModule || {};
+}
+
 function getPhonebookContext() {
     return {
         t: t,
@@ -908,6 +912,15 @@ function getPhonebookContext() {
         escapeHTML: escapeHTML,
         closeEdit: closeEdit,
         normalizeCategoryValue: normalizeCategoryValue
+    };
+}
+
+function getSupportContext() {
+    return {
+        t: t,
+        getLang: getLang,
+        showMessage: showMessage,
+        escapeHTML: escapeHTML
     };
 }
 
@@ -2653,6 +2666,18 @@ function openPhonebook() {
         return;
     }
     showMessage(t('phonebookComingSoon'));
+}
+
+function openSupportCenter() {
+    var moduleApi = getSupportModule();
+    if (typeof moduleApi.openSupportCenter === 'function') {
+        moduleApi.openSupportCenter(getSupportContext());
+        return;
+    }
+
+    var supportUrl = 'https://github.com/steenis1s21-droid/SteenForge/issues/new/choose';
+    window.open(supportUrl, '_blank');
+    showMessage(getLang() === 'en' ? '🆘 Opening support center...' : '🆘 Öppnar supportcenter...', 'info');
 }
 
 function closePhonebookPanel() {

@@ -533,6 +533,113 @@ body {
     overflow: visible;
 }
 
+#supportFormOverlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: var(--modal-overlay);
+    z-index: 6000;
+}
+
+#supportFormOverlay .support-sheet {
+    width: min(620px, 92vw);
+    max-width: 620px;
+    max-height: 92vh;
+    overflow: auto;
+    background: var(--bg-white);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: 0 24px 48px var(--shadow-color);
+    padding: 22px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: scaleIn 0.2s ease;
+}
+
+#supportFormOverlay .support-sheet-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+#supportFormOverlay .support-sheet-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+#supportFormOverlay .support-sheet-subtitle {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+#supportFormOverlay .support-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#supportFormOverlay .support-form-field label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+#supportFormOverlay .support-form-field input,
+#supportFormOverlay .support-form-field textarea {
+    width: 100%;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    box-sizing: border-box;
+}
+
+#supportFormOverlay .support-form-field textarea {
+    min-height: 140px;
+    resize: vertical;
+    height: auto;
+}
+
+#supportFormOverlay .support-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+#supportFormOverlay .support-btn-secondary,
+#supportFormOverlay .support-btn-primary {
+    padding: 9px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+#supportFormOverlay .support-btn-secondary:hover,
+#supportFormOverlay .support-btn-primary:hover {
+    background: var(--btn-hover);
+}
+
+#supportFormOverlay .support-btn-primary {
+    background: var(--bg-hover);
+}
+
 .export-import .header-buttons {
     display: flex;
     gap: 3px;
@@ -557,6 +664,19 @@ body {
     transition: background-color 0.2s ease;
 }
 
+.support-btn {
+    padding: 7px 10px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    transition: background-color 0.2s ease;
+}
+
 .export-import > button {
     margin-right: 2px;
 }
@@ -566,7 +686,7 @@ body {
 }
 
 .export-import .settings-wrapper {
-    margin-left: 2px;
+    margin-left: auto;
 }
 
 .export-import button:hover {

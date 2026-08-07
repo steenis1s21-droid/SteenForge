@@ -62,6 +62,7 @@ const translations = {
         exportCsv: 'Exportera CSV',
         importBtn: 'Importera',
         phonebookBtn: 'Telefonbok',
+        supportBtn: '🆘 Support',
         phonebookComingSoon: '📞 Telefonbok kommer snart.',
         phonebookTitle: '📞 Telefonbok',
         phonebookNameLabel: 'Namn:',
@@ -219,6 +220,7 @@ const translations = {
         exportCsv: 'Export CSV',
         importBtn: 'Import',
         phonebookBtn: 'Phonebook',
+        supportBtn: '🆘 Support',
         phonebookComingSoon: '📞 Phonebook is coming soon.',
         phonebookTitle: '📞 Phonebook',
         phonebookNameLabel: 'Name:',
@@ -378,6 +380,7 @@ const translations = {
         exportCsv: 'Eksporter CSV',
         importBtn: 'Importer',
         phonebookBtn: 'Telefonbog',
+        supportBtn: '🆘 Support',
         phonebookComingSoon: '📞 Telefonbog kommer snart.',
         phonebookTitle: '📞 Telefonbog',
         phonebookNameLabel: 'Navn:',
@@ -537,6 +540,7 @@ const translations = {
         exportCsv: 'Eksporter CSV',
         importBtn: 'Importer',
         phonebookBtn: 'Telefonbok',
+        supportBtn: '🆘 Support',
         phonebookComingSoon: '📞 Telefonbok kommer snart.',
         phonebookTitle: '📞 Telefonbok',
         phonebookNameLabel: 'Navn:',
@@ -696,6 +700,7 @@ const translations = {
         exportCsv: 'Vie CSV',
         importBtn: 'Tuo',
         phonebookBtn: 'Puhelinluettelo',
+        supportBtn: '🆘 Tuki',
         phonebookComingSoon: '📞 Puhelinluettelo tulossa pian.',
         phonebookTitle: '📞 Puhelinluettelo',
         phonebookNameLabel: 'Nimi:',
@@ -901,6 +906,10 @@ function getPhonebookModule() {
     return window.ApexPhonebookModule || {};
 }
 
+function getSupportModule() {
+    return window.ApexSupportModule || {};
+}
+
 function getPhonebookContext() {
     return {
         t: t,
@@ -908,6 +917,15 @@ function getPhonebookContext() {
         escapeHTML: escapeHTML,
         closeEdit: closeEdit,
         normalizeCategoryValue: normalizeCategoryValue
+    };
+}
+
+function getSupportContext() {
+    return {
+        t: t,
+        getLang: getLang,
+        showMessage: showMessage,
+        escapeHTML: escapeHTML
     };
 }
 
@@ -2653,6 +2671,18 @@ function openPhonebook() {
         return;
     }
     showMessage(t('phonebookComingSoon'));
+}
+
+function openSupportCenter() {
+    var moduleApi = getSupportModule();
+    if (typeof moduleApi.openSupportCenter === 'function') {
+        moduleApi.openSupportCenter(getSupportContext());
+        return;
+    }
+
+    var supportUrl = 'https://github.com/steenis1s21-droid/SteenForge/issues/new/choose';
+    window.open(supportUrl, '_blank');
+    showMessage(getLang() === 'en' ? '🆘 Opening support center...' : '🆘 Öppnar supportcenter...', 'info');
 }
 
 function closePhonebookPanel() {
