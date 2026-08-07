@@ -51,6 +51,7 @@
         return [
             '<div class="support-sheet">',
             '<div class="support-sheet-header">',
+            '<button id="supportCloseBtn" class="support-close-btn" type="button">×</button>',
             '<h3 class="support-sheet-title">', texts.title, '</h3>',
             '<p class="support-sheet-subtitle">', texts.subtitle, '</p>',
             '</div>',
@@ -163,6 +164,11 @@
 
         if (cancelBtn) {
             cancelBtn.onclick = closeSupportForm;
+        }
+
+        var closeBtn = getEl('supportCloseBtn');
+        if (closeBtn) {
+            closeBtn.onclick = closeSupportForm;
         }
 
         if (sendBtn) {
