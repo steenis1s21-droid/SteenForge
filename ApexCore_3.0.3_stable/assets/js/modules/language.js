@@ -335,8 +335,8 @@
         document.querySelectorAll('.language-dropdown button').forEach(function(btn) {
             btn.classList.toggle('active', btn.getAttribute('data-lang') === selected);
         });
-    }
-
+        document.querySelectorAll('.settings-language-options button').forEach(function(btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-l
     function changeLanguage(lang, ctx) {
         var deps = ctx || {};
         if (typeof deps.setLang === 'function') deps.setLang(lang);

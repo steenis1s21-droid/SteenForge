@@ -155,8 +155,8 @@
 <div class="top">
     <div class="top-header">
         <div class="header-left" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; overflow: hidden;">
-            <h2 style="font-size: 26px; margin: 0; line-height: 1; flex-shrink: 0;">⭕ApexCore</h2>
-            <span style="font-size: 22px; font-weight: 700; letter-spacing: 0.3px; color: var(--text-secondary); line-height: 1; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; flex-shrink: 0;" id="subtitleSlogan">Hjärtat av ditt arbete</span>
+            <h2 style="font-size: 22px; margin: 0; line-height: 1; flex-shrink: 0;">⭕ApexCore</h2>
+            <span style="font-size: 16px; font-weight: 600; letter-spacing: 0.3px; color: var(--text-secondary); line-height: 1; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; flex-shrink: 0;" id="subtitleSlogan">Hjärtat av ditt arbete</span>
         </div>
     </div>
 
@@ -169,22 +169,29 @@
         <div class="settings-wrapper" id="settingsWrapper">
             <button class="support-btn" onclick="openSupportCenter()" id="supportBtn">🆘 Support</button>
             <button class="settings-btn" onclick="toggleSettingsMenu()" id="settingsBtn">⚙️ Inställningar</button>
-            <div class="settings-dropdown" id="settingsDropdown">
-                <button onclick="startDryRunImport(); " id="importDryRunBtn">Torrkör import</button>
-                <button onclick="startBackupValidation(); " id="validateBackupBtn">Validera backup</button>
-                <button onclick="toggleBackupHealthPanel(); " id="backupHealthToggleBtn">Visa backupstatus</button>
-                <button onclick="toggleRecoveryCenterPanel(); " id="recoveryToggleBtn">Visa Recovery Center</button>
-                <div class="settings-divider"></div>
-                <button class="theme-btn" onclick="toggleSound(); " id="soundBtn" title="Stäng av ljudnotiser">🔊 Ljud</button>
-                <button class="theme-btn" onclick="toggleTheme(); " id="themeBtn" title="Växla tema">🌓 Tema</button>
-                <div class="language-wrapper settings-language-wrapper">
-                    <button class="language-btn" onclick="toggleLanguageMenu()" id="languageBtn" title="Språk">🌍 Språk</button>
-                    <div class="language-dropdown" id="languageDropdown">
-                        <button onclick="changeLanguage('sv')" data-lang="sv">🇸🇪 Svenska</button>
-                        <button onclick="changeLanguage('en')" data-lang="en">🇬🇧 English</button>
-                        <button onclick="changeLanguage('da')" data-lang="da">🇩🇰 Dansk</button>
-                        <button onclick="changeLanguage('no')" data-lang="no">🇳🇴 Norsk</button>
-                        <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
+            <div class="settings-modal-overlay" id="settingsModal">
+                <div class="settings-modal-content" onclick="event.stopPropagation()">
+                    <div class="settings-modal-header">
+                        <h3 id="settingsTitle">⚙️ Inställningar</h3>
+                        <button class="settings-modal-close" onclick="closeSettingsMenu()" title="Stäng">✕</button>
+                    </div>
+                    <div class="settings-modal-body">
+                        <button onclick="startDryRunImport(); closeSettingsMenu();" id="importDryRunBtn">Torrkör import</button>
+                        <button onclick="startBackupValidation(); closeSettingsMenu();" id="validateBackupBtn">Validera backup</button>
+                        <button onclick="toggleBackupHealthPanel(); closeSettingsMenu();" id="backupHealthToggleBtn">Visa backupstatus</button>
+                        <button onclick="toggleRecoveryCenterPanel(); closeSettingsMenu();" id="recoveryToggleBtn">Visa Recovery Center</button>
+                        <div class="settings-divider"></div>
+                        <button class="theme-btn" onclick="toggleSound();" id="soundBtn" title="Stäng av ljudnotiser">🔊 Ljud</button>
+                        <button class="theme-btn" onclick="toggleTheme();" id="themeBtn" title="Växla tema">🌓 Tema</button>
+                        <div class="settings-divider"></div>
+                        <label id="settingsLanguageLabel">🌍 Språk</label>
+                        <div class="settings-language-options">
+                            <button onclick="changeLanguage('sv')" data-lang="sv">🇸🇪 Svenska</button>
+                            <button onclick="changeLanguage('en')" data-lang="en">🇬🇧 English</button>
+                            <button onclick="changeLanguage('da')" data-lang="da">🇩🇰 Dansk</button>
+                            <button onclick="changeLanguage('no')" data-lang="no">🇳🇴 Norsk</button>
+                            <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
+                        </div>
                     </div>
                 </div>
             </div>

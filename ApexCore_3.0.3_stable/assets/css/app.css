@@ -399,51 +399,125 @@ body {
     transform: none;
 }
 
-.settings-dropdown {
+/* INSTÄLLNINGAR - MODAL FÖNSTER */
+.settings-modal-overlay {
     display: none;
-    position: absolute;
-    top: 53px;
-    right: auto;
-    left: 135px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--modal-overlay);
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.settings-modal-overlay.show {
+    display: flex;
+}
+
+.settings-modal-content {
     background: var(--bg-white);
+    color: var(--text-primary);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    z-index: 1000;
-    min-width: 220px;
-    padding: 6px;
-    animation: fadeInDown 0.15s ease;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    width: min(400px, calc(100vw - 40px));
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 20px 22px;
+    animation: scaleIn 0.2s ease;
+    box-sizing: border-box;
 }
 
-.settings-dropdown.show {
-    display: block;
+.settings-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border-color);
 }
 
-.settings-dropdown button {
+.settings-modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.settings-modal-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    line-height: 1;
+}
+
+.settings-modal-close:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.settings-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.settings-modal-body button {
     width: 100%;
     text-align: left;
     margin: 0;
     display: block;
+    padding: 9px 12px;
+    font-size: 13px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.settings-modal-body button:hover {
+    background: var(--btn-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.settings-modal-body label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.settings-language-options {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.settings-language-options button {
+    text-align: left;
+}
+
+.settings-language-options button[data-lang].active {
+    background: var(--badge-new-bg);
+    font-weight: bold;
+    color: var(--badge-new-text);
 }
 
 .settings-divider {
     border-top: 1px solid var(--border-color);
     margin-top: 10px;
     margin-bottom: 10px;
-}
-
-.settings-language-wrapper {
-    display: block;
-}
-
-.settings-language-wrapper .language-btn {
-    width: 100%;
-    text-align: left;
-}
-
-.settings-language-wrapper .language-dropdown {
-    top: 45px;
-    right: calc(100% - 135px);
 }
 
 /* INFO-KNAPP */
@@ -565,7 +639,7 @@ body {
     display: flex;
     gap: 4px;
     margin-bottom: 2px;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
     overflow: visible;
 }
@@ -689,13 +763,13 @@ body {
 }
 
 .export-import button {
-    padding: 7px 10px;
+    padding: 6px 9px;
     background: var(--btn-bg);
     color: var(--btn-text);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     white-space: nowrap;
     flex: 0 0 auto;
     transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
@@ -703,13 +777,13 @@ body {
 }
 
 .support-btn {
-    padding: 7px 10px;
+    padding: 6px 9px;
     background: var(--btn-bg);
     color: var(--btn-text);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     white-space: nowrap;
     flex: 0 0 auto;
     transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
@@ -1070,7 +1144,7 @@ textarea {
 /* FORMULÄR + ACTIVE SIDA VID SIDA */
 .form-active-row {
     display: flex;
-    gap: 20px;
+    gap: 16px;
     flex: 1;
     min-height: 0;
     flex-wrap: wrap;
@@ -1078,7 +1152,7 @@ textarea {
 
 /* ACTIVE COLUMN - HÖGER (med scroll) */
 .active-column {
-    flex: 1.25 1 460px;
+    flex: 1 1 420px;
     background: var(--bg-column);
     padding: 12px 15px;
     border: 1px solid var(--border-color);
@@ -2040,7 +2114,7 @@ button:focus-visible {
     }
 
     .form-column {
-        flex: 1 1 380px;
+        flex: 1 1 340px;
         min-height: 0;
         height: 100%;
         overflow: hidden;
@@ -2114,14 +2188,8 @@ button:focus-visible {
         flex-wrap: wrap;
     }
 
-    .settings-dropdown {
-        min-width: min(240px, calc(100vw - 24px));
-        right: 0;
-    }
-
-    .settings-language-wrapper .language-dropdown {
-        right: 0;
-        top: 34px;
+    .settings-modal-content {
+        width: min(360px, calc(100vw - 32px));
     }
 
     .backup-health-grid {

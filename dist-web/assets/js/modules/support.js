@@ -30,15 +30,15 @@
 
         return {
             title: 'Support',
-            subtitle: 'Beskriv ditt problem sa oppnar vi ett forifyllt GitHub-arende.',
+            subtitle: 'Beskriv ditt problem så öppnar vi ett förifyllt GitHub-ärende.',
             name: 'Namn',
             email: 'E-post',
-            subject: 'Amne',
+            subject: 'Ämne',
             message: 'Meddelande',
             cancel: 'Avbryt',
-            send: 'Skapa arende',
-            opening: 'Oppnar supportarande...',
-            subjectRequired: 'Ange ett amne.',
+            send: 'Skapa ärende',
+            opening: 'Öppnar supportärende...',
+            subjectRequired: 'Ange ett ämne.',
             messageRequired: 'Ange ett meddelande.'
         };
     }

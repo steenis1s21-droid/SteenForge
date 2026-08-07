@@ -99,16 +99,16 @@ function getCurrentUiLang() {
 }
 
 function closeSettingsMenu() {
-    const dropdown = document.getElementById('settingsDropdown');
-    if (dropdown) {
-        dropdown.classList.remove('show');
+    const modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.classList.remove('show');
     }
 }
 
 function toggleSettingsMenu() {
-    const dropdown = document.getElementById('settingsDropdown');
-    if (!dropdown) return;
-    dropdown.classList.toggle('show');
+    const modal = document.getElementById('settingsModal');
+    if (!modal) return;
+    modal.classList.toggle('show');
 }
 
 function registerSettingsOutsideClickClose() {
@@ -116,10 +116,11 @@ function registerSettingsOutsideClickClose() {
     settingsMenuOutsideClickRegistered = true;
 
     document.addEventListener('click', function(e) {
-        const wrapper = document.getElementById('settingsWrapper');
-        if (!wrapper) return;
+        const modal = document.getElementById('settingsModal');
+        if (!modal) return;
 
-        if (!wrapper.contains(e.target)) {
+        // Close when clicking on the overlay backdrop (not the content itself)
+        if (e.target === modal) {
             closeSettingsMenu();
         }
     });
