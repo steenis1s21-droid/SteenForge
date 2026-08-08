@@ -69,7 +69,7 @@
             var deleteBtnText = ctx.t('deleteBtn');
             var pinBtnText = p.pinned ? ctx.t('unpinBtn') : ctx.t('pinBtn');
             var noteText = (p.note || '').trim();
-            var notesLine = noteText ? '<br><b>' + ctx.escapeHTML(notesLabel) + ':</b> ' + ctx.escapeHTML(noteText) : '';
+            var notesLine = noteText ? '<br><b>' + ctx.escapeHTML(notesLabel) + ':</b> ' + ctx.escapeHTML(noteText).replace(/\n/g, '<br>') : '';
 
             var notifIcon = p.notification && p.notification !== '' ? ' 🔔' : '';
             var pinIcon = p.pinned ? ' 📌' : '';
