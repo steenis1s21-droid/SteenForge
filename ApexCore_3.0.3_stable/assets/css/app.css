@@ -1331,6 +1331,27 @@ textarea {
     background: var(--category-high-bg);
 }
 
+.active-group.pinned-strip {
+    border: 2px solid #f59e0b !important;
+    border-radius: 10px;
+    padding: 8px !important;
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.12) 0%, rgba(245, 158, 11, 0.04) 100%);
+}
+
+.active-group.pinned-strip .active-group-toggle {
+    background: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    color: #92400e !important;
+}
+
+.active-group.pinned-strip .active-group-toggle .group-arrow {
+    color: #92400e;
+}
+
+.active-group.pinned-items {
+    max-height: min(35vh, 280px);
+}
+
 .active-group.high-priority-strip .active-group-toggle {
     border-radius: 6px;
 }
@@ -1409,6 +1430,36 @@ textarea {
     justify-content: space-between;
     align-items: flex-start;
     gap: 8px;
+}
+
+.pinned-item {
+    border-left: 3px solid #f59e0b !important;
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.08) 0%, transparent 100%) !important;
+}
+
+.pin-btn {
+    padding: 2px 8px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.pin-btn:hover {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    color: #92400e;
+}
+
+.pinned-item .pin-btn {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    color: #92400e;
 }
 
 .active-item .item-content {

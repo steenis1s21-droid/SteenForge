@@ -40,6 +40,15 @@
             return (x.name + ' ' + (x.task || '') + ' ' + (x.note || '') + ' ' + categoryText).toLowerCase().includes(searchText);
         });
 
+        function sortItemsForCategory(categoryItems) {
+            return categoryItems.slice().sort(function(a, b) {
+                var aPinned = a.pinned ? 1 : 0;
+                var bPinned = b.pinned ? 1 : 0;
+                if (aPinned !== bPinned) return bPinned - aPinned;
+                return (b.updated || 0) - (a.updated || 0);
+            });
+        }
+
         function createActiveListItem(p, showCategoryTag, displayCategoryKey) {
             if (showCategoryTag === undefined) showCategoryTag = true;
             if (!displayCategoryKey) displayCategoryKey = ctx.normalizeCategoryValue(p.category);
@@ -48,6 +57,7 @@
             var normalizedPriority = ctx.normalizePriorityValue(p.priority);
             var normalizedCategory = ctx.normalizeCategoryValue(p.category);
             li.className = 'category-item-' + displayCategoryKey;
+            if (p.pinned) li.classList.add('pinned-item');
 
             var priorityText = ctx.getPriorityLabel(normalizedPriority);
             var categoryTexts = ctx.getCategoryTexts();
@@ -57,13 +67,15 @@
             var notesLabel = ctx.t('cardNotes');
             var doneBtnText = ctx.t('doneBtn');
             var deleteBtnText = ctx.t('deleteBtn');
+            var pinBtnText = p.pinned ? ctx.t('unpinBtn') : ctx.t('pinBtn');
             var noteText = (p.note || '').trim();
             var notesLine = noteText ? '<br><b>' + ctx.escapeHTML(notesLabel) + ':</b> ' + ctx.escapeHTML(noteText) : '';
 
             var notifIcon = p.notification && p.notification !== '' ? ' 🔔' : '';
+            var pinIcon = p.pinned ? ' 📌' : '';
             var ageText = p.age === '' || p.age === null || p.age === undefined ? '' : ' (' + ctx.escapeHTML(p.age) + ')';
 
-            li.innerHTML = '\n            <div class="active-item">\n                <div class="item-content">\n                    <strong>' + ctx.escapeHTML(p.name) + '</strong>' + ageText + '\n                    <br><b>' + ctx.escapeHTML(taskLabel) + ':</b> ' + ctx.escapeHTML(p.task || '') + '\n                    ' + notesLine + '\n                    <br><span style="font-size: 12px; color: var(--text-muted);">' + priorityText + (showCategoryTag ? ' • ' + categoryIcon + ' ' + ctx.escapeHTML(categoryText) : '') + notifIcon + '</span>\n                    <div class=\'litenText\'>' + formatTime(p.updated) + '</div>\n                </div>\n                <div class="item-actions">\n                    <button class="done-btn" onclick="event.stopPropagation(); moveToDoneById(' + p.id + ')">' + ctx.escapeHTML(doneBtnText) + '</button>\n                    <button class="delete-btn" onclick="event.stopPropagation(); deleteItem(' + p.id + ')">' + ctx.escapeHTML(deleteBtnText) + '</button>\n                </div>\n            </div>\n        ';
+            li.innerHTML = '\n            <div class="active-item">\n                <div class="item-content">\n                    <strong>' + ctx.escapeHTML(p.name) + '</strong>' + ageText + pinIcon + '\n                    <br><b>' + ctx.escapeHTML(taskLabel) + ':</b> ' + ctx.escapeHTML(p.task || '') + '\n                    ' + notesLine + '\n                    <br><span style="font-size: 12px; color: var(--text-muted);">' + priorityText + (showCategoryTag ? ' • ' + categoryIcon + ' ' + ctx.escapeHTML(categoryText) : '') + notifIcon + '</span>\n                    <div class=\'litenText\'>' + formatTime(p.updated) + '</div>\n                </div>\n                <div class="item-actions">\n                    <button class="pin-btn" onclick="event.stopPropagation(); togglePin(' + p.id + ')" title="' + ctx.escapeHTML(pinBtnText) + '">' + ctx.escapeHTML(pinBtnText) + '</button>\n                    <button class="done-btn" onclick="event.stopPropagation(); moveToDoneById(' + p.id + ')">' + ctx.escapeHTML(doneBtnText) + '</button>\n                    <button class="delete-btn" onclick="event.stopPropagation(); deleteItem(' + p.id + ')">' + ctx.escapeHTML(deleteBtnText) + '</button>\n                </div>\n            </div>\n        ';
 
             li.draggable = true;
             li.ondragstart = function() { ctx.startDrag(p.id); };
@@ -119,12 +131,15 @@
         };
 
         var highPriorityItems = [];
+        var pinnedItems = [];
 
         filteredItems.forEach(function(item) {
             var normalizedPriority = ctx.normalizePriorityValue(item.priority);
             var normalizedCategory = ctx.normalizeCategoryValue(item.category);
 
-            if (normalizedPriority === 'high' || normalizedCategory === 'high') {
+            if (item.pinned) {
+                pinnedItems.push(item);
+            } else if (normalizedPriority === 'high' || normalizedCategory === 'high') {
                 highPriorityItems.push(item);
             } else {
                 groupedItems[normalizedCategory].push(item);
@@ -132,13 +147,16 @@
         });
 
         var categoryText = ctx.getCategoryTexts();
-        renderActiveGroup('high', ctx.getCategoryIcon('high') + ' ' + categoryText.high, highPriorityItems, false, 'high-priority-strip', 'high-priority-items');
-        renderActiveGroup('patients', ctx.getCategoryIcon('patients') + ' ' + categoryText.patients, groupedItems.patients);
-        renderActiveGroup('authorities', ctx.getCategoryIcon('authorities') + ' ' + categoryText.authorities, groupedItems.authorities);
-        renderActiveGroup('administration', ctx.getCategoryIcon('administration') + ' ' + categoryText.administration, groupedItems.administration);
-        renderActiveGroup('private', ctx.getCategoryIcon('private') + ' ' + categoryText.private, groupedItems.private);
-        renderActiveGroup('games', ctx.getCategoryIcon('games') + ' ' + categoryText.games, groupedItems.games);
-        renderActiveGroup('other', ctx.getCategoryIcon('other') + ' ' + categoryText.other, groupedItems.other);
+        if (pinnedItems.length > 0) {
+            renderActiveGroup('pinned', '📌 ' + (ctx.t('pinBtn') || 'Pinned'), sortItemsForCategory(pinnedItems), false, 'pinned-strip', 'pinned-items');
+        }
+        renderActiveGroup('high', ctx.getCategoryIcon('high') + ' ' + categoryText.high, sortItemsForCategory(highPriorityItems), false, 'high-priority-strip', 'high-priority-items');
+        renderActiveGroup('patients', ctx.getCategoryIcon('patients') + ' ' + categoryText.patients, sortItemsForCategory(groupedItems.patients));
+        renderActiveGroup('authorities', ctx.getCategoryIcon('authorities') + ' ' + categoryText.authorities, sortItemsForCategory(groupedItems.authorities));
+        renderActiveGroup('administration', ctx.getCategoryIcon('administration') + ' ' + categoryText.administration, sortItemsForCategory(groupedItems.administration));
+        renderActiveGroup('private', ctx.getCategoryIcon('private') + ' ' + categoryText.private, sortItemsForCategory(groupedItems.private));
+        renderActiveGroup('games', ctx.getCategoryIcon('games') + ' ' + categoryText.games, sortItemsForCategory(groupedItems.games));
+        renderActiveGroup('other', ctx.getCategoryIcon('other') + ' ' + categoryText.other, sortItemsForCategory(groupedItems.other));
 
         if (filteredItems.length === 0) {
             var emptyLi = document.createElement('li');

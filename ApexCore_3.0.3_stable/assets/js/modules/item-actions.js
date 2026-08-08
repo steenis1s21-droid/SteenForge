@@ -97,6 +97,16 @@
         moveToActiveById(ctx, id);
     }
 
+    function togglePin(ctx, id) {
+        var items = getItems(ctx);
+        var index = items.findIndex(function(item) { return item.id === id; });
+        if (index === -1) return;
+
+        items[index].pinned = !items[index].pinned;
+        ctx.saveData();
+        ctx.render();
+    }
+
     function reorderActiveItems(ctx, fromId, toId) {
         if (fromId === null || toId === null || fromId === toId) return;
 
@@ -153,6 +163,7 @@
         deleteItem: deleteItem,
         undoDelete: undoDelete,
         startDrag: startDrag,
+        togglePin: togglePin,
         moveToDone: moveToDone,
         moveToActive: moveToActive,
         reorderActiveItems: reorderActiveItems,

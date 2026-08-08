@@ -102,6 +102,8 @@ const translations = {
         cardNotes: 'Anteckningar',
         doneBtn: '✅ Klar',
         deleteBtn: '✕ Ta bort',
+        pinBtn: '📌 Fäst',
+        unpinBtn: '📎 Lossa',
         msgOrderUpdated: '🔁 Ordningen uppdaterad',
         searchActive: '🔍 Sök i Aktiv',
         searchDone: '🔍 Sök i Färdig',
@@ -260,6 +262,8 @@ const translations = {
         cardNotes: 'Notes',
         doneBtn: '✅ Done',
         deleteBtn: '✕ Delete',
+        pinBtn: '📌 Pin',
+        unpinBtn: '📎 Unpin',
         msgOrderUpdated: '🔁 Order updated',
         searchActive: '🔍 Search Active',
         searchDone: '🔍 Search Done',
@@ -420,6 +424,8 @@ const translations = {
         cardNotes: 'Noter',
         doneBtn: '✅ Færdig',
         deleteBtn: '✕ Slet',
+        pinBtn: '📌 Fastgør',
+        unpinBtn: '📎 Løsne',
         msgOrderUpdated: '🔁 Rækkefølgen er opdateret',
         searchActive: '🔍 Søg i Aktiv',
         searchDone: '🔍 Søg i Færdig',
@@ -580,6 +586,8 @@ const translations = {
         cardNotes: 'Notater',
         doneBtn: '✅ Ferdig',
         deleteBtn: '✕ Slett',
+        pinBtn: '📌 Fest',
+        unpinBtn: '📎 Løsne',
         msgOrderUpdated: '🔁 Rekkefølgen er oppdatert',
         searchActive: '🔍 Søk i Aktiv',
         searchDone: '🔍 Søk i Ferdig',
@@ -740,6 +748,8 @@ const translations = {
         cardNotes: 'Muistiinpanot',
         doneBtn: '✅ Valmis',
         deleteBtn: '✕ Poista',
+        pinBtn: '📌 Kiinnitä',
+        unpinBtn: '📎 Irrota',
         msgOrderUpdated: '🔁 Järjestys päivitetty',
         searchActive: '🔍 Etsi Aktiivisesta',
         searchDone: '🔍 Etsi Valmiista',
@@ -1079,6 +1089,7 @@ function getItemActionsContext() {
         moveToDoneById: moveToDoneById,
         moveToActiveById: moveToActiveById,
         startDrag: startDrag,
+        togglePin: togglePin,
         moveToDone: moveToDone,
         moveToActive: moveToActive,
         reorderActiveItems: reorderActiveItems
@@ -1395,6 +1406,13 @@ function updateLanguageMenu() {
     var moduleApi = getLanguageModule();
     if (typeof moduleApi.updateLanguageMenu === 'function') {
         moduleApi.updateLanguageMenu(getLang());
+    }
+}
+
+function togglePin(id) {
+    var moduleApi = getItemActionsModule();
+    if (typeof moduleApi.togglePin === 'function') {
+        moduleApi.togglePin(getItemActionsContext(), id);
     }
 }
 

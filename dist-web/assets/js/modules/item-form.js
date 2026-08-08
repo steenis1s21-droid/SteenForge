@@ -57,6 +57,7 @@
             priority: priorityVal,
             notification: notificationVal || '',
             notificationShown: false,
+            pinned: false,
             updated: Date.now()
         });
 
