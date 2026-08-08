@@ -36,7 +36,7 @@ if (Test-Path $targetRoot) {
 
 New-Item -ItemType Directory -Force -Path $targetRoot | Out-Null
 
-$sourcePackageJson = Get-Content -Path $sourcePackage -Raw | ConvertFrom-Json
+$sourcePackageJson = Get-Content -Path $sourcePackage -Raw -Encoding UTF8 | ConvertFrom-Json
 $apexVersion = "v$($sourcePackageJson.version)"
 $buildStamp = Get-Date -Format 'yyyyMMddHHmmss'
 
@@ -47,7 +47,7 @@ Copy-Item -Path $sourceAssets -Destination $targetAssets -Recurse -Force
 Copy-Item -Path $sourcePackage -Destination (Join-Path $targetRoot 'package.json') -Force
 
 $targetIndexPath = Join-Path $targetRoot 'index.html'
-$targetIndexContent = [System.IO.File]::ReadAllText($targetIndexPath)
+$targetIndexContent = [System.IO.File]::ReadAllText($targetIndexPath, [System.Text.Encoding]::UTF8)
 $targetIndexContent = [regex]::Replace($targetIndexContent, '(href|src)="([^"]+)"', {
     param($match)
 
@@ -73,7 +73,7 @@ $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText($targetIndexPath, $targetIndexContent, $utf8NoBom)
 
 if (Test-Path $siteDataFile) {
-    $siteData = Get-Content -Path $siteDataFile -Raw
+    $siteData = Get-Content -Path $siteDataFile -Raw -Encoding UTF8
     $pattern = '(?s)(id:\s*[''\"]apexcore[''\"].*?version:\s*[''\"])([^''\"]+)([''\"])'
 
     if (-not [regex]::IsMatch($siteData, $pattern)) {

@@ -36,7 +36,7 @@ if (Test-Path $targetRoot) {
 
 New-Item -ItemType Directory -Force -Path $targetRoot | Out-Null
 
-$html = Get-Content -Path $sourceHtml -Raw
+$html = Get-Content -Path $sourceHtml -Raw -Encoding UTF8
 $html = $html.Replace('SleepJournal_Alpha_stable.css', 'styles.css')
 $html = $html.Replace('SleepJournal_Alpha_stable.js', 'app.js')
 
@@ -50,7 +50,7 @@ $versionMatch = [regex]::Match($sourceBaseName, 'SleepJournal_(.+?)_stable')
 $sleepVersion = if ($versionMatch.Success) { $versionMatch.Groups[1].Value } else { 'WIP' }
 
 if (Test-Path $siteDataFile) {
-    $siteData = Get-Content -Path $siteDataFile -Raw
+    $siteData = Get-Content -Path $siteDataFile -Raw -Encoding UTF8
     $versionPattern = '(?s)(id:\s*"somndagboken",.*?version:\s*")([^"]+)(")'
     $downloadPattern = '(?s)(id:\s*"somndagboken",.*?downloads:\s*\[)(.*?)(\n\s*\],)'
 
