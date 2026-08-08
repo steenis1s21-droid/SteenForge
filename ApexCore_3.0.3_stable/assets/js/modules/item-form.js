@@ -80,6 +80,7 @@
 
             input.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
+                    if (input.tagName.toLowerCase() === 'textarea') return;
                     e.preventDefault();
                     addItem(ctx);
                 }
