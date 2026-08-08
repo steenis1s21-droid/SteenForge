@@ -1261,38 +1261,31 @@ textarea {
 }
 
 .active-group-toggle.category-high {
-    background: var(--category-high-bg);
-    border-color: var(--category-high-border);
+    color: var(--category-high-border);
 }
 
 .active-group-toggle.category-patients {
-    background: var(--category-patients-bg);
-    border-color: var(--category-patients-border);
+    color: var(--category-patients-border);
 }
 
 .active-group-toggle.category-authorities {
-    background: var(--category-authorities-bg);
-    border-color: var(--category-authorities-border);
+    color: var(--category-authorities-border);
 }
 
 .active-group-toggle.category-administration {
-    background: var(--category-administration-bg);
-    border-color: var(--category-administration-border);
+    color: var(--category-administration-border);
 }
 
 .active-group-toggle.category-private {
-    background: var(--category-private-bg);
-    border-color: var(--category-private-border);
+    color: var(--category-private-border);
 }
 
 .active-group-toggle.category-games {
-    background: var(--category-games-bg);
-    border-color: var(--category-games-border);
+    color: var(--category-games-border);
 }
 
 .active-group-toggle.category-other {
-    background: var(--category-other-bg);
-    border-color: var(--category-other-border);
+    color: var(--category-other-border);
 }
 
 .active-group-toggle .group-left {
@@ -1376,38 +1369,52 @@ textarea {
 }
 
 .category-item-high {
-    border-left: 4px solid var(--category-high-border) !important;
-    background-color: var(--category-high-bg) !important;
 }
 
 .category-item-patients {
-    border-left: 4px solid var(--category-patients-border) !important;
-    background-color: var(--category-patients-bg) !important;
 }
 
 .category-item-authorities {
-    border-left: 4px solid var(--category-authorities-border) !important;
-    background-color: var(--category-authorities-bg) !important;
 }
 
 .category-item-administration {
-    border-left: 4px solid var(--category-administration-border) !important;
-    background-color: var(--category-administration-bg) !important;
 }
 
 .category-item-private {
-    border-left: 4px solid var(--category-private-border) !important;
-    background-color: var(--category-private-bg) !important;
 }
 
 .category-item-games {
-    border-left: 4px solid var(--category-games-border) !important;
-    background-color: var(--category-games-bg) !important;
 }
 
 .category-item-other {
-    border-left: 4px solid var(--category-other-border) !important;
-    background-color: var(--category-other-bg) !important;
+}
+
+.category-name-text-high {
+    color: var(--category-high-border);
+}
+
+.category-name-text-patients {
+    color: var(--category-patients-border);
+}
+
+.category-name-text-authorities {
+    color: var(--category-authorities-border);
+}
+
+.category-name-text-administration {
+    color: var(--category-administration-border);
+}
+
+.category-name-text-private {
+    color: var(--category-private-border);
+}
+
+.category-name-text-games {
+    color: var(--category-games-border);
+}
+
+.category-name-text-other {
+    color: var(--category-other-border);
 }
 
 .footer {
