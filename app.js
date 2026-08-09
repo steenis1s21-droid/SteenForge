@@ -86,6 +86,15 @@ const apps = [
     description: 'Håll koll på dina sömnvanor vecka för vecka.',
     platform: 'Web',
     url: 'sleep-journal-web/'
+  },
+  {
+    id: 'krypton',
+    title: 'Project Krypton',
+    subtitle: 'Under utveckling',
+    description: 'Ett nytt projekt som är på gång. Håll utkik efter uppdateringar!',
+    platform: 'Web',
+    version: 'WIP',
+    url: 'krypton-web/'
   }
 ];
 
