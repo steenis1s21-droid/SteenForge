@@ -155,33 +155,6 @@ function renderAbout() {
   container.innerHTML = paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('');
 }
 
-function initAboutAdmin() {
-  var svTextarea = document.getElementById('adminAboutSv');
-  var enTextarea = document.getElementById('adminAboutEn');
-  var saveBtn = document.getElementById('adminAboutSave');
-  if (!svTextarea || !enTextarea || !saveBtn) return;
-
-  svTextarea.value = (aboutStory.sv || []).join('\n');
-  enTextarea.value = (aboutStory.en || []).join('\n');
-
-  saveBtn.addEventListener('click', function() {
-    var updated = {
-      sv: svTextarea.value.split('\n').filter(function(line) { return line.trim() !== ''; }),
-      en: enTextarea.value.split('\n').filter(function(line) { return line.trim() !== ''; })
-    };
-
-    var blob = new Blob([JSON.stringify(updated, null, 2)], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'about.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  });
-}
-
 function applyLanguage(lang = getStoredLanguage()) {
   setStoredLanguage(lang);
   const t = translations[lang] || translations.sv;
@@ -225,7 +198,6 @@ async function init() {
     platformFilter.addEventListener('change', renderApps);
   }
 
-  initAboutAdmin();
   applyLanguage();
 }
 
