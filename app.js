@@ -85,7 +85,7 @@ const apps = [
     subtitle: 'Sömnspårning',
     description: 'Håll koll på dina sömnvanor vecka för vecka.',
     platform: 'Web',
-    url: 'sleep-journal-web/'
+    url: 'sleep-journal-web/index.html'
   },
   {
     id: 'krypton',
@@ -94,7 +94,7 @@ const apps = [
     description: 'Ett nytt projekt som är på gång. Håll utkik efter uppdateringar!',
     platform: 'Web',
     version: 'WIP',
-    url: 'krypton-web/'
+    url: 'krypton-web/index.html'
   }
 ];
 

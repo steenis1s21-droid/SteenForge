@@ -13,50 +13,134 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #0f172a;
+            /* PLACEHOLDER IMAGE URL — replace with your own space/planet image */
+            /* Optional: switch to a local file  e.g. url('assets/krypton-bg.jpg')  */
+            background: #0f172a url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
             color: #e2e8f0;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Dark overlay to keep the text readable and create a mysterious atmosphere */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 40%, rgba(15, 23, 42, 0.55), rgba(15, 23, 42, 0.88));
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
             text-align: center;
             max-width: 500px;
+            position: relative;
+            z-index: 1;
         }
 
+        /* --- Cinematic intro: title fades in and comes closer --- */
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: clamp(1.9rem, 5.5vw, 3.2rem);
+            margin-bottom: 0.9rem;
+            white-space: nowrap;
             background: linear-gradient(135deg, #6366f1, #a855f7);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            text-shadow: 0 0 30px rgba(168, 85, 247, 0.35);
+            opacity: 0;
+            transform: scale(0.6) translateZ(-200px);
+            animation: titleApproach 3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
+        /* Divider line under the title */
+        .title-line {
+            width: 120px;
+            height: 2px;
+            margin: 0 auto 1.2rem;
+            background: linear-gradient(90deg, transparent, #a855f7, #6366f1, transparent);
+            border-radius: 2px;
+            box-shadow: 0 0 12px rgba(168, 85, 247, 0.5);
+            opacity: 0;
+            transform: scaleX(0);
+            animation: lineReveal 1s ease 2.8s forwards;
+        }
+
+        @keyframes lineReveal {
+            to {
+                opacity: 1;
+                transform: scaleX(1);
+            }
+        }
+
+        @keyframes titleApproach {
+            0% {
+                opacity: 0;
+                transform: scale(0.6) translateZ(-200px);
+                filter: blur(8px);
+            }
+            40% {
+                opacity: 0.4;
+                filter: blur(3px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateZ(0);
+                filter: blur(0);
+            }
+        }
+
+        /* ---- Subtitle fades in after the title settles --- */
         p {
             font-size: 1.1rem;
-            color: #94a3b8;
+            color: #cbd5e1;
             line-height: 1.6;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            transform: translateY(14px);
+            animation: subtitleReveal 1.4s ease 3.2s forwards;
         }
 
+        @keyframes subtitleReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ---- Badge fades in last --- */
         .badge {
             display: inline-block;
             margin-top: 1.5rem;
             padding: 8px 16px;
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.4);
             border-radius: 999px;
             font-size: 0.875rem;
             color: #a5b4fc;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+            opacity: 0;
+            animation: badgeReveal 1s ease 4s forwards;
+        }
+
+        @keyframes badgeReveal {
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Project Krypton</h1>
+        <div class="title-line"></div>
         <p>This project is currently under development.<br>Stay tuned for updates!</p>
         <div class="badge">Coming Soon</div>
     </div>
