@@ -33,7 +33,7 @@ jobs:
       - name: Prepare static site content
         run: |
           mkdir -p public
-          cp -r index.html styles.css app.js detail.js app-detail.html updates.json public/
+          cp -r index.html styles.css app.js detail.js app-detail.html updates.json about.json public/
           cp -r dist-web public/dist-web
           cp -r sleep-journal-web public/sleep-journal-web
           cp -r ApexCore_3.0.3_stable public/ApexCore_3.0.3_stable

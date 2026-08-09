@@ -98,16 +98,18 @@ const apps = [
   }
 ];
 
-const aboutStory = {
-  sv: [
-    'ApexCore är ett verktyg för att hålla ordning i arbete, projekt och vardag.',
-    'Sömndagboken hjälper dig att följa sömnmonster och bygga vanor över tid.'
-  ],
-  en: [
-    'ApexCore is a tool for keeping work, projects and daily life in order.',
-    'Sleep Journal helps you track sleep patterns and build habits over time.'
-  ]
-};
+let aboutStory = {};
+
+async function loadAboutStory() {
+  try {
+    const response = await fetch('about.json');
+    if (response.ok) {
+      aboutStory = await response.json();
+    }
+  } catch (e) {
+    console.warn('Could not load about.json', e);
+  }
+}
 
 function getStoredLanguage() {
   return localStorage.getItem('steenforge-lang') || 'sv';
@@ -149,7 +151,35 @@ function renderAbout() {
   const container = document.getElementById('aboutContent');
   if (!container) return;
   const lang = getStoredLanguage();
-  container.innerHTML = aboutStory[lang] ? aboutStory[lang].map((paragraph) => `<p>${paragraph}</p>`).join('') : '';
+  const paragraphs = aboutStory[lang] || aboutStory['en'] || [];
+  container.innerHTML = paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('');
+}
+
+function initAboutAdmin() {
+  var svTextarea = document.getElementById('adminAboutSv');
+  var enTextarea = document.getElementById('adminAboutEn');
+  var saveBtn = document.getElementById('adminAboutSave');
+  if (!svTextarea || !enTextarea || !saveBtn) return;
+
+  svTextarea.value = (aboutStory.sv || []).join('\n');
+  enTextarea.value = (aboutStory.en || []).join('\n');
+
+  saveBtn.addEventListener('click', function() {
+    var updated = {
+      sv: svTextarea.value.split('\n').filter(function(line) { return line.trim() !== ''; }),
+      en: enTextarea.value.split('\n').filter(function(line) { return line.trim() !== ''; })
+    };
+
+    var blob = new Blob([JSON.stringify(updated, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'about.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
 }
 
 function applyLanguage(lang = getStoredLanguage()) {
@@ -181,7 +211,9 @@ function applyLanguage(lang = getStoredLanguage()) {
   renderAbout();
 }
 
-function init() {
+async function init() {
+  await loadAboutStory();
+
   const languageSelect = document.getElementById('languageSelect');
   const platformFilter = document.getElementById('platformFilter');
 
@@ -193,13 +225,14 @@ function init() {
     platformFilter.addEventListener('change', renderApps);
   }
 
+  initAboutAdmin();
   applyLanguage();
 }
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {
-  init();
+  init().catch(() => {});
 }
 
 window.SteenForge = apps;

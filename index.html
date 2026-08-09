@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260809-001" />
+    <link rel="stylesheet" href="styles.css?v=20260809-002" />
   </head>
   <body>
     <div class="background-blur blur-one"></div>
@@ -75,9 +75,27 @@
         <div id="aboutContent" class="about-content" aria-live="polite"></div>
       </section>
 
+      <section class="panel admin-panel">
+        <div class="panel-head">
+          <h2>Redigera Om-text</h2>
+          <p>Uppdatera texten på startsidan. När du är klar, ladda ner filen och committa den till repot.</p>
+        </div>
+        <div class="admin-form">
+          <label for="adminAboutSv">Svenska</label>
+          <textarea id="adminAboutSv" rows="6" placeholder="En rad per stycke..."></textarea>
+
+          <label for="adminAboutEn">English</label>
+          <textarea id="adminAboutEn" rows="6" placeholder="One paragraph per line..."></textarea>
+
+          <div class="admin-actions">
+            <button id="adminAboutSave" type="button">Ladda ner about.json</button>
+          </div>
+        </div>
+      </section>
+
     </main>
 
-    <script src="app.js?v=20260809-001"></script>
+    <script src="app.js?v=20260809-002"></script>
     <script type="module" src="modules/support.js"></script>
   </body>
 </html>
