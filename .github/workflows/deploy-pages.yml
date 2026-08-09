@@ -37,6 +37,7 @@ jobs:
           cp -r dist-web public/dist-web
           cp -r sleep-journal-web public/sleep-journal-web
           cp -r ApexCore_3.0.3_stable public/ApexCore_3.0.3_stable
+          cp -r krypton-web public/krypton-web
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
