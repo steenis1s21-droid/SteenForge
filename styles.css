@@ -704,36 +704,6 @@ main,
   line-height: 1.5;
 }
 
-.admin-lang-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.admin-tab {
-  border: 1px solid var(--panel-border);
-  border-radius: 999px;
-  padding: 7px 14px;
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--muted);
-  background: var(--panel-strong);
-  cursor: pointer;
-  transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
-}
-
-.admin-tab:hover {
-  border-color: #4b5a68;
-  color: var(--ink);
-}
-
-.admin-tab.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-
 .admin-lang-editor {
   display: flex;
   flex-direction: column;

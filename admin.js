@@ -118,29 +118,97 @@
     });
   }
 
-  // --- Build content from textareas ---
+  // --- Build content from the single textarea, applied to all languages ---
   function buildAboutContent() {
+    var textarea = $('adminAboutText');
+    var paragraphs = textarea ? textarea.value.split('\n').filter(function(line) {
+      return line.trim() !== '';
+    }) : [];
     var result = {};
     LANGUAGES.forEach(function(lang) {
-      var textarea = $('adminAbout' + lang.charAt(0).toUpperCase() + lang.slice(1));
-      if (!textarea) return;
-      result[lang] = textarea.value.split('\n').filter(function(line) {
-        return line.trim() !== '';
-      });
+      result[lang] = paragraphs;
     });
     return JSON.stringify(result, null, 2);
+  }
+
+  // --- Translate a single text string via free Google Translate endpoint ---
+  function translateText(text, targetLang) {
+    var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=' +
+      targetLang + '&dt=t&q=' + encodeURIComponent(text);
+    return fetch(url).then(function(resp) {
+      if (!resp.ok) throw new Error('Översättning misslyckades (' + resp.status + ')');
+      return resp.json();
+    }).then(function(data) {
+      // data[0] is an array of [translated, original, ...] segments
+      return data[0].map(function(seg) { return seg[0]; }).join('');
+    });
+  }
+
+  // --- Translate all paragraphs to a target language ---
+  function translateParagraphs(paragraphs, targetLang) {
+    return Promise.all(paragraphs.map(function(p) {
+      return translateText(p, targetLang);
+    }));
+  }
+
+  // --- Translate the master text to all languages and publish ---
+  function handleTranslatePublish() {
+    if (isPublishing) return;
+    var textarea = $('adminAboutText');
+    var paragraphs = textarea ? textarea.value.split('\n').filter(function(line) {
+      return line.trim() !== '';
+    }) : [];
+
+    if (!paragraphs.length) {
+      setStatus(publishStatus, 'Skriv lite text först.', 'error');
+      return;
+    }
+
+    isPublishing = true;
+    $('adminTranslateBtn').disabled = true;
+    $('adminPublishBtn').disabled = true;
+    setStatus(publishStatus, 'Översätter till alla språk...', 'info');
+
+    // sv stays as-is; translate to en, da, no, fi
+    var result = { sv: paragraphs };
+    var targets = LANGUAGES.filter(function(l) { return l !== 'sv'; });
+
+    var chain = Promise.resolve();
+    targets.forEach(function(lang) {
+      chain = chain.then(function() {
+        return translateParagraphs(paragraphs, lang).then(function(translated) {
+          result[lang] = translated;
+        });
+      });
+    });
+
+    chain.then(function() {
+      setStatus(publishStatus, 'Översatt! Publicerar...', 'info');
+      return publishContent(JSON.stringify(result, null, 2));
+    }).then(function() {
+      setStatus(publishStatus, '✅ Publicerad! Ändringarna syns om 1–2 minuter.', 'success');
+      try {
+        if (window.SteenForge && window.SteenForge.setAboutStory) {
+          window.SteenForge.setAboutStory(result);
+        }
+      } catch(e) {}
+    }).catch(function(err) {
+      setStatus(publishStatus, '❌ ' + err.message, 'error');
+    }).finally(function() {
+      isPublishing = false;
+      $('adminTranslateBtn').disabled = false;
+      $('adminPublishBtn').disabled = false;
+    });
   }
 
   // --- Populate editor from current aboutStory ---
   function populateEditor() {
     var story = (window.SteenForge && window.SteenForge.getAboutStory) ? window.SteenForge.getAboutStory() : {};
-    LANGUAGES.forEach(function(lang) {
-      var key = 'adminAbout' + lang.charAt(0).toUpperCase() + lang.slice(1);
-      var textarea = $(key);
-      if (textarea) {
-        textarea.value = (story[lang] || []).join('\n');
-      }
-    });
+    var textarea = $('adminAboutText');
+    if (!textarea) return;
+    // Use the current language if it has content, otherwise fall back to sv/en
+    var lang = (story.sv && story.sv.length) ? 'sv' : 'en';
+    textarea.value = (story[lang] || []).join('\n');
   }
 
   // --- UI: Show/hide login ---
@@ -158,8 +226,6 @@
   // --- UI: Show/hide editor ---
   function showEditor() {
     populateEditor();
-    // Show first tab by default
-    activateTab('sv');
     editorPanel.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
   }
@@ -167,16 +233,6 @@
   function hideEditor() {
     editorPanel.classList.add('hidden');
     document.body.style.overflow = '';
-  }
-
-  // --- Tab switching ---
-  function activateTab(lang) {
-    document.querySelectorAll('.admin-tab').forEach(function(tab) {
-      tab.classList.toggle('active', tab.getAttribute('data-lang') === lang);
-    });
-    document.querySelectorAll('.admin-lang-editor').forEach(function(editor) {
-      editor.classList.toggle('hidden', editor.getAttribute('data-lang') !== lang);
-    });
   }
 
   // --- Login flow ---
@@ -203,20 +259,26 @@
     });
   }
 
-  // --- Publish flow ---
+  // --- Publish a given content object to about.json ---
+  function publishContent(content) {
+    var sha = null;
+    return getAboutFileSha().then(function(fileSha) {
+      sha = fileSha;
+      return publishAboutFile(content, sha);
+    });
+  }
+
+  // --- Publish flow (as-is, same text for all languages) ---
   function handlePublish() {
     if (isPublishing) return;
     isPublishing = true;
     $('adminPublishBtn').disabled = true;
+    $('adminTranslateBtn').disabled = true;
     setStatus(publishStatus, 'Publicerar...', 'info');
 
     var content = buildAboutContent();
-    var sha = null;
 
-    getAboutFileSha().then(function(fileSha) {
-      sha = fileSha;
-      return publishAboutFile(content, sha);
-    }).then(function() {
+    publishContent(content).then(function() {
       setStatus(publishStatus, '✅ Publicerad! Ändringarna syns om 1–2 minuter.', 'success');
       // Update the in-memory story so the about section reflects immediately
       try {
@@ -230,6 +292,7 @@
     }).finally(function() {
       isPublishing = false;
       $('adminPublishBtn').disabled = false;
+      $('adminTranslateBtn').disabled = false;
     });
   }
 
@@ -290,13 +353,7 @@
       }
     });
     $('adminPublishBtn').addEventListener('click', handlePublish);
-
-    // Language tabs
-    document.querySelectorAll('.admin-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        activateTab(tab.getAttribute('data-lang'));
-      });
-    });
+    $('adminTranslateBtn').addEventListener('click', handleTranslatePublish);
 
     // Keyboard shortcut: Escape to close
     document.addEventListener('keydown', function(e) {

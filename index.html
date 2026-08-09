@@ -110,41 +110,18 @@
           <button id="adminEditorClose" class="btn-close" type="button" aria-label="Stäng">✕</button>
         </div>
         <p class="admin-editor-copy">
-          Ändringar publiceras direkt till <code>about.json</code> i repot via GitHub API.
-          Deploy körs automatiskt efter publicering.
+          Texten publiceras direkt till <code>about.json</code> i repot via GitHub API och
+          appliceras automatiskt på <strong>alla språk</strong>. Deploy körs automatiskt efter publicering.
         </p>
 
-        <div class="admin-lang-tabs" role="tablist">
-          <button class="admin-tab active" data-lang="sv" type="button">🇸🇪 Svenska</button>
-          <button class="admin-tab" data-lang="en" type="button">🇬🇧 English</button>
-          <button class="admin-tab" data-lang="da" type="button">🇩🇰 Dansk</button>
-          <button class="admin-tab" data-lang="no" type="button">🇳🇴 Norsk</button>
-          <button class="admin-tab" data-lang="fi" type="button">🇫🇮 Suomi</button>
-        </div>
-
-        <div class="admin-lang-editor" data-lang="sv">
-          <label for="adminAboutSv">Svenska</label>
-          <textarea id="adminAboutSv" rows="6" placeholder="En rad per stycke..."></textarea>
-        </div>
-        <div class="admin-lang-editor hidden" data-lang="en">
-          <label for="adminAboutEn">English</label>
-          <textarea id="adminAboutEn" rows="6" placeholder="One paragraph per line..."></textarea>
-        </div>
-        <div class="admin-lang-editor hidden" data-lang="da">
-          <label for="adminAboutDa">Dansk</label>
-          <textarea id="adminAboutDa" rows="6" placeholder="Én linje per afsnit..."></textarea>
-        </div>
-        <div class="admin-lang-editor hidden" data-lang="no">
-          <label for="adminAboutNo">Norsk</label>
-          <textarea id="adminAboutNo" rows="6" placeholder="Én linje per avsnitt..."></textarea>
-        </div>
-        <div class="admin-lang-editor hidden" data-lang="fi">
-          <label for="adminAboutFi">Suomi</label>
-          <textarea id="adminAboutFi" rows="6" placeholder="Yksi kappale per rivi..."></textarea>
+        <div class="admin-lang-editor">
+          <label for="adminAboutText">Om-text (skriv på svenska, översätts automatiskt)</label>
+          <textarea id="adminAboutText" rows="8" placeholder="En rad per stycke..."></textarea>
         </div>
 
         <div class="admin-editor-actions">
-          <button id="adminPublishBtn" class="btn-primary" type="button">Publicera ändringar</button>
+          <button id="adminTranslateBtn" class="btn-secondary" type="button">🌐 Översätt & publicera</button>
+          <button id="adminPublishBtn" class="btn-primary" type="button">Publicera som den är</button>
           <span id="adminPublishStatus" class="admin-status" aria-live="polite"></span>
         </div>
       </div>
