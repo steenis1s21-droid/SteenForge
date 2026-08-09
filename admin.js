@@ -31,9 +31,10 @@
     el.className = 'admin-status';
   }
 
-  function getHeaders() {
+  function getHeaders(useToken) {
+    var activeToken = useToken || token;
     return {
-      'Authorization': 'Bearer ' + token,
+      'Authorization': 'Bearer ' + activeToken,
       'Accept': 'application/vnd.github.v3+json',
       'Content-Type': 'application/json'
     };
@@ -74,7 +75,7 @@
       }
       // Verify token has access to the repo
       return fetch(API_BASE, {
-        headers: getHeaders()
+        headers: getHeaders(testToken)
       });
     }).then(function(resp) {
       if (!resp.ok) {
