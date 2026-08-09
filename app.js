@@ -207,4 +207,11 @@ if (document.readyState === 'loading') {
   init().catch(() => {});
 }
 
-window.SteenForge = apps;
+window.SteenForge = {
+  apps,
+  getAboutStory: () => aboutStory,
+  setAboutStory: (story) => {
+    aboutStory = story;
+    renderAbout();
+  }
+};

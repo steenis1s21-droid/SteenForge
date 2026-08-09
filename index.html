@@ -74,9 +74,83 @@
         </div>
         <div id="aboutContent" class="about-content" aria-live="polite"></div>
       </section>
-
     </main>
 
-    <script src="app.js?v=20260809-002"></script>
+    <footer class="site-footer">
+      <p id="footerCopy">Jesper Steens</p>
+      <button id="adminOpenBtn" class="admin-open-btn" type="button">⚙️ Admin</button>
+    </footer>
+
+    <!-- Admin login overlay -->
+    <div id="adminLoginOverlay" class="admin-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle">
+      <div class="admin-login-card">
+        <h2 id="adminLoginTitle">Admin</h2>
+        <p id="adminLoginCopy" class="admin-login-copy">
+          Ange din GitHub Personal Access Token för att redigera Om-texten.
+          Token används bara för att verifiera och publicera, och sparas aldrig i koden.
+        </p>
+        <label for="adminTokenInput">GitHub Personal Access Token</label>
+        <input id="adminTokenInput" type="password" autocomplete="off" placeholder="ghp_... eller github_pat_..." />
+        <p id="adminTokenHint" class="admin-hint">
+          Token måste ha <code>repo</code>-scope och tillhöra ägaren av SteenForge-repot.
+        </p>
+        <div class="admin-login-actions">
+          <button id="adminLoginCancel" class="btn-secondary" type="button">Avbryt</button>
+          <button id="adminLoginSubmit" class="btn-primary" type="button">Logga in</button>
+        </div>
+        <p id="adminLoginStatus" class="admin-status" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <!-- Admin editor panel -->
+    <section id="adminEditorPanel" class="admin-editor hidden">
+      <div class="admin-editor-inner">
+        <div class="admin-editor-head">
+          <h2>Redigera Om-text</h2>
+          <button id="adminEditorClose" class="btn-close" type="button" aria-label="Stäng">✕</button>
+        </div>
+        <p class="admin-editor-copy">
+          Ändringar publiceras direkt till <code>about.json</code> i repot via GitHub API.
+          Deploy körs automatiskt efter publicering.
+        </p>
+
+        <div class="admin-lang-tabs" role="tablist">
+          <button class="admin-tab active" data-lang="sv" type="button">🇸🇪 Svenska</button>
+          <button class="admin-tab" data-lang="en" type="button">🇬🇧 English</button>
+          <button class="admin-tab" data-lang="da" type="button">🇩🇰 Dansk</button>
+          <button class="admin-tab" data-lang="no" type="button">🇳🇴 Norsk</button>
+          <button class="admin-tab" data-lang="fi" type="button">🇫🇮 Suomi</button>
+        </div>
+
+        <div class="admin-lang-editor" data-lang="sv">
+          <label for="adminAboutSv">Svenska</label>
+          <textarea id="adminAboutSv" rows="6" placeholder="En rad per stycke..."></textarea>
+        </div>
+        <div class="admin-lang-editor hidden" data-lang="en">
+          <label for="adminAboutEn">English</label>
+          <textarea id="adminAboutEn" rows="6" placeholder="One paragraph per line..."></textarea>
+        </div>
+        <div class="admin-lang-editor hidden" data-lang="da">
+          <label for="adminAboutDa">Dansk</label>
+          <textarea id="adminAboutDa" rows="6" placeholder="Én linje per afsnit..."></textarea>
+        </div>
+        <div class="admin-lang-editor hidden" data-lang="no">
+          <label for="adminAboutNo">Norsk</label>
+          <textarea id="adminAboutNo" rows="6" placeholder="Én linje per avsnitt..."></textarea>
+        </div>
+        <div class="admin-lang-editor hidden" data-lang="fi">
+          <label for="adminAboutFi">Suomi</label>
+          <textarea id="adminAboutFi" rows="6" placeholder="Yksi kappale per rivi..."></textarea>
+        </div>
+
+        <div class="admin-editor-actions">
+          <button id="adminPublishBtn" class="btn-primary" type="button">Publicera ändringar</button>
+          <span id="adminPublishStatus" class="admin-status" aria-live="polite"></span>
+        </div>
+      </div>
+    </section>
+
+    <script src="app.js?v=20260809-003"></script>
+    <script src="admin.js?v=20260809-003"></script>
   </body>
 </html>
