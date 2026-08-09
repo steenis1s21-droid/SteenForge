@@ -121,12 +121,10 @@
   // --- Build content from the single textarea, applied to all languages ---
   function buildAboutContent() {
     var textarea = $('adminAboutText');
-    var paragraphs = textarea ? textarea.value.split('\n').filter(function(line) {
-      return line.trim() !== '';
-    }) : [];
+    var text = textarea ? textarea.value : '';
     var result = {};
     LANGUAGES.forEach(function(lang) {
-      result[lang] = paragraphs;
+      result[lang] = text;
     });
     return JSON.stringify(result, null, 2);
   }
@@ -144,22 +142,13 @@
     });
   }
 
-  // --- Translate all paragraphs to a target language ---
-  function translateParagraphs(paragraphs, targetLang) {
-    return Promise.all(paragraphs.map(function(p) {
-      return translateText(p, targetLang);
-    }));
-  }
-
   // --- Translate the master text to all languages and publish ---
   function handleTranslatePublish() {
     if (isPublishing) return;
     var textarea = $('adminAboutText');
-    var paragraphs = textarea ? textarea.value.split('\n').filter(function(line) {
-      return line.trim() !== '';
-    }) : [];
+    var text = textarea ? textarea.value : '';
 
-    if (!paragraphs.length) {
+    if (!text.trim()) {
       setStatus(publishStatus, 'Skriv lite text först.', 'error');
       return;
     }
@@ -170,13 +159,13 @@
     setStatus(publishStatus, 'Översätter till alla språk...', 'info');
 
     // sv stays as-is; translate to en, da, no, fi
-    var result = { sv: paragraphs };
+    var result = { sv: text };
     var targets = LANGUAGES.filter(function(l) { return l !== 'sv'; });
 
     var chain = Promise.resolve();
     targets.forEach(function(lang) {
       chain = chain.then(function() {
-        return translateParagraphs(paragraphs, lang).then(function(translated) {
+        return translateText(text, lang).then(function(translated) {
           result[lang] = translated;
         });
       });
@@ -208,7 +197,14 @@
     if (!textarea) return;
     // Use the current language if it has content, otherwise fall back to sv/en
     var lang = (story.sv && story.sv.length) ? 'sv' : 'en';
-    textarea.value = (story[lang] || []).join('\n');
+    var value = story[lang];
+    if (typeof value === 'string') {
+      textarea.value = value;
+    } else if (Array.isArray(value)) {
+      textarea.value = value.join('\n');
+    } else {
+      textarea.value = '';
+    }
   }
 
   // --- UI: Show/hide login ---

@@ -151,8 +151,21 @@ function renderAbout() {
   const container = document.getElementById('aboutContent');
   if (!container) return;
   const lang = getStoredLanguage();
-  const paragraphs = aboutStory[lang] || aboutStory['en'] || [];
-  container.innerHTML = paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('');
+  const story = aboutStory[lang] || aboutStory['en'] || '';
+
+  // Support both new string format (with \n line breaks) and old array format
+  let text = '';
+  if (typeof story === 'string') {
+    text = story;
+  } else if (Array.isArray(story)) {
+    text = story.join('\n');
+  }
+
+  // Escape HTML to prevent injection, then convert line breaks to <br>
+  const esc = document.createElement('div');
+  esc.textContent = text;
+  const escaped = esc.innerHTML;
+  container.innerHTML = `<p class="about-paragraph">${escaped.replace(/\n/g, '<br>')}</p>`;
 }
 
 function applyLanguage(lang = getStoredLanguage()) {
