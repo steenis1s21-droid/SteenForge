@@ -281,11 +281,10 @@
     }
 
     // ============================================================
-    // TOGGLE KATEGORI
+    // TOGGLE KATEGORI (INTERN)
     // ============================================================
 
-    function togglePhonebookCategory(ctx, categoryKey) {
-        ctx = ctx || {};
+    function togglePhonebookCategoryInternal(ctx, categoryKey) {
         var normalized = normalizePhonebookCategory(categoryKey);
         var collapsedGroups = readCollapsedGroups();
         collapsedGroups[normalized] = !(collapsedGroups[normalized] === true);
@@ -314,7 +313,7 @@
 
     function togglePhonebookCategory(categoryKey) {
         var ctx = window.ApexAppContext || window;
-        togglePhonebookCategory(ctx, categoryKey);
+        togglePhonebookCategoryInternal(ctx, categoryKey);
     }
 
     function openPhonebookPanel() {
@@ -331,7 +330,7 @@
         closePhonebookPanel: closePhonebookPanel,
         addPhonebookContact: addPhonebookContact,
         deletePhonebookContact: deletePhonebookContactInternal,
-        togglePhonebookCategory: togglePhonebookCategory,
+        togglePhonebookCategory: togglePhonebookCategoryInternal,
         renderContacts: renderContacts
     };
 
