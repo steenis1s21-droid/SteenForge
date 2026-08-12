@@ -154,6 +154,7 @@
             if (!q) return true;
             return String(entry.name || '').toLowerCase().indexOf(q) !== -1
                 || String(entry.phone || '').toLowerCase().indexOf(q) !== -1
+                || String(entry.email || '').toLowerCase().indexOf(q) !== -1
                 || String(meta.label || '').toLowerCase().indexOf(q) !== -1;
         });
 
@@ -181,10 +182,12 @@
             var itemsHtml = contactsInCategory.map(function(entry) {
                 var name = safeEscape(ctx, entry.name || '');
                 var phone = safeEscape(ctx, entry.phone || '');
+                var email = safeEscape(ctx, entry.email || '');
                 return '<li class="phonebook-item">'
                     + '<div class="phonebook-entry">'
                     + '<strong>' + name + '</strong>'
-                    + '<span>' + phone + '</span>'
+                    + (phone ? '<span>📞 ' + phone + '</span>' : '')
+                    + (email ? '<span>✉️ ' + email + '</span>' : '')
                     + '</div>'
                     + '<button type="button" onclick="deletePhonebookContact(' + entry.id + ')">✕</button>'
                     + '</li>';
@@ -217,7 +220,6 @@
         ctx = ctx || {};
         var panel = document.getElementById('phonebookPanel');
         if (!panel) {
-            // Visa meddelande via ctx om möjligt
             if (typeof ctx.showMessage === 'function') {
                 ctx.showMessage(safeT(ctx, 'phonebookComingSoon'), 'info');
             }
@@ -256,11 +258,13 @@
         var nameEl = document.getElementById('phonebookName');
         var categoryEl = document.getElementById('phonebookCategory');
         var phoneEl = document.getElementById('phonebookPhone');
-        if (!nameEl || !phoneEl || !categoryEl) return;
+        var emailEl = document.getElementById('phonebookEmail');
+        if (!nameEl || !phoneEl || !emailEl || !categoryEl) return;
 
         var name = String(nameEl.value || '').trim();
         var category = normalizePhonebookCategory(categoryEl.value);
         var phone = String(phoneEl.value || '').trim();
+        var email = String(emailEl.value || '').trim();
 
         if (!name) {
             if (typeof ctx.showMessage === 'function') {
@@ -276,13 +280,15 @@
             id: Date.now() + Math.floor(Math.random() * 1000),
             name: name,
             category: category,
-            phone: phone
+            phone: phone,
+            email: email
         });
         saveContacts(contacts);
 
         nameEl.value = '';
         categoryEl.value = 'patients';
         phoneEl.value = '';
+        emailEl.value = '';
 
         renderContacts(ctx);
         nameEl.focus();
