@@ -1,4 +1,116 @@
 (function(global) {
+    'use strict';
+
+    // ============================================================
+    // DEFINERA ÖVERSÄTTNINGAR
+    // ============================================================
+    global.ApexTranslations = {
+sv: {
+    'phonebookTitle': '📞 Adressbok',
+    'phonebookBtn': 'Adressbok',
+    'phonebookNameLabel': 'Namn:',
+    'phonebookNamePlaceholder': 'Namn',
+    'phonebookPhoneLabel': 'Telefon:',
+    'phonebookPhonePlaceholder': 'Telefonnummer',
+    'phonebookEmailLabel': 'E-post:',
+    'phonebookEmailPlaceholder': 'E-postadress',
+    'phonebookCategoryLabel': 'Kategori:',
+    'phonebookCategoryPatients': '🏥 Patienter',
+    'phonebookCategoryAuthorities': '🏛️ Myndigheter',
+    'phonebookCategoryPrivate': '🏠 Privat',
+    'phonebookCategoryOther': '📌 Övrigt',
+    'phonebookAddBtn': '➕ Lägg till kontakt',
+    'phonebookCloseBtn': '❌ Stäng',
+    'phonebookSearchPlaceholder': '🔍 Sök kontakt',
+    'phonebookEmpty': 'Inga kontakter ännu.',
+    'phonebookComingSoon': 'Adressboken är inte tillgänglig ännu.'
+},
+        en: {
+    'phonebookTitle': '📞 Address Book',
+    'phonebookBtn': 'Address Book',
+    'phonebookNameLabel': 'Name:',
+    'phonebookNamePlaceholder': 'Name',
+    'phonebookPhoneLabel': 'Phone:',
+    'phonebookPhonePlaceholder': 'Phone number',
+    'phonebookEmailLabel': 'Email:',
+    'phonebookEmailPlaceholder': 'Email address',
+    'phonebookCategoryLabel': 'Category:',
+    'phonebookCategoryPatients': '🏥 Patients',
+    'phonebookCategoryAuthorities': '🏛️ Authorities',
+    'phonebookCategoryPrivate': '🏠 Private',
+    'phonebookCategoryOther': '📌 Other',
+    'phonebookAddBtn': '➕ Add contact',
+    'phonebookCloseBtn': '❌ Close',
+    'phonebookSearchPlaceholder': '🔍 Search contacts',
+    'phonebookEmpty': 'No contacts yet.',
+    'phonebookComingSoon': 'The address book is not available yet.'
+},
+        da: {
+    'phonebookTitle': '📞 Adressebog',
+    'phonebookBtn': 'Adressebog',
+    'phonebookNameLabel': 'Navn:',
+    'phonebookNamePlaceholder': 'Navn',
+    'phonebookPhoneLabel': 'Telefon:',
+    'phonebookPhonePlaceholder': 'Telefonnummer',
+    'phonebookEmailLabel': 'E-mail:',
+    'phonebookEmailPlaceholder': 'E-mailadresse',
+    'phonebookCategoryLabel': 'Kategori:',
+    'phonebookCategoryPatients': '🏥 Patienter',
+    'phonebookCategoryAuthorities': '🏛️ Myndigheder',
+    'phonebookCategoryPrivate': '🏠 Privat',
+    'phonebookCategoryOther': '📌 Andet',
+    'phonebookAddBtn': '➕ Tilføj kontakt',
+    'phonebookCloseBtn': '❌ Luk',
+    'phonebookSearchPlaceholder': '🔍 Søg kontakt',
+    'phonebookEmpty': 'Ingen kontakter endnu.',
+    'phonebookComingSoon': 'Adressebogen er ikke tilgængelig endnu.'
+},
+        no: {
+    'phonebookTitle': '📞 Adressebok',
+    'phonebookBtn': 'Adressebok',
+    'phonebookNameLabel': 'Navn:',
+    'phonebookNamePlaceholder': 'Navn',
+    'phonebookPhoneLabel': 'Telefon:',
+    'phonebookPhonePlaceholder': 'Telefonnummer',
+    'phonebookEmailLabel': 'E-post:',
+    'phonebookEmailPlaceholder': 'E-postadresse',
+    'phonebookCategoryLabel': 'Kategori:',
+    'phonebookCategoryPatients': '🏥 Pasienter',
+    'phonebookCategoryAuthorities': '🏛️ Myndigheter',
+    'phonebookCategoryPrivate': '🏠 Privat',
+    'phonebookCategoryOther': '📌 Annet',
+    'phonebookAddBtn': '➕ Legg til kontakt',
+    'phonebookCloseBtn': '❌ Lukk',
+    'phonebookSearchPlaceholder': '🔍 Søk kontakt',
+    'phonebookEmpty': 'Ingen kontakter ennå.',
+    'phonebookComingSoon': 'Adresseboken er ikke tilgjengelig ennå.'
+},
+        fi: {
+    'phonebookTitle': '📞 Osoitekirja',
+    'phonebookBtn': 'Osoitekirja',
+    'phonebookNameLabel': 'Nimi:',
+    'phonebookNamePlaceholder': 'Nimi',
+    'phonebookPhoneLabel': 'Puhelin:',
+    'phonebookPhonePlaceholder': 'Puhelinnumero',
+    'phonebookEmailLabel': 'Sähköposti:',
+    'phonebookEmailPlaceholder': 'Sähköpostiosoite',
+    'phonebookCategoryLabel': 'Kategoria:',
+    'phonebookCategoryPatients': '🏥 Potilaat',
+    'phonebookCategoryAuthorities': '🏛️ Viranomaiset',
+    'phonebookCategoryPrivate': '🏠 Yksityinen',
+    'phonebookCategoryOther': '📌 Muu',
+    'phonebookAddBtn': '➕ Lisää yhteystieto',
+    'phonebookCloseBtn': '❌ Sulje',
+    'phonebookSearchPlaceholder': '🔍 Hae yhteystietoa',
+    'phonebookEmpty': 'Ei yhteystietoja vielä.',
+    'phonebookComingSoon': 'Osoitekirja ei ole vielä käytettävissä.'
+        }
+};
+
+    // ============================================================
+    // RESTEN AV DIN EXISTERANDE KOD
+    // ============================================================
+
     function getTranslations() {
         return global.ApexTranslations || {};
     }
@@ -335,9 +447,6 @@
         document.querySelectorAll('.language-dropdown button').forEach(function(btn) {
             btn.classList.toggle('active', btn.getAttribute('data-lang') === selected);
         });
-        document.querySelectorAll('.settings-language-options button').forEach(function(btn) {
-            btn.classList.toggle('active', btn.getAttribute('data-lang') === selected);
-        });
     }
 
     function changeLanguage(lang, ctx) {
@@ -397,21 +506,65 @@
         setText('exportEncryptedBtn', 'exportEncrypted');
         setText('exportCsvBtn', 'exportCsv');
         setText('importBtn', 'importBtn');
-        setText('phonebookBtn', 'phonebookBtn');
-        setText('supportBtn', 'supportBtn');
-        setText('phonebookTitle', 'phonebookTitle');
-        setText('phonebookNameLabel', 'phonebookNameLabel');
-        setText('phonebookCategoryLabel', 'phonebookCategoryLabel');
-        setText('phonebookCategoryOptionPatients', 'phonebookCategoryPatients');
-        setText('phonebookCategoryOptionAuthorities', 'phonebookCategoryAuthorities');
-        setText('phonebookCategoryOptionPrivate', 'phonebookCategoryPrivate');
-        setText('phonebookCategoryOptionOther', 'phonebookCategoryOther');
-        setText('phonebookPhoneLabel', 'phonebookPhoneLabel');
-        setText('phonebookAddBtn', 'phonebookAddBtn');
-        setText('phonebookCloseBtn', 'phonebookCloseBtn');
-        setPlaceholder('phonebookName', 'phonebookNamePlaceholder');
-        setPlaceholder('phonebookPhone', 'phonebookPhonePlaceholder');
-        setPlaceholder('phonebookSearch', 'phonebookSearchPlaceholder');
+
+        // ============================================================
+        // ADRESSBOK - ANVÄND ÖVERSÄTTNINGAR
+        // ============================================================
+        // ============================================================
+// ADRESSBOK
+// ============================================================
+
+setText('phonebookBtn', 'phonebookBtn');
+setText('phonebookTitle', 'phonebookTitle');
+
+setText('phonebookNameLabel', 'phonebookNameLabel');
+setText('phonebookPhoneLabel', 'phonebookPhoneLabel');
+setText('phonebookEmailLabel', 'phonebookEmailLabel');
+setText('phonebookCategoryLabel', 'phonebookCategoryLabel');
+
+setText(
+    'phonebookCategoryOptionPatients',
+    'phonebookCategoryPatients'
+);
+
+setText(
+    'phonebookCategoryOptionAuthorities',
+    'phonebookCategoryAuthorities'
+);
+
+setText(
+    'phonebookCategoryOptionPrivate',
+    'phonebookCategoryPrivate'
+);
+
+setText(
+    'phonebookCategoryOptionOther',
+    'phonebookCategoryOther'
+);
+
+setText('phonebookAddBtn', 'phonebookAddBtn');
+setText('phonebookCloseBtn', 'phonebookCloseBtn');
+
+setPlaceholder(
+    'phonebookName',
+    'phonebookNamePlaceholder'
+);
+
+setPlaceholder(
+    'phonebookPhone',
+    'phonebookPhonePlaceholder'
+);
+
+setPlaceholder(
+    'phonebookEmail',
+    'phonebookEmailPlaceholder'
+);
+
+setPlaceholder(
+    'phonebookSearch',
+    'phonebookSearchPlaceholder'
+);
+
         var settingsBtn = document.getElementById('settingsBtn');
         if (settingsBtn) settingsBtn.textContent = headerMenuText.settings;
         var languageBtn = document.getElementById('languageBtn');
@@ -466,7 +619,9 @@
         if (typeof deps.updateSortLanguageText === 'function') deps.updateSortLanguageText();
         if (typeof global.updateSoundButton === 'function') global.updateSoundButton();
         if (typeof global.updateThemeButton === 'function') global.updateThemeButton();
-        if (typeof global.renderPhonebookPanel === 'function') global.renderPhonebookPanel();
+        if (typeof global.renderPhonebook === 'function') {
+            global.renderPhonebook();
+}
 
         var statusDiv = document.getElementById('loginStatus');
         if (statusDiv) {
@@ -554,4 +709,5 @@
         applyLanguage: applyLanguage,
         updateAdminPanelLanguage: updateAdminPanelLanguage
     };
+
 })(window);

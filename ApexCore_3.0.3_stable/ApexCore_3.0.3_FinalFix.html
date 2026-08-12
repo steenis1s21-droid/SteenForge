@@ -165,7 +165,7 @@
         <button onclick="exportEncrypted()" id="exportEncryptedBtn">Exportera krypterad</button>
         <button onclick="exportCSV()" id="exportCsvBtn">Exportera CSV</button>
         <button onclick="startStandardImport()" id="importBtn">Importera</button>
-        <button onclick="openPhonebookPanel()" id="phonebookBtn">Telefonbok</button>
+        <button onclick="openPhonebookPanel()" id="phonebookBtn">Adressbok</button>
         <div class="settings-wrapper" id="settingsWrapper">
             <button class="support-btn" onclick="openSupportCenter()" id="supportBtn">🆘 Support</button>
             <button class="settings-btn" onclick="toggleSettingsMenu()" id="settingsBtn">⚙️ Inställningar</button>
@@ -341,7 +341,7 @@
 </div>
 
 <div id="phonebookPanel">
-    <h3 id="phonebookTitle">📞 Telefonbok</h3>
+    <h3 id="phonebookTitle">📞 Adressbok</h3>
 
     <label id="phonebookNameLabel">Namn:</label><br>
     <input id="phonebookName" placeholder="Namn"><br><br>
@@ -353,12 +353,20 @@
     <input id="phonebookEmail" placeholder="E-postadress" onkeypress="if(event.key==='Enter') addPhonebookContactDirect()"><br><br>
 
     <label id="phonebookCategoryLabel">Kategori:</label><br>
-    <select id="phonebookCategory">
-        <option value="patients">🏥 Patienter</option>
-        <option value="authorities">🏛️ Myndigheter</option>
-        <option value="private">🏠 Privat</option>
-        <option value="other">📌 Övrigt</option>
-    </select><br><br>
+  <select id="phonebookCategory">
+    <option id="phonebookCategoryOptionPatients" value="patients">
+        🏥 Patienter
+    </option>
+    <option id="phonebookCategoryOptionAuthorities" value="authorities">
+        🏛️ Myndigheter
+    </option>
+    <option id="phonebookCategoryOptionPrivate" value="private">
+        🏠 Privat
+    </option>
+    <option id="phonebookCategoryOptionOther" value="other">
+        📌 Övrigt
+    </option>
+</select>
 
     <button onclick="addPhonebookContactDirect()" id="phonebookAddBtn">➕ Lägg till kontakt</button>
     <button onclick="closePhonebookPanel()" id="phonebookCloseBtn">❌ Stäng</button>

@@ -33,15 +33,15 @@
     function getCategoryMeta(ctx, category) {
         var normalized = normalizePhonebookCategory(category);
         if (normalized === 'patients') {
-            return { icon: '🏥', label: 'Patienter' };
+            return { icon: '🏥', label: ctx.t('phonebookCategoryPatients') };
         }
         if (normalized === 'authorities') {
-            return { icon: '🏛️', label: 'Myndigheter' };
+            return { icon: '🏛️', label: ctx.t('phonebookCategoryAuthorities') };
         }
         if (normalized === 'private') {
-            return { icon: '🏠', label: 'Privat' };
+            return { icon: '🏠', label: ctx.t('phonebookCategoryPrivate') };
         }
-        return { icon: '📌', label: 'Övrigt' };
+        return { icon: '📌', label: ctx.t('phonebookCategoryOther') };
     }
 
     function saveContacts(list) {
@@ -103,10 +103,6 @@
         panelOriginalParent.appendChild(panel);
     }
 
-    // ============================================================
-    // RENDER FUNKTION
-    // ============================================================
-
     function renderContacts(ctx) {
         var listEl = document.getElementById('phonebookList');
         var searchEl = document.getElementById('phonebookSearch');
@@ -126,7 +122,8 @@
         });
 
         if (filtered.length === 0) {
-            listEl.innerHTML = '<li class="phonebook-empty">Inga kontakter ännu.</li>';
+            var emptyText = ctx && typeof ctx.t === 'function' ? ctx.t('phonebookEmpty') : 'Inga kontakter ännu.';
+            listEl.innerHTML = '<li class="phonebook-empty">' + emptyText + '</li>';
             return;
         }
 
@@ -178,15 +175,14 @@
     }
 
     // ============================================================
-    // ÖPPNA / STÄNG
+    // ÖPPNA TELEFONBOKEN
     // ============================================================
-
     function openPhonebook(ctx) {
-        ctx = ctx || {};
+        if (!ctx) return;
         var panel = document.getElementById('phonebookPanel');
         if (!panel) {
-            if (typeof ctx.showMessage === 'function') {
-                ctx.showMessage('📞 Telefonbok kommer snart!', 'info');
+            if (typeof ctx.showMessage === 'function' && typeof ctx.t === 'function') {
+                ctx.showMessage(ctx.t('phonebookComingSoon'));
             }
             return;
         }
@@ -197,11 +193,14 @@
 
         setPanelInlineMode(true);
         panel.style.display = 'block';
+
         renderContacts(ctx);
 
         var nameInput = document.getElementById('phonebookName');
         var categorySelect = document.getElementById('phonebookCategory');
-        if (nameInput) nameInput.focus();
+        if (nameInput) {
+            nameInput.focus();
+        }
         if (categorySelect) {
             categorySelect.value = normalizePhonebookCategory(categorySelect.value || 'patients');
         }
@@ -213,10 +212,6 @@
         panel.style.display = 'none';
         setPanelInlineMode(false);
     }
-
-    // ============================================================
-    // LÄGG TILL
-    // ============================================================
 
     function addPhonebookContact(ctx) {
         ctx = ctx || {};
@@ -264,10 +259,6 @@
         }
     }
 
-    // ============================================================
-    // TA BORT
-    // ============================================================
-
     function deletePhonebookContactInternal(ctx, id) {
         var contacts = readContacts();
         var next = contacts.filter(function(entry) {
@@ -280,10 +271,6 @@
         }
     }
 
-    // ============================================================
-    // TOGGLE KATEGORI (INTERN)
-    // ============================================================
-
     function togglePhonebookCategoryInternal(ctx, categoryKey) {
         var normalized = normalizePhonebookCategory(categoryKey);
         var collapsedGroups = readCollapsedGroups();
@@ -293,7 +280,7 @@
     }
 
     // ============================================================
-    // GLOBALA ANROPSFUNKTIONER (från HTML)
+    // GLOBALA ANROPSFUNKTIONER
     // ============================================================
 
     function renderPhonebook() {
@@ -334,10 +321,15 @@
         renderContacts: renderContacts
     };
 
+    // ============================================================
+    // GLOBALA FUNKTIONER FÖR HTML
+    // ============================================================
+
+    global.openPhonebookPanel = openPhonebookPanel;
     global.renderPhonebook = renderPhonebook;
     global.addPhonebookContactDirect = addPhonebookContactDirect;
     global.deletePhonebookContact = deletePhonebookContact;
     global.togglePhonebookCategory = togglePhonebookCategory;
-    global.openPhonebookPanel = openPhonebookPanel;
+    global.closePhonebookPanel = closePhonebookPanel;
 
 })(window);
