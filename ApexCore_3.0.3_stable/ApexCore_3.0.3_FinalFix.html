@@ -165,7 +165,7 @@
         <button onclick="exportEncrypted()" id="exportEncryptedBtn">Exportera krypterad</button>
         <button onclick="exportCSV()" id="exportCsvBtn">Exportera CSV</button>
         <button onclick="startStandardImport()" id="importBtn">Importera</button>
-        <button onclick="openPhonebook()" id="phonebookBtn">Telefonbok</button>
+        <button onclick="openPhonebookPanel()" id="phonebookBtn">Telefonbok</button>
         <div class="settings-wrapper" id="settingsWrapper">
             <button class="support-btn" onclick="openSupportCenter()" id="supportBtn">🆘 Support</button>
             <button class="settings-btn" onclick="toggleSettingsMenu()" id="settingsBtn">⚙️ Inställningar</button>
@@ -420,7 +420,9 @@
     </div>
 </div>
 
-
+<script>
+    window.ApexAppContext = window;
+</script>
 
 </body>
 </html>

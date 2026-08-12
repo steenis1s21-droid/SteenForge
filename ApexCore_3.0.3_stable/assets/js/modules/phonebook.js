@@ -8,6 +8,37 @@
     var panelOriginalParent = null;
     var panelOriginalNextSibling = null;
 
+    // ============================================================
+    // HJÄLPFUNKTIONER FÖR ATT HANTERA CTX OCH SPRÅK
+    // ============================================================
+
+    function safeT(ctx, key) {
+        if (ctx && typeof ctx.t === 'function') {
+            return ctx.t(key);
+        }
+        var fallback = {
+            'phonebookCategoryPatients': '🏥 Patienter',
+            'phonebookCategoryAuthorities': '🏛️ Myndigheter',
+            'phonebookCategoryPrivate': '🏠 Privat',
+            'phonebookCategoryOther': '📌 Övrigt',
+            'phonebookEmpty': 'Inga kontakter ännu.',
+            'phonebookNameRequired': 'Ange ett namn!',
+            'phonebookComingSoon': '📞 Telefonbok kommer snart!'
+        };
+        return fallback[key] || key;
+    }
+
+    function safeEscape(ctx, text) {
+        if (ctx && typeof ctx.escapeHTML === 'function') {
+            return ctx.escapeHTML(text);
+        }
+        return String(text || '');
+    }
+
+    // ============================================================
+    // KÄRN-FUNKTIONER
+    // ============================================================
+
     function readContacts() {
         try {
             var raw = localStorage.getItem(PHONEBOOK_STORAGE_KEY);
@@ -36,16 +67,14 @@
 
     function getCategoryMeta(ctx, category) {
         var normalized = normalizePhonebookCategory(category);
-        if (normalized === 'patients') {
-            return { icon: '🏥', label: ctx.t('phonebookCategoryPatients') };
-        }
-        if (normalized === 'authorities') {
-            return { icon: '🏛️', label: ctx.t('phonebookCategoryAuthorities') };
-        }
-        if (normalized === 'private') {
-            return { icon: '🏠', label: ctx.t('phonebookCategoryPrivate') };
-        }
-        return { icon: '📌', label: ctx.t('phonebookCategoryOther') };
+        var label = safeT(ctx, 'phonebookCategory' + normalized.charAt(0).toUpperCase() + normalized.slice(1));
+        var icons = {
+            patients: '🏥',
+            authorities: '🏛️',
+            private: '🏠',
+            other: '📌'
+        };
+        return { icon: icons[normalized] || '📌', label: label };
     }
 
     function saveContacts(list) {
@@ -74,16 +103,10 @@
             var nameB = String(b.name || '').trim();
             var nameCmp = nameA.localeCompare(nameB, 'sv', { sensitivity: 'base' });
             if (nameCmp !== 0) return nameCmp;
-
             var phoneA = String(a.phone || '').trim();
             var phoneB = String(b.phone || '').trim();
             return phoneA.localeCompare(phoneB, 'sv', { sensitivity: 'base' });
         });
-    }
-
-    function isPanelOpen() {
-        var panel = document.getElementById('phonebookPanel');
-        return !!panel && panel.style.display === 'block';
     }
 
     function setPanelInlineMode(isInline) {
@@ -96,7 +119,6 @@
                 panelOriginalParent = panel.parentNode;
             }
             panelOriginalNextSibling = panel.nextSibling;
-
             activeColumn.classList.add('is-phonebook-open');
             panel.classList.add('inline-phonebook');
             activeColumn.appendChild(panel);
@@ -107,14 +129,16 @@
         panel.classList.remove('inline-phonebook');
 
         if (!panelOriginalParent) return;
-
         if (panelOriginalNextSibling && panelOriginalNextSibling.parentNode === panelOriginalParent) {
             panelOriginalParent.insertBefore(panel, panelOriginalNextSibling);
             return;
         }
-
         panelOriginalParent.appendChild(panel);
     }
+
+    // ============================================================
+    // RENDER FUNKTION
+    // ============================================================
 
     function renderContacts(ctx) {
         var listEl = document.getElementById('phonebookList');
@@ -122,9 +146,9 @@
         if (!listEl) return;
 
         var collapsedGroups = readCollapsedGroups();
-
         var contacts = readContacts();
         var q = searchEl ? String(searchEl.value || '').toLowerCase().trim() : '';
+
         var filtered = contacts.filter(function(entry) {
             var meta = getCategoryMeta(ctx, entry.category);
             if (!q) return true;
@@ -134,18 +158,12 @@
         });
 
         if (filtered.length === 0) {
-            var emptyText = ctx && typeof ctx.t === 'function' ? ctx.t('phonebookEmpty') : 'Inga kontakter ännu.';
-            listEl.innerHTML = '<li class="phonebook-empty">' + (ctx && typeof ctx.escapeHTML === 'function' ? ctx.escapeHTML(emptyText) : emptyText) + '</li>';
+            var emptyText = safeT(ctx, 'phonebookEmpty');
+            listEl.innerHTML = '<li class="phonebook-empty">' + safeEscape(ctx, emptyText) + '</li>';
             return;
         }
 
-        var grouped = {
-            patients: [],
-            authorities: [],
-            private: [],
-            other: []
-        };
-
+        var grouped = { patients: [], authorities: [], private: [], other: [] };
         filtered.forEach(function(entry) {
             var category = normalizePhonebookCategory(entry.category);
             grouped[category].push(entry);
@@ -158,11 +176,11 @@
 
             var meta = getCategoryMeta(ctx, categoryKey);
             var collapsed = collapsedGroups[categoryKey] === true;
-            var categoryText = ctx && typeof ctx.escapeHTML === 'function' ? ctx.escapeHTML(meta.label) : meta.label;
+            var categoryText = safeEscape(ctx, meta.label);
 
             var itemsHtml = contactsInCategory.map(function(entry) {
-                var name = ctx && typeof ctx.escapeHTML === 'function' ? ctx.escapeHTML(entry.name || '') : (entry.name || '');
-                var phone = ctx && typeof ctx.escapeHTML === 'function' ? ctx.escapeHTML(entry.phone || '') : (entry.phone || '');
+                var name = safeEscape(ctx, entry.name || '');
+                var phone = safeEscape(ctx, entry.phone || '');
                 return '<li class="phonebook-item">'
                     + '<div class="phonebook-entry">'
                     + '<strong>' + name + '</strong>'
@@ -191,12 +209,17 @@
         listEl.innerHTML = htmlParts.join('');
     }
 
+    // ============================================================
+    // ÖPPNA / STÄNG
+    // ============================================================
+
     function openPhonebook(ctx) {
-        if (!ctx) return;
+        ctx = ctx || {};
         var panel = document.getElementById('phonebookPanel');
         if (!panel) {
-            if (typeof ctx.showMessage === 'function' && typeof ctx.t === 'function') {
-                ctx.showMessage(ctx.t('phonebookComingSoon'));
+            // Visa meddelande via ctx om möjligt
+            if (typeof ctx.showMessage === 'function') {
+                ctx.showMessage(safeT(ctx, 'phonebookComingSoon'), 'info');
             }
             return;
         }
@@ -207,14 +230,11 @@
 
         setPanelInlineMode(true);
         panel.style.display = 'block';
-
         renderContacts(ctx);
 
         var nameInput = document.getElementById('phonebookName');
         var categorySelect = document.getElementById('phonebookCategory');
-        if (nameInput) {
-            nameInput.focus();
-        }
+        if (nameInput) nameInput.focus();
         if (categorySelect) {
             categorySelect.value = normalizePhonebookCategory(categorySelect.value || 'patients');
         }
@@ -227,7 +247,12 @@
         setPanelInlineMode(false);
     }
 
+    // ============================================================
+    // LÄGG TILL / TA BORT
+    // ============================================================
+
     function addPhonebookContact(ctx) {
+        ctx = ctx || {};
         var nameEl = document.getElementById('phonebookName');
         var categoryEl = document.getElementById('phonebookCategory');
         var phoneEl = document.getElementById('phonebookPhone');
@@ -238,8 +263,10 @@
         var phone = String(phoneEl.value || '').trim();
 
         if (!name) {
-            if (ctx && typeof ctx.showMessage === 'function' && typeof ctx.t === 'function') {
-                ctx.showMessage(ctx.t('phonebookNameRequired'));
+            if (typeof ctx.showMessage === 'function') {
+                ctx.showMessage(safeT(ctx, 'phonebookNameRequired'), 'error');
+            } else {
+                alert(safeT(ctx, 'phonebookNameRequired'));
             }
             return;
         }
@@ -259,36 +286,27 @@
 
         renderContacts(ctx);
         nameEl.focus();
+
+        if (typeof ctx.showMessage === 'function') {
+            ctx.showMessage('✅ Kontakt tillagd!', 'success');
+        }
     }
 
     function deletePhonebookContact(ctx, id) {
+        ctx = ctx || {};
         var contacts = readContacts();
         var next = contacts.filter(function(entry) {
             return entry.id !== id;
         });
         saveContacts(next);
         renderContacts(ctx);
-    }
-
-    function initPhonebookAutoClose(ctx) {
-        if (hasOutsideClickHandler) return;
-        hasOutsideClickHandler = true;
-
-        document.addEventListener('mousedown', function(e) {
-            var panel = document.getElementById('phonebookPanel');
-            if (!panel || panel.style.display !== 'block') return;
-
-            var triggerBtn = document.getElementById('phonebookBtn');
-            var clickedInsidePanel = panel.contains(e.target);
-            var clickedTrigger = triggerBtn ? triggerBtn.contains(e.target) : false;
-
-            if (!clickedInsidePanel && !clickedTrigger) {
-                closePhonebookPanel();
-            }
-        });
+        if (typeof ctx.showMessage === 'function') {
+            ctx.showMessage('🗑️ Kontakt borttagen.', 'info');
+        }
     }
 
     function togglePhonebookCategory(ctx, categoryKey) {
+        ctx = ctx || {};
         var normalized = normalizePhonebookCategory(categoryKey);
         var collapsedGroups = readCollapsedGroups();
         collapsedGroups[normalized] = !(collapsedGroups[normalized] === true);
@@ -296,13 +314,53 @@
         renderContacts(ctx);
     }
 
+    // ============================================================
+    // GLOBALA ANROPSFUNKTIONER (från HTML)
+    // ============================================================
+
+    function renderPhonebook() {
+        var ctx = window.ApexAppContext || window;
+        renderContacts(ctx);
+    }
+
+    function addPhonebookContactDirect() {
+        var ctx = window.ApexAppContext || window;
+        addPhonebookContact(ctx);
+    }
+
+    function deletePhonebookContact(id) {
+        var ctx = window.ApexAppContext || window;
+        deletePhonebookContact(ctx, id);
+    }
+
+    function togglePhonebookCategory(categoryKey) {
+        var ctx = window.ApexAppContext || window;
+        togglePhonebookCategory(ctx, categoryKey);
+    }
+
+    function openPhonebookPanel() {
+        var ctx = window.ApexAppContext || window;
+        openPhonebook(ctx);
+    }
+
+    // ============================================================
+    // EXPORTERA MODUL
+    // ============================================================
+
     global.ApexPhonebookModule = {
         openPhonebook: openPhonebook,
         closePhonebookPanel: closePhonebookPanel,
         addPhonebookContact: addPhonebookContact,
         deletePhonebookContact: deletePhonebookContact,
         togglePhonebookCategory: togglePhonebookCategory,
-        renderContacts: renderContacts,
-        initPhonebookAutoClose: initPhonebookAutoClose
+        renderContacts: renderContacts
     };
+
+    // Gör globala funktioner tillgängliga för HTML
+    global.renderPhonebook = renderPhonebook;
+    global.addPhonebookContactDirect = addPhonebookContactDirect;
+    global.deletePhonebookContact = deletePhonebookContact;
+    global.togglePhonebookCategory = togglePhonebookCategory;
+    global.openPhonebookPanel = openPhonebookPanel;
+
 })(window);
