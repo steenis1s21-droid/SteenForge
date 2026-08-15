@@ -498,6 +498,17 @@ body {
     margin-top: 4px;
 }
 
+.settings-category-label {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    padding: 4px 0 2px;
+    border-bottom: 1px solid var(--border-color);
+}
+
 .settings-language-options {
     display: flex;
     flex-direction: column;
@@ -1182,6 +1193,26 @@ textarea {
 .active-tools select {
     max-width: 220px;
     margin: 0;
+}
+
+.active-phonebook-btn {
+    padding: 6px 10px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    font-weight: 500;
+}
+
+.active-phonebook-btn:hover {
+    background: var(--btn-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
 }
 
 .active-column > ul {

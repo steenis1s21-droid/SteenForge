@@ -161,13 +161,7 @@
     </div>
 
     <div class="export-import">
-        <button onclick="exportJSON()" id="exportJsonBtn">Exportera JSON</button>
-        <button onclick="exportEncrypted()" id="exportEncryptedBtn">Exportera krypterad</button>
-        <button onclick="exportCSV()" id="exportCsvBtn">Exportera CSV</button>
-        <button onclick="startStandardImport()" id="importBtn">Importera</button>
-        <button onclick="openPhonebookPanel()" id="phonebookBtn">Adressbok</button>
         <div class="settings-wrapper" id="settingsWrapper">
-            <button class="support-btn" onclick="openSupportCenter()" id="supportBtn">🆘 Support</button>
             <button class="settings-btn" onclick="toggleSettingsMenu()" id="settingsBtn">⚙️ Inställningar</button>
             <div class="settings-modal-overlay" id="settingsModal">
                 <div class="settings-modal-content" onclick="event.stopPropagation()">
@@ -176,15 +170,23 @@
                         <button class="settings-modal-close" onclick="closeSettingsMenu()" title="Stäng">✕</button>
                     </div>
                     <div class="settings-modal-body">
+                        <div class="settings-category-label" id="settingsCategoryData">📊 Data & Säkerhet</div>
+                        <button onclick="exportJSON(); closeSettingsMenu();" id="exportJsonBtn">Exportera JSON</button>
+                        <button onclick="exportEncrypted(); closeSettingsMenu();" id="exportEncryptedBtn">Exportera krypterad</button>
+                        <button onclick="exportCSV(); closeSettingsMenu();" id="exportCsvBtn">Exportera CSV</button>
+                        <button onclick="startStandardImport(); closeSettingsMenu();" id="importBtn">Importera</button>
                         <button onclick="startDryRunImport(); closeSettingsMenu();" id="importDryRunBtn">Torrkör import</button>
                         <button onclick="startBackupValidation(); closeSettingsMenu();" id="validateBackupBtn">Validera backup</button>
+                        <div class="settings-divider"></div>
+                        <div class="settings-category-label" id="settingsCategoryRecovery">🛠️ Återställning</div>
                         <button onclick="toggleBackupHealthPanel(); closeSettingsMenu();" id="backupHealthToggleBtn">Visa backupstatus</button>
                         <button onclick="toggleRecoveryCenterPanel(); closeSettingsMenu();" id="recoveryToggleBtn">Visa Recovery Center</button>
                         <div class="settings-divider"></div>
+                        <div class="settings-category-label" id="settingsCategoryAppearance">🎨 Utseende</div>
                         <button class="theme-btn" onclick="toggleSound();" id="soundBtn" title="Stäng av ljudnotiser">🔊 Ljud</button>
                         <button class="theme-btn" onclick="toggleTheme();" id="themeBtn" title="Växla tema">🌓 Tema</button>
                         <div class="settings-divider"></div>
-                        <label id="settingsLanguageLabel">🌍 Språk</label>
+                        <div class="settings-category-label" id="settingsCategoryLanguage">🌍 Språk</div>
                         <div class="settings-language-options">
                             <button onclick="changeLanguage('sv')" data-lang="sv">🇸🇪 Svenska</button>
                             <button onclick="changeLanguage('en')" data-lang="en">🇬🇧 English</button>
@@ -192,6 +194,9 @@
                             <button onclick="changeLanguage('no')" data-lang="no">🇳🇴 Norsk</button>
                             <button onclick="changeLanguage('fi')" data-lang="fi">🇫🇮 Suomi</button>
                         </div>
+                        <div class="settings-divider"></div>
+                        <div class="settings-category-label" id="settingsCategorySupport">🆘 Support</div>
+                        <button class="support-btn" onclick="openSupportCenter(); closeSettingsMenu();" id="supportBtn">🆘 Support</button>
                     </div>
                 </div>
             </div>
@@ -264,6 +269,7 @@
                 <option id="sortOptionNameAsc" value="name-asc">Namn A-Ö</option>
                 <option id="sortOptionNameDesc" value="name-desc">Namn Ö-A</option>
             </select>
+            <button onclick="openPhonebookPanel()" id="phonebookBtn" class="active-phonebook-btn">📞 Adressbok</button>
         </div>
         <input id="searchInput" placeholder="🔍 Sök i Active" onkeyup="renderDebounced()" style="margin-bottom:8px;width:100%;">
         <ul id="activeList"></ul>
