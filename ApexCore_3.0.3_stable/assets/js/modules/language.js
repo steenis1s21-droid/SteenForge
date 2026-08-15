@@ -6,11 +6,11 @@
     // ============================================================
     global.ApexTranslations = {
 sv: {
-    'settingsCategoryData': '📊 Data & Säkerhet',
-    'settingsCategoryRecovery': '🛠️ Återställning',
-    'settingsCategoryAppearance': '🎨 Utseende',
-    'settingsCategoryLanguage': '🌍 Språk',
-    'settingsCategorySupport': '🆘 Support',
+    'categoryData': '📊 Data & Säkerhet',
+    'categoryRecovery': '🛠️ Återställning',
+    'categoryAppearance': '🎨 Utseende',
+    'categoryLanguage': '🌍 Språk',
+    'categorySupport': '🆘 Support',
     'phonebookTitle': '📞 Adressbok',
     'phonebookBtn': 'Adressbok',
     'phonebookNameLabel': 'Namn:',
@@ -31,11 +31,11 @@ sv: {
     'phonebookComingSoon': 'Adressboken är inte tillgänglig ännu.'
 },
         en: {
-    'settingsCategoryData': '📊 Data & Security',
-    'settingsCategoryRecovery': '🛠️ Recovery',
-    'settingsCategoryAppearance': '🎨 Appearance',
-    'settingsCategoryLanguage': '🌍 Language',
-    'settingsCategorySupport': '🆘 Support',
+    'categoryData': '📊 Data & Security',
+    'categoryRecovery': '🛠️ Recovery',
+    'categoryAppearance': '🎨 Appearance',
+    'categoryLanguage': '🌍 Language',
+    'categorySupport': '🆘 Support',
     'phonebookTitle': '📞 Address Book',
     'phonebookBtn': 'Address Book',
     'phonebookNameLabel': 'Name:',
@@ -56,11 +56,11 @@ sv: {
     'phonebookComingSoon': 'The address book is not available yet.'
 },
         da: {
-    'settingsCategoryData': '📊 Data & Sikkerhed',
-    'settingsCategoryRecovery': '🛠️ Gendannelse',
-    'settingsCategoryAppearance': '🎨 Udseende',
-    'settingsCategoryLanguage': '🌍 Sprog',
-    'settingsCategorySupport': '🆘 Support',
+    'categoryData': '📊 Data & Sikkerhed',
+    'categoryRecovery': '🛠️ Gendannelse',
+    'categoryAppearance': '🎨 Udseende',
+    'categoryLanguage': '🌍 Sprog',
+    'categorySupport': '🆘 Support',
     'phonebookTitle': '📞 Adressebog',
     'phonebookBtn': 'Adressebog',
     'phonebookNameLabel': 'Navn:',
@@ -81,11 +81,11 @@ sv: {
     'phonebookComingSoon': 'Adressebogen er ikke tilgængelig endnu.'
 },
         no: {
-    'settingsCategoryData': '📊 Data & Sikkerhet',
-    'settingsCategoryRecovery': '🛠️ Gjenoppretting',
-    'settingsCategoryAppearance': '🎨 Utseende',
-    'settingsCategoryLanguage': '🌍 Språk',
-    'settingsCategorySupport': '🆘 Support',
+    'categoryData': '📊 Data & Sikkerhet',
+    'categoryRecovery': '🛠️ Gjenoppretting',
+    'categoryAppearance': '🎨 Utseende',
+    'categoryLanguage': '🌍 Språk',
+    'categorySupport': '🆘 Support',
     'phonebookTitle': '📞 Adressebok',
     'phonebookBtn': 'Adressebok',
     'phonebookNameLabel': 'Navn:',
@@ -106,11 +106,11 @@ sv: {
     'phonebookComingSoon': 'Adresseboken er ikke tilgjengelig ennå.'
 },
         fi: {
-    'settingsCategoryData': '📊 Tieto & Turvallisuus',
-    'settingsCategoryRecovery': '🛠️ Palautus',
-    'settingsCategoryAppearance': '🎨 Ulkoasu',
-    'settingsCategoryLanguage': '🌍 Kieli',
-    'settingsCategorySupport': '🆘 Tuki',
+    'categoryData': '📊 Tieto & Turvallisuus',
+    'categoryRecovery': '🛠️ Palautus',
+    'categoryAppearance': '🎨 Ulkoasu',
+    'categoryLanguage': '🌍 Kieli',
+    'categorySupport': '🆘 Tuki',
     'phonebookTitle': '📞 Osoitekirja',
     'phonebookBtn': 'Osoitekirja',
     'phonebookNameLabel': 'Nimi:',
@@ -596,15 +596,15 @@ setPlaceholder(
         if (languageBtn) languageBtn.textContent = headerMenuText.language;
 
         var settingsCategoryData = document.getElementById('settingsCategoryData');
-        if (settingsCategoryData) settingsCategoryData.textContent = translate('settingsCategoryData');
+        if (settingsCategoryData) settingsCategoryData.textContent = translate('categoryData');
         var settingsCategoryRecovery = document.getElementById('settingsCategoryRecovery');
-        if (settingsCategoryRecovery) settingsCategoryRecovery.textContent = translate('settingsCategoryRecovery');
+        if (settingsCategoryRecovery) settingsCategoryRecovery.textContent = translate('categoryRecovery');
         var settingsCategoryAppearance = document.getElementById('settingsCategoryAppearance');
-        if (settingsCategoryAppearance) settingsCategoryAppearance.textContent = translate('settingsCategoryAppearance');
+        if (settingsCategoryAppearance) settingsCategoryAppearance.textContent = translate('categoryAppearance');
         var settingsCategoryLanguage = document.getElementById('settingsCategoryLanguage');
-        if (settingsCategoryLanguage) settingsCategoryLanguage.textContent = translate('settingsCategoryLanguage');
+        if (settingsCategoryLanguage) settingsCategoryLanguage.textContent = translate('categoryLanguage');
         var settingsCategorySupport = document.getElementById('settingsCategorySupport');
-        if (settingsCategorySupport) settingsCategorySupport.textContent = translate('settingsCategorySupport');
+        if (settingsCategorySupport) settingsCategorySupport.textContent = translate('categorySupport');
 
         var backupText = typeof deps.getBackupUiText === 'function' ? deps.getBackupUiText() : getBackupUiText(getLang());
         var importDryRunBtn = document.getElementById('importDryRunBtn');
